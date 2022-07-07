@@ -22,8 +22,9 @@
 
 
 #define HIRTH_MAX_PKT_SIZE 100
-#define HIRTH_MAX_RAW_PKT_SIZE 103 //
+#define HIRTH_MAX_RAW_PKT_SIZE 103
 
+#define SERIAL_WAIT_TIMEOUT 2000
 
 const uint8_t QUANTITY_REQUEST_STATUS    = 0x03;
 const uint8_t QUANTITY_SET_VALUE         = 0x17;
@@ -60,26 +61,26 @@ typedef struct
 class AP_EFI_Serial_Hirth: public AP_EFI_Backend
 {
 public:
-    /* Constructor with initialization */
+    // Constructor with initialization
     AP_EFI_Serial_Hirth(AP_EFI &_frontend);
 
-    /* To update the state structure */
+    // To update the state structure 
     void update() override;
 
-    /**/
+    //
     void decode_data();
 
-    /**/
-    void send_request_status();
+    //
+    bool send_request_status();
 
-    /**/
-    void send_target_values(uint16_t);
+    //
+    bool send_target_values(uint16_t);
 
-    /**/
-    uint8_t get_quantity();
+    //
+    void get_quantity();
 
 private:
-    //
+    // serial port instance
     AP_HAL::UARTDriver *port;
 
     // periodic refresh 
@@ -89,22 +90,22 @@ private:
     uint8_t raw_data[HIRTH_MAX_RAW_PKT_SIZE];
 
     //
-    uint8_t data_size = HIRTH_MAX_PKT_SIZE;
+    data_set_t req_data;
+    data_set_t res_data;
 
     //
     uint8_t num_bytes;
 
     //
-    uint8_t checksum;
+    // uint8_t computed_checksum;
+
+    //
+    bool waiting_response;
+
+    //
+    uint8_t expected_bytes;
 
     //
     uint16_t new_throttle;
     uint16_t old_throttle;
-
-    bool response_complete;
-    uint8_t response_counter;
-
-    //
-    data_set_t req_data;
-    data_set_t res_data;
 };
