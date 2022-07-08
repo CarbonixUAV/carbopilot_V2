@@ -94,7 +94,7 @@ private:
     data_set_t res_data;
 
     //
-    uint8_t num_bytes;
+    uint32_t num_bytes;
 
     //
     // uint8_t computed_checksum;

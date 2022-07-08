@@ -36,7 +36,8 @@ void AP_EFI_Serial_Hirth::update() {
     bool status = false;
     uint32_t now = AP_HAL::millis();
 
-    if (port != nullptr) {
+    // if ((port != nullptr)) {
+    if ((port != nullptr) && (now - last_response_ms >= 100)) {
 
         if (now - last_response_ms > SERIAL_WAIT_TIMEOUT) {
             waiting_response = false;
