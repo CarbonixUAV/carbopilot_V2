@@ -43,13 +43,13 @@ void AP_EFI_Serial_Hirth::update() {
             waiting_response = false;
             port->discard_input();
             last_response_ms = now;
-            gcs().send_text(MAV_SEVERITY_INFO, "Hirth::timeout %ld", (now - last_response_ms));
+            // gcs().send_text(MAV_SEVERITY_INFO, "Hirth::timeout %ld", (now - last_response_ms));
         }
 
         if (waiting_response) {
             num_bytes = port->available();
 
-            gcs().send_text(MAV_SEVERITY_INFO, "Hirth::bytes %d, %d", expected_bytes, (int)num_bytes);
+            // gcs().send_text(MAV_SEVERITY_INFO, "Hirth::bytes %d, %d", expected_bytes, (int)num_bytes);
 
             if (num_bytes >= expected_bytes) {
                 
@@ -66,13 +66,13 @@ void AP_EFI_Serial_Hirth::update() {
 
                 res_data.checksum = port->read();
 
-                gcs().send_text(MAV_SEVERITY_INFO, "#### Hirth:: %x %x %x %x", res_data.quantity, res_data.code, res_data.checksum, computed_checksum);
+                // gcs().send_text(MAV_SEVERITY_INFO, "#### Hirth:: %x %x %x %x", res_data.quantity, res_data.code, res_data.checksum, computed_checksum);
 
                 if (res_data.checksum != (256 - computed_checksum)) {
 
                     gcs().send_text(MAV_SEVERITY_INFO, "Hirth::CRC Fail %x %x %x", raw_data[0], raw_data[1], raw_data[2]);
 
-                    port->discard_input();
+                    // port->discard_input();
                 }
                 else {
                     decode_data();
@@ -89,7 +89,7 @@ void AP_EFI_Serial_Hirth::update() {
                 old_throttle = new_throttle;
             }
             else {
-                status = send_request_status();
+                // status = send_request_status();
             }
 
             get_quantity();            
@@ -148,7 +148,7 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     status = true;
 
     /* PCK : Testing */
-    gcs().send_text(MAV_SEVERITY_INFO, "Hirth::Throttle req : Q-%d, C-%d, Ch-%d, T-%d %d", (int)raw_data[0], (int)raw_data[1], (int)raw_data[QUANTITY_SET_VALUE - 1], (int)raw_data[2], (int)raw_data[3]);
+    // gcs().send_text(MAV_SEVERITY_INFO, "Hirth::Throttle req : Q-%d, C-%d, Ch-%d, T-%d %d", (int)raw_data[0], (int)raw_data[1], (int)raw_data[QUANTITY_SET_VALUE - 1], (int)raw_data[2], (int)raw_data[3]);
 
     return status;
 }
@@ -190,7 +190,7 @@ bool AP_EFI_Serial_Hirth::send_request_status() {
 
     status = true;
 
-    gcs().send_text(MAV_SEVERITY_INFO, "Hirth::Status req : Q - %d, C - %d, Ch - %d", (int)raw_data[0], (int)raw_data[1], (int)raw_data[2]);
+    // gcs().send_text(MAV_SEVERITY_INFO, "Hirth::Status req : Q - %d, C - %d, Ch - %d", (int)raw_data[0], (int)raw_data[1], (int)raw_data[2]);
 
     return status;
 }
