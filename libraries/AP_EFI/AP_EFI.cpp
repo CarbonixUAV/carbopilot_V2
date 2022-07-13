@@ -20,6 +20,7 @@
 #include "AP_EFI_Serial_MS.h"
 #include "AP_EFI_Serial_Lutan.h"
 #include "AP_EFI_NWPMU.h"
+#include "AP_EFI_Serial_Hirth.h"
 #include <AP_Logger/AP_Logger.h>
 
 #if HAL_MAX_CAN_PROTOCOL_DRIVERS
@@ -84,6 +85,9 @@ void AP_EFI::init(void)
 #if HAL_EFI_NWPWU_ENABLED
         backend = new AP_EFI_NWPMU(*this);
 #endif
+        break;
+    case Type::Hirth:
+        backend = new AP_EFI_Serial_Hirth(*this);
         break;
     default:
         gcs().send_text(MAV_SEVERITY_INFO, "Unknown EFI type");
