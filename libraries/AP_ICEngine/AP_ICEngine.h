@@ -20,6 +20,8 @@
 
 #include <AP_HAL/AP_HAL.h>
 #include <AP_RPM/AP_RPM.h>
+#include <AP_Param/AP_Param.h>
+#include <AP_HAL/I2CDevice.h>
 
 class AP_ICEngine {
 public:
@@ -56,7 +58,39 @@ public:
 private:
     static AP_ICEngine *_singleton;
 
-    const AP_RPM &rpm;
+    /*
+     * TCA9554 output register mapping for PMB Rev E
+     * P0 = PMU_EN - PMU output ON/OFF  (CN6 pin 2)
+     * P1 = ECU_EN - Unused (previously Engine Kill Switch)
+     * P2 = I2C_P2 - Unused
+     * P3 = LED (active low)
+     * P4 = PMU_START - Crank Direction (CN6 pin 5)
+     * P5 = PMU_ARM  - Crank Signal (CN6 pin 6)
+     * P6 = PMU_STAT_IN - Unused
+     * P7 = PMU_STAT - Unused
+     */
+
+    enum TCA9554_state_t {
+        IGN_OFF_STR_OFF = 0x30,	 		//output register - 0011 0000
+        IGN_ON_STR_OFF = 0x33,		 	//output register - 0011 0011
+		IGN_ON_STR_ON_DIR_ON = 0x03, 	//output register - 0000 0011
+    } TCA9554_state = IGN_OFF_STR_OFF;
+
+    enum i2c_init_t {
+        I2C_UNINITIALIZED = 0,
+        I2C_FAILED = 1,
+        I2C_SUCCESS = 2
+    } i2c_state = I2C_UNINITIALIZED;
+
+    bool TCA9554_init();
+
+    void TCA9554_set(TCA9554_state_t value);
+
+    void control_ign_str(TCA9554_state_t value);
+
+    AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_TCA9554;
+
+    const class AP_RPM &rpm;
 
     enum ICE_State state;
 

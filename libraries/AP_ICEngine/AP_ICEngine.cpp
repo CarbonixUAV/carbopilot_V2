@@ -145,6 +145,12 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     AP_GROUPEND
 };
 
+#define TCA9554_I2C_BUS      1
+#define TCA9554_I2C_ADDR     0x20
+#define TCA9554_OUTPUT       0x01  // Output Port register address. Outgoing logic levels
+#define TCA9554_OUT_DEFAULT  0x30  // 0011 0000
+#define TCA9554_CONF         0x03  // Configuration Port register address [0 = Output]
+#define TCA9554_PINS         0xC2  // Set all used ports to outputs = 1100 0010
 
 // constructor
 AP_ICEngine::AP_ICEngine(const AP_RPM &_rpm) :
@@ -165,6 +171,13 @@ void AP_ICEngine::update(void)
 {
     if (!enable) {
         return;
+    }
+
+    if (i2c_state == I2C_UNINITIALIZED) {
+        i2c_state = I2C_FAILED;
+        if (TCA9554_init()) {
+            i2c_state = I2C_SUCCESS;
+        }
     }
 
     uint16_t cvalue = 1500;
@@ -291,20 +304,22 @@ void AP_ICEngine::update(void)
     /* now set output channels */
     switch (state) {
     case ICE_OFF:
-        SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_off);
-        SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
+        control_ign_str(IGN_OFF_STR_OFF);
         starter_start_time_ms = 0;
         break;
 
     case ICE_START_HEIGHT_DELAY:
     case ICE_START_DELAY:
-        SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
-        SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
+        control_ign_str(IGN_ON_STR_OFF);
         break;
 
     case ICE_STARTING:
-        SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
-        SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_on);
+        if (!hal.util->get_soft_armed()) {
+            control_ign_str(IGN_ON_STR_OFF);
+        } else {
+            control_ign_str(IGN_ON_STR_ON_DIR_ON);
+        }
+        
         if (starter_start_time_ms == 0) {
             starter_start_time_ms = now;
         }
@@ -312,8 +327,7 @@ void AP_ICEngine::update(void)
         break;
 
     case ICE_RUNNING:
-        SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
-        SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
+        control_ign_str(IGN_ON_STR_OFF);
         starter_start_time_ms = 0;
         break;
     }
@@ -449,6 +463,56 @@ void AP_ICEngine::update_idle_governor(int8_t &min_throttle)
     min_throttle = roundf(idle_governor_integrator);
 }
 
+bool AP_ICEngine::TCA9554_init()
+{
+    dev_TCA9554 = std::move(hal.i2c_mgr->get_device(TCA9554_I2C_BUS, TCA9554_I2C_ADDR));
+    if (!dev_TCA9554) {
+        return false;
+    }
+    WITH_SEMAPHORE(dev_TCA9554->get_semaphore());
+
+    dev_TCA9554->set_retries(10);
+
+    // set outputs
+    bool ret = dev_TCA9554->write_register(TCA9554_OUTPUT, TCA9554_OUT_DEFAULT);
+    if (!ret) {
+        return false;
+    }
+    ret = dev_TCA9554->write_register(TCA9554_CONF, TCA9554_PINS);
+    if (!ret) {
+        return false;
+    }
+    TCA9554_set(IGN_OFF_STR_OFF);
+    dev_TCA9554->set_retries(1);
+    return true;
+}
+
+void AP_ICEngine::TCA9554_set(TCA9554_state_t value)
+{
+    if (value != TCA9554_state) {
+        TCA9554_state = value;
+        WITH_SEMAPHORE(dev_TCA9554->get_semaphore());
+        // set outputs and status leds
+        //dev_TCA9554->write_register(TCA9554_OUTPUT, (~(value<<2) & 0x0C) | value);
+        dev_TCA9554->write_register(TCA9554_OUTPUT, (~(value<<2) & 0x0C) | value);
+        //0011 0010
+        //1100 1000 & 0000 1100
+        //0000 1000 OR 0011 0010
+        //0011 1010
+    }
+}
+
+void AP_ICEngine::control_ign_str(TCA9554_state_t value)
+{
+    if (i2c_state == I2C_SUCCESS)
+    {
+        TCA9554_set(value);
+    }
+    else
+    {
+    	//Leave for now
+    }
+}
 
 // singleton instance. Should only ever be set in the constructor.
 AP_ICEngine *AP_ICEngine::_singleton;
