@@ -36,21 +36,19 @@ void AP_EFI_Serial_Hirth::update() {
     bool status = false;
     uint32_t now = AP_HAL::millis();
 
-    // if ((port != nullptr)) {
-    if ((port != nullptr) && (now - last_response_ms >= 100)) {
+    if ((port != nullptr) && (now - last_response_ms >= SERIAL_WAIT_DURATION)) {
 
+        // reset request if not response for SERIAL_WAIT_TIMEOUT-ms
         if (now - last_response_ms > SERIAL_WAIT_TIMEOUT) {
             waiting_response = false;
             port->discard_input();
             last_response_ms = now;
-            // gcs().send_text(MAV_SEVERITY_INFO, "Hirth::timeout %ld", (now - last_response_ms));
         }
 
         if (waiting_response) {
             num_bytes = port->available();
 
-            // gcs().send_text(MAV_SEVERITY_INFO, "Hirth::bytes %d, %d", expected_bytes, (int)num_bytes);
-
+            // if already requested
             if (num_bytes >= expected_bytes) {
                 
                 // read data from buffer
@@ -66,13 +64,10 @@ void AP_EFI_Serial_Hirth::update() {
 
                 res_data.checksum = port->read();
 
-                // gcs().send_text(MAV_SEVERITY_INFO, "#### Hirth:: %x %x %x %x", res_data.quantity, res_data.code, res_data.checksum, computed_checksum);
+                // discard further bytes if checksum is not matching
+                if (res_data.checksum != (CHECKSUM_MAX - computed_checksum)) {
 
-                if (res_data.checksum != (256 - computed_checksum)) {
-
-                    gcs().send_text(MAV_SEVERITY_INFO, "Hirth::CRC Fail %x %x %x", raw_data[0], raw_data[1], raw_data[2]);
-
-                    // port->discard_input();
+                    port->discard_input();
                 }
                 else {
                     decode_data();
@@ -82,14 +77,19 @@ void AP_EFI_Serial_Hirth::update() {
             }
         }
         else {
+            // Send requests only if response is completed
+
             new_throttle = (uint16_t)SRV_Channels::get_output_scaled(SRV_Channel::k_throttle);
 
             if (new_throttle != old_throttle) {
+                // if new throttle value, send throttle request
                 status = send_target_values(new_throttle);
                 old_throttle = new_throttle;
+                
             }
             else {
-                // status = send_request_status();
+                // request Status request, if no throttle commands
+                status = send_request_status();
             }
 
             get_quantity();            
@@ -103,6 +103,7 @@ void AP_EFI_Serial_Hirth::update() {
 }
 
 
+// Gives e
 void AP_EFI_Serial_Hirth::get_quantity() {
     switch (req_data.code)
     {
@@ -128,7 +129,7 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     uint8_t computed_checksum = 0;
 
     // Get throttle value
-    uint16_t throttle = thr * 10;
+    uint16_t throttle = thr * THROTTLE_POSITION_FACTOR;
 
     // set Quantity + Code + "20 bytes of records to set" + Checksum
     computed_checksum += raw_data[idx++] = req_data.quantity = QUANTITY_SET_VALUE;
@@ -136,7 +137,7 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     computed_checksum += raw_data[idx++] = throttle & 0xFF;
     computed_checksum += raw_data[idx++] = (throttle >> 0x08) & 0xFF;
 
-    for (; idx < QUANTITY_SET_VALUE - 5; idx++) {
+    for (; idx < QUANTITY_SET_VALUE - 2; idx++) {
         // 0 has no impact on checksum
         raw_data[idx] = 0;
     }
@@ -146,9 +147,6 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     port->write(raw_data, QUANTITY_SET_VALUE);
 
     status = true;
-
-    /* PCK : Testing */
-    // gcs().send_text(MAV_SEVERITY_INFO, "Hirth::Throttle req : Q-%d, C-%d, Ch-%d, T-%d %d", (int)raw_data[0], (int)raw_data[1], (int)raw_data[QUANTITY_SET_VALUE - 1], (int)raw_data[2], (int)raw_data[3]);
 
     return status;
 }
@@ -190,78 +188,31 @@ bool AP_EFI_Serial_Hirth::send_request_status() {
 
     status = true;
 
-    // gcs().send_text(MAV_SEVERITY_INFO, "Hirth::Status req : Q - %d, C - %d, Ch - %d", (int)raw_data[0], (int)raw_data[1], (int)raw_data[2]);
-
     return status;
 }
 
 
 void AP_EFI_Serial_Hirth::decode_data() {
-    switch (res_data.code)
-    {
-    case CODE_REQUEST_STATUS_1:
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - Status:%d %d", raw_data[8], raw_data[9]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - RPM   :%d%d", raw_data[11], raw_data[10]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - NIImpl:%d%d", raw_data[24], raw_data[25]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - SError:%d%d", raw_data[30], raw_data[31]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - InjTim:%d%d", raw_data[32], raw_data[33]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - IgnAng:%d%d", raw_data[34], raw_data[35]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - VolThr:%d %d", raw_data[38], raw_data[39]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - VEngT :%d%d", raw_data[44], raw_data[45]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - VAirT :%d%d", raw_data[46], raw_data[47]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - VIAirT:%d%d", raw_data[50], raw_data[51]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - ThrtlP:%d %d", raw_data[73], raw_data[72]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - EngTmp:%d%d", raw_data[74], raw_data[75]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - BatVol:%d%d", raw_data[76], raw_data[77]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - AitTmp:%d%d", raw_data[78], raw_data[79]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S1 - Sensor:%d %d", raw_data[82], raw_data[83]);
-        break;
-    case CODE_REQUEST_STATUS_2:
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S2 - BInjR :%d%d", raw_data[12], raw_data[13]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S2 - TotTim:%d%d%d%d", raw_data[44], raw_data[45], raw_data[46], raw_data[47]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S2 - TotRot:%d%d%d%d", raw_data[48], raw_data[49], raw_data[50], raw_data[51]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S2 - FuelC :%d%d", raw_data[52], raw_data[53]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S2 - VIThrT:%d %d", raw_data[56], raw_data[57]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S2 - PosThT:%d %d", raw_data[60], raw_data[61]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S2 - PosThP:%d %d", raw_data[62], raw_data[63]);
-        break;
-    case CODE_REQUEST_STATUS_3:
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S3 - VETem :%d%d %d%d %d%d %d%d %d%d", raw_data[0], raw_data[1], raw_data[2], raw_data[3], raw_data[4], raw_data[5], raw_data[6], raw_data[7], raw_data[8], raw_data[9]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S3 -  ETem :%d%d %d%d %d%d %d%d %d%d", raw_data[16], raw_data[17], raw_data[18], raw_data[19], raw_data[20], raw_data[21], raw_data[22], raw_data[23], raw_data[24], raw_data[25]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S3 - EETemC:%d%d %d%d %d%d %d%d     ", raw_data[33], raw_data[32], raw_data[35], raw_data[34], raw_data[37], raw_data[36], raw_data[39], raw_data[38]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S3 - ErrETB:%d%d", raw_data[47], raw_data[46]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S3 - OVe-Th:%d %d", raw_data[61], raw_data[60]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S3 - STime :%d %d %d %d", raw_data[67], raw_data[66], raw_data[65], raw_data[64]);
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth:S3 - TarRPM:%d%d", raw_data[71], raw_data[70]);
-        break;
-    case CODE_SET_VALUE:
-        gcs().send_text(MAV_SEVERITY_INFO, "##### Hirth::THROTTLE ACK %x %x %x  - %ld", res_data.quantity, res_data.code, res_data.checksum, last_response_ms - AP_HAL::millis());
-        break;
-    }
+    int engine_status = 0;
 
-    /*
     switch (res_data.code) {
     case CODE_REQUEST_STATUS_1:
-        internal_state.engine_state = (Engine_State)(raw_data[8] | raw_data[9] << 0x08);
+        engine_status = (raw_data[8] | raw_data[9] << 0x08);
+        internal_state.engine_state = (engine_status >= ENGINE_RUNNING)? Engine_State::RUNNING : Engine_State::STARTING;
         internal_state.engine_speed_rpm = (raw_data[10] | raw_data[11] << 0x08);
-        internal_state.cylinder_status->injection_time_ms = (raw_data[32] | raw_data[33] << 0x08);
+        internal_state.cylinder_status->injection_time_ms = ((raw_data[32] | raw_data[33] << 0x08)) * INJECTION_TIME_RESOLUTION;
         internal_state.cylinder_status->ignition_timing_deg = (raw_data[34] | raw_data[35] << 0x08);
         internal_state.cylinder_status->cylinder_head_temperature = (raw_data[74] | raw_data[75] << 0x08);
-        // internal_state.battery_voltage = raw_data[0];
+        // internal_state.battery_voltage = (raw_data[76] | raw_data[77] << 0x08); // TBD - internal state addition
         internal_state.cylinder_status->exhaust_gas_temperature = (raw_data[78] | raw_data[79] << 0x08);
-        internal_state.crankshaft_sensor_status = (Crankshaft_Sensor_Status)raw_data[82];
-
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth::decode - state - %d, rpm - %lu, time - %f, ", (int)internal_state.engine_state, internal_state.engine_speed_rpm, internal_state.cylinder_status->injection_time_ms);
-        gcs().send_text(MAV_SEVERITY_INFO, "deg - %f, cht - %f, egt - %f, stat - %d", internal_state.cylinder_status->ignition_timing_deg, internal_state.cylinder_status->cylinder_head_temperature, internal_state.cylinder_status->exhaust_gas_temperature, (int)internal_state.crankshaft_sensor_status);
+        internal_state.crankshaft_sensor_status = ((raw_data[82] & CRANK_SHAFT_SENSOR_OK) == CRANK_SHAFT_SENSOR_OK) ? Crankshaft_Sensor_Status::OK : Crankshaft_Sensor_Status::ERROR;
 
         break;
     case CODE_REQUEST_STATUS_2:
-        // internal_state.injection_rate = raw_data[0];
-        internal_state.fuel_consumption_rate_cm3pm = (raw_data[52] | raw_data[53] << 0x08); // l/h
-        internal_state.throttle_position_percent = (raw_data[62] | raw_data[63] << 0x08);
-        // internal_state.injector_opening_time = raw_data[0];
-
-        gcs().send_text(MAV_SEVERITY_INFO, "Hirth::decode - injRate - , rate - %f, thr - %d, ", internal_state.fuel_consumption_rate_cm3pm, internal_state.throttle_position_percent);
+        // internal_state.injection_rate = ((raw_data[16] | raw_data[17] << 0x08)) * INJECTION_TIME_RESOLUTION; // TBD - internal state addition
+        internal_state.fuel_consumption_rate_cm3pm = (raw_data[52] | raw_data[53] << 0x08) / FUEL_CONSUMPTION_RESOLUTION;
+        internal_state.throttle_position_percent = (raw_data[62] | raw_data[63] << 0x08) / THROTTLE_POSITION_RESOLUTION;
+        // internal_state.injector_opening_time = (raw_data[70] | raw_data[71] << 0x08) * INJECTION_TIME_RESOLUTION // TBD - internal state addition
 
         break;
     case CODE_REQUEST_STATUS_3:
@@ -277,7 +228,6 @@ void AP_EFI_Serial_Hirth::decode_data() {
         gcs().send_text(MAV_SEVERITY_INFO, "Hirth::throttle ACK %x %x %x", raw_data[0], raw_data[1], raw_data[2]);
         break;
     }
-    */
 }
 
 #endif // HAL_EFI_ENABLED
