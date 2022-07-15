@@ -26,12 +26,19 @@
 #include <GCS_MAVLink/GCS.h>
 
 
-/* Constructor with initialization */
+/**
+ * @brief Constructor with port initialization
+ * 
+ * @param _frontend 
+ */
 AP_EFI_Serial_Hirth::AP_EFI_Serial_Hirth(AP_EFI &_frontend) : AP_EFI_Backend(_frontend) {
     port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_EFI, 0);
 }
 
-
+/**
+ * @brief checks for response from or makes requests to Hirth ECU periodically
+ * 
+ */
 void AP_EFI_Serial_Hirth::update() {
     bool status = false;
     uint32_t now = AP_HAL::millis();
@@ -71,6 +78,7 @@ void AP_EFI_Serial_Hirth::update() {
                 }
                 else {
                     decode_data();
+                    copy_to_frontend();
                 }
 
                 waiting_response = false;
@@ -103,7 +111,10 @@ void AP_EFI_Serial_Hirth::update() {
 }
 
 
-// Gives e
+/**
+ * @brief updates the current quantity that will be expected
+ * 
+ */
 void AP_EFI_Serial_Hirth::get_quantity() {
     switch (req_data.code)
     {
@@ -123,6 +134,13 @@ void AP_EFI_Serial_Hirth::get_quantity() {
 }
 
 
+/**
+ * @brief sends the new throttle command to Hirth ECU
+ * 
+ * @param thr - new throttle value given by SRV_Channel::k_throttle
+ * @return true - if success
+ * @return false - currently not implemented
+ */
 bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     bool status = false;
     int idx = 0;
@@ -151,7 +169,12 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     return status;
 }
 
-
+/**
+ * @brief cyclically sends different Status requests to Hirth ECU
+ * 
+ * @return true - when successful
+ * @return false  - not implemented
+ */
 bool AP_EFI_Serial_Hirth::send_request_status() {
 
     bool status = false;
@@ -192,6 +215,10 @@ bool AP_EFI_Serial_Hirth::send_request_status() {
 }
 
 
+/**
+ * @brief parses the response from Hirth ECU and updates the internal state instance
+ * 
+ */
 void AP_EFI_Serial_Hirth::decode_data() {
     int engine_status = 0;
 
@@ -215,14 +242,14 @@ void AP_EFI_Serial_Hirth::decode_data() {
         // internal_state.injector_opening_time = (raw_data[70] | raw_data[71] << 0x08) * INJECTION_TIME_RESOLUTION // TBD - internal state addition
 
         break;
-    case CODE_REQUEST_STATUS_3:
-        // internal_state.Temp1 = raw_data[0];
-        // internal_state.Temp2 = raw_data[0];
-        // internal_state.MixingRatio1 = raw_data[0];
-        // internal_state.MixingRatio2 = raw_data[0];
-        // internal_state.fuel_pump = raw_data[0];
-        // internal_state.exhaust_valve = raw_data[0];
-        // internal_state.air_vane = raw_data[0];
+    case CODE_REQUEST_STATUS_3: // TBD - internal state addition
+        // internal_state.Temp1 = ((raw_data[2] | raw_data[3] << 0x08) * 5 / 1024); // TBD - Average of Voltage Excess Temp1 to Tmep5
+        // internal_state.Temp2 = (raw_data[16] | raw_data[17] << 0x08); // TBD - Average of Excess Temp1 to Tmep5
+        // internal_state.MixingRatio1 = 1 / (raw_data[48] | raw_data[49] << 0x08);
+        // internal_state.MixingRatio2 = 1 / (raw_data[50] | raw_data[51] << 0x08); 
+        // internal_state.fuel_pump = (raw_data[54] | raw_data[55] << 0x08);
+        // internal_state.exhaust_valve = (raw_data[56] | raw_data[57] << 0x08);
+        // internal_state.air_vane = (raw_data[58] | raw_data[59] << 0x08);
         break;
     case CODE_SET_VALUE:
         gcs().send_text(MAV_SEVERITY_INFO, "Hirth::throttle ACK %x %x %x", raw_data[0], raw_data[1], raw_data[2]);

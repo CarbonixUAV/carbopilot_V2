@@ -71,22 +71,16 @@ typedef struct
 class AP_EFI_Serial_Hirth: public AP_EFI_Backend
 {
 public:
-    // Constructor with initialization
     AP_EFI_Serial_Hirth(AP_EFI &_frontend);
 
-    // To update the state structure 
     void update() override;
 
-    //
     void decode_data();
 
-    //
     bool send_request_status();
 
-    //
     bool send_target_values(uint16_t);
 
-    //
     void get_quantity();
 
 private:
@@ -99,23 +93,21 @@ private:
     // Raw bytes - max size
     uint8_t raw_data[HIRTH_MAX_RAW_PKT_SIZE];
 
-    //
+    // request and response data 
     data_set_t req_data;
     data_set_t res_data;
 
-    //
+    // number of bytes 
     uint32_t num_bytes;
 
-    //
-    // uint8_t computed_checksum;
-
-    //
+    // TRUE - Request is sent; waiting for response
+    // FALSE - Response is already received
     bool waiting_response;
 
-    //
+    // Expected bytes from response
     uint8_t expected_bytes;
 
-    //
+    // Throttle values
     uint16_t new_throttle;
     uint16_t old_throttle;
 };
