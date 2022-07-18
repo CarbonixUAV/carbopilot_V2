@@ -547,11 +547,20 @@ void AP_SerialManager::init()
 #endif
                     
                 case SerialProtocol_EFI:
-                    state[i].baud.set_default(AP_SERIALMANAGER_EFI_MS_BAUD);
+                    // state[i].baud.set_default(AP_SERIALMANAGER_EFI_MS_BAUD);
+                    
+                    
+                    gcs().send_text(MAV_SEVERITY_INFO, "Hirth : Serial - %d - %d", i, (int)state[i].baud);
+
+
                     uart->begin(map_baudrate(state[i].baud),
-                                         AP_SERIALMANAGER_EFI_MS_BUFSIZE_RX,
-                                         AP_SERIALMANAGER_EFI_MS_BUFSIZE_TX);
+                                        256, 32);
+                                        //  AP_SERIALMANAGER_EFI_MS_BUFSIZE_RX,
+                                        //  AP_SERIALMANAGER_EFI_MS_BUFSIZE_TX);
                     uart->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
+
+                    gcs().send_text(MAV_SEVERITY_INFO, "Hirth : Serial - %ld", uart->available());
+
                     break;
 
                 case SerialProtocol_Generator:
