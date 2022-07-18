@@ -76,6 +76,7 @@ public:
         NWPMU     = 2,
         Lutan     = 3,
         // LOWEHEISER = 4,
+        Hirth = 6,
     };
 
     static AP_EFI *get_singleton(void) {
