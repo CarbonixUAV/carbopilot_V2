@@ -221,6 +221,24 @@ bool AP_EFI_Serial_Hirth::send_request_status() {
  */
 void AP_EFI_Serial_Hirth::decode_data() {
     int engine_status = 0;
+    static int prev_engine_status = 9;
+    static uint8_t prev_sensor_status = 255;
+
+    int excess_temp1 = 0;
+    int excess_temp2 = 0;
+    int excess_temp3 = 0;
+    int excess_temp4 = 0;
+    int excess_temp5 = 0;
+
+    int excess_temp_error = 0;
+
+    static int prev_excess_temp1 = 0;
+    static int prev_excess_temp2 = 0;
+    static int prev_excess_temp3 = 0;
+    static int prev_excess_temp4 = 0;
+    static int prev_excess_temp5 = 0;
+
+    static int prev_excess_temp_error = 0;
 
     switch (res_data.code) {
     case CODE_REQUEST_STATUS_1:
@@ -229,10 +247,38 @@ void AP_EFI_Serial_Hirth::decode_data() {
         internal_state.engine_speed_rpm = (raw_data[10] | raw_data[11] << 0x08);
         internal_state.cylinder_status->injection_time_ms = ((raw_data[32] | raw_data[33] << 0x08)) * INJECTION_TIME_RESOLUTION;
         internal_state.cylinder_status->ignition_timing_deg = (raw_data[34] | raw_data[35] << 0x08);
-        internal_state.cylinder_status->cylinder_head_temperature = (raw_data[74] | raw_data[75] << 0x08);
+        internal_state.cylinder_status->cylinder_head_temperature = (raw_data[74] | raw_data[75] << 0x08) + KELVIN_CONVERSION_CONSTANT;
         // internal_state.battery_voltage = (raw_data[76] | raw_data[77] << 0x08); // TBD - internal state addition
-        internal_state.cylinder_status->exhaust_gas_temperature = (raw_data[78] | raw_data[79] << 0x08);
+        internal_state.cylinder_status->exhaust_gas_temperature = (raw_data[78] | raw_data[79] << 0x08) + KELVIN_CONVERSION_CONSTANT;
         internal_state.crankshaft_sensor_status = ((raw_data[82] & CRANK_SHAFT_SENSOR_OK) == CRANK_SHAFT_SENSOR_OK) ? Crankshaft_Sensor_Status::OK : Crankshaft_Sensor_Status::ERROR;
+
+        if (prev_engine_status != engine_status) {
+            if (engine_status == 0)
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: engine tune-up");
+            else if (engine_status == 1)
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: ignition on, crankshaft not cranking");
+            else if (engine_status == 2)
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: ignition on, crankshaft cranking below starting rpm");
+            else if (engine_status == 3)
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: Warming-up phase");
+            else
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: engine running");
+
+            prev_engine_status = engine_status;
+        }
+
+        if (prev_sensor_status != raw_data[82]) {
+            if (!(raw_data[82] & 0x01))
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: Engine Temperature Sensor ERROR");
+            if (!(raw_data[82] & 0x02))
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: Air Temperature Sensor ERROR");
+            if (!(raw_data[82] & 0x04))
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: Air Pressure Sensor ERROR");
+            if (!(raw_data[82] & 0x08))
+                gcs().send_text(MAV_SEVERITY_INFO, "Hirth Status: throttle Sensor ERROR");
+
+            prev_engine_status = raw_data[82];
+        }
 
         break;
     case CODE_REQUEST_STATUS_2:
@@ -250,6 +296,35 @@ void AP_EFI_Serial_Hirth::decode_data() {
         // internal_state.fuel_pump = (raw_data[54] | raw_data[55] << 0x08);
         // internal_state.exhaust_valve = (raw_data[56] | raw_data[57] << 0x08);
         // internal_state.air_vane = (raw_data[58] | raw_data[59] << 0x08);
+        excess_temp1 =  (raw_data[16] | raw_data[17] << 0x08);
+        excess_temp2 =  (raw_data[18] | raw_data[19] << 0x08);
+        excess_temp3 =  (raw_data[20] | raw_data[21] << 0x08);
+        excess_temp4 =  (raw_data[22] | raw_data[23] << 0x08);
+        excess_temp5 =  (raw_data[24] | raw_data[25] << 0x08);
+
+        excess_temp_error =  (raw_data[46] | raw_data[47] << 0x08);
+
+        if (excess_temp1 != prev_excess_temp1) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: CHT1 - %d", prev_excess_temp1 = excess_temp1);
+        if (excess_temp2 != prev_excess_temp2) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: CHT2 - %d", prev_excess_temp2 = excess_temp2);
+        if (excess_temp3 != prev_excess_temp3) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: EGT1 - %d", prev_excess_temp3 = excess_temp3);
+        if (excess_temp4 != prev_excess_temp4) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: EGT2 - %d", prev_excess_temp4 = excess_temp4);
+        if (excess_temp5 != prev_excess_temp5) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: MHT  - %d", prev_excess_temp5 = excess_temp5);
+
+        if (prev_excess_temp_error != excess_temp_error) {
+            if (excess_temp_error & 0x01) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: CHT1 LOW  - %d", excess_temp_error);
+            if (excess_temp_error & 0x02) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: CHT1 HIGH  - %d", excess_temp_error);
+            if (excess_temp_error & 0x04) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: CHT1 ENRICH ACTIVE  - %d", excess_temp_error);
+            if (excess_temp_error & 0x08) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: CHT2 LOW  - %d", excess_temp_error);
+            if (excess_temp_error & 0x10) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: CHT2 LOW  - %d", excess_temp_error);
+            if (excess_temp_error & 0x20) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: CHT2 ENRICH ACTIVE  - %d", excess_temp_error);
+            if (excess_temp_error & 0x40) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: EGT1 LOW  - %d", excess_temp_error);
+            if (excess_temp_error & 0x80) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: EGT1 HIGH  - %d", excess_temp_error);
+            if (excess_temp_error & 0x100) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: EGT1 ENRICH ACTIVE  - %d", excess_temp_error);
+            if (excess_temp_error & 0x200) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: EGT2 LOW  - %d", excess_temp_error);
+            if (excess_temp_error & 0x400) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: EGT2 HIGH  - %d", excess_temp_error);
+            if (excess_temp_error & 0x800) gcs().send_text(MAV_SEVERITY_INFO, "Hirth Temp: EGT2 ENRICH ACTIVE  - %d", excess_temp_error);
+        }
+
         break;
     case CODE_SET_VALUE:
         // Do nothing for now

@@ -162,6 +162,9 @@ AP_ICEngine::AP_ICEngine(const AP_RPM &_rpm) :
         AP_HAL::panic("AP_ICEngine must be singleton");
     }
     _singleton = this;
+
+    // PCK debug
+    // starter_time = starter_time * 2;
 }
 
 /*

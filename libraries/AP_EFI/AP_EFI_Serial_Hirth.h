@@ -35,6 +35,7 @@
 #define INJECTION_TIME_RESOLUTION 0.8
 #define FUEL_CONSUMPTION_RESOLUTION 0.1
 #define THROTTLE_POSITION_RESOLUTION 0.1
+#define KELVIN_CONVERSION_CONSTANT 273.5
 
 const uint8_t QUANTITY_REQUEST_STATUS    = 0x03;
 const uint8_t QUANTITY_SET_VALUE         = 0x17;
@@ -53,6 +54,8 @@ const uint8_t QUANTITY_RESPONSE_STATUS_1 = 0x57;
 const uint8_t QUANTITY_RESPONSE_STATUS_2 = 0x65;
 const uint8_t QUANTITY_RESPONSE_STATUS_3 = 0x67;
 const uint8_t QUANTITY_ACK_SET_VALUES    = 0x03;
+
+
 
 /*!
  * Data mapping between rawBytes and Telemetry packets
