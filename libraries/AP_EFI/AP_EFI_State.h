@@ -34,8 +34,13 @@
 enum class Engine_State : uint8_t {
     STOPPED  = 0,
     STARTING = 1,
-    RUNNING  = 2,
-    FAULT    = 3
+    FAULT    = 2,
+    STARTING_WARM_UP = 3,
+    RUNNING  = 4
+    // STOPPED  = 0,
+    // STARTING = 1,
+    // RUNNING  = 2,
+    // FAULT    = 3
 };
 
 enum class Crankshaft_Sensor_Status : uint8_t {
@@ -198,5 +203,25 @@ struct EFI_State {
 
     // Status for each cylinder in the engine
     Cylinder_Status cylinder_status[ENGINE_MAX_CYLINDERS];
+
+    //custom parameters CX
+    uint8_t save_in_flash;
+    uint8_t engine_temperature_sensor_status;
+    uint8_t air_temperature_sensor_status;
+    uint8_t air_pressure_sensor_status;
+    uint8_t throttle_sensor_status;
+    uint8_t no_of_log_data;
+    uint8_t CHT_1_error_excess_temperature_status;
+    uint8_t CHT_2_error_excess_temperature_status;
+    uint8_t EGT_1_error_excess_temperature_status;
+    uint8_t EGT_2_error_excess_temperature_status;
+    float cht1_temp;
+    float cht2_temp;
+    float egt1_temp;
+    float egt2_temp;
+    float k_throttle;
+    float thr_pos;
+    float air_temp;
+    float eng_temp;
 
 };
