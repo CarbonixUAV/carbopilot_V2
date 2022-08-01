@@ -284,6 +284,7 @@ void AP_EFI_Serial_Hirth::decode_data() {
 
         }
         gcs().send_text(MAV_SEVERITY_INFO, "------------------------------------");
+        gcs().send_text(MAV_SEVERITY_INFO, "HE: Throttle = %d  CH3_in = %d", (int)internal_state.throttle_position_percent, (int)SRV_Channels::get_output_scaled(SRV_Channel::k_throttle));
         gcs().send_text(MAV_SEVERITY_INFO, "HE: Air Temp = %f", internal_state.cylinder_status->exhaust_gas_temperature - 273.15);
         gcs().send_text(MAV_SEVERITY_INFO, "HE: Eng Temp = %f", internal_state.cylinder_status->cylinder_head_temperature - 273.15);
 
