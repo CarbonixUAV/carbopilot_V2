@@ -40,6 +40,9 @@ AP_EFI_Serial_Hirth::AP_EFI_Serial_Hirth(AP_EFI &_frontend) : AP_EFI_Backend(_fr
 void AP_EFI_Serial_Hirth::update() {
     bool status = false;
     uint32_t now = AP_HAL::millis();
+    //log the delay in loop interval
+    internal_state.loop_cnt = now - last_loop_ms;
+    last_loop_ms = now;
 
     if ((port != nullptr) && (now - last_response_ms >= SERIAL_WAIT_DURATION)) {
 
@@ -71,15 +74,16 @@ void AP_EFI_Serial_Hirth::update() {
 
                 // discard further bytes if checksum is not matching
                 if (res_data.checksum != (CHECKSUM_MAX - computed_checksum)) {
-
+                    internal_state.crc_fail_cnt++;
                     port->discard_input();
                 }
                 else {
+                    internal_state.uptime = now - last_uptime;
+                    last_uptime = now;
                     internal_state.last_updated_ms = now;
                     decode_data();
                     copy_to_frontend();
                 }
-
                 waiting_response = false;
             }
         }
@@ -238,8 +242,8 @@ void AP_EFI_Serial_Hirth::decode_data() {
         internal_state.throttle_sensor_status = raw_data[82] & 0x08;
         internal_state.k_throttle = new_throttle;
         internal_state.thr_pos = (raw_data[72] | raw_data[73] << 0x08);
-        internal_state.air_temp = (raw_data[78] | raw_data[79] << 0x08) - 273.15;
-        internal_state.eng_temp = (raw_data[74] | raw_data[75] << 0x08) - 273.15;
+        internal_state.air_temp = (raw_data[78] | raw_data[79] << 0x08);
+        internal_state.eng_temp = (raw_data[74] | raw_data[75] << 0x08);
 
         //EFI1 Log
         internal_state.engine_speed_rpm = (raw_data[10] | raw_data[11] << 0x08);

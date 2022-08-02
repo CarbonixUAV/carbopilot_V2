@@ -225,7 +225,7 @@ void AP_EFI::log_status(void)
                     uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI3",
-                    "TimeUS,E1_E,E2_E,C1_T,C2_T,E1_T,E2_T,k_th,p_th,air_t,eng_t,IDX",
+                    "TimeUS,E1_E,E2_E,C1_T,C2_T,E1_T,E2_T,k_th,thr_f,air_t,eng_t,IDX",
                     "s--00000000-",
                     "F--00000000-",
                     "QBBffffffffB",
@@ -240,6 +240,17 @@ void AP_EFI::log_status(void)
                     float(state.thr_pos),
                     float(state.air_temp),
                     float(state.eng_temp),
+                    uint8_t(state.ecu_index));
+
+    AP::logger().WriteStreaming("EFI4",
+                    "TimeUS,crc,uptime,lpc,IDX",
+                    "s----",
+                    "F----",
+                    "QIIIB",
+                    AP_HAL::micros64(),
+                    uint32_t(state.crc_fail_cnt),
+                    uint32_t(state.uptime),
+                    uint32_t(state.loop_cnt),
                     uint8_t(state.ecu_index));
 
 
