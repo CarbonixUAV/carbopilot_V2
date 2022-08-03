@@ -92,6 +92,8 @@ private:
 
     // periodic refresh 
     uint32_t last_response_ms;
+    uint32_t last_loop_ms;
+    uint32_t last_uptime;
 
     // Raw bytes - max size
     uint8_t raw_data[HIRTH_MAX_RAW_PKT_SIZE];

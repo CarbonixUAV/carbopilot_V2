@@ -40,6 +40,9 @@ AP_EFI_Serial_Hirth::AP_EFI_Serial_Hirth(AP_EFI &_frontend) : AP_EFI_Backend(_fr
 void AP_EFI_Serial_Hirth::update() {
     bool status = false;
     uint32_t now = AP_HAL::millis();
+    //log the delay in loop interval
+    internal_state.loop_cnt = now - last_loop_ms;
+    last_loop_ms = now;
 
     if ((port != nullptr) && (now - last_response_ms >= SERIAL_WAIT_DURATION)) {
 
@@ -71,15 +74,16 @@ void AP_EFI_Serial_Hirth::update() {
 
                 // discard further bytes if checksum is not matching
                 if (res_data.checksum != (CHECKSUM_MAX - computed_checksum)) {
-
+                    internal_state.crc_fail_cnt++;
                     port->discard_input();
                 }
                 else {
+                    internal_state.uptime = now - last_uptime;
+                    last_uptime = now;
                     internal_state.last_updated_ms = now;
                     decode_data();
                     copy_to_frontend();
                 }
-
                 waiting_response = false;
             }
         }
@@ -221,120 +225,58 @@ bool AP_EFI_Serial_Hirth::send_request_status() {
  */
 void AP_EFI_Serial_Hirth::decode_data() {
     int engine_status = 0;
-    static int prev_engine_status = 9;
-    static uint8_t prev_sensor_status = 255;
-
-    int excess_temp1 = 0;
-    int excess_temp2 = 0;
-    int excess_temp3 = 0;
-    int excess_temp4 = 0;
-    // int excess_temp5 = 0;
 
     int excess_temp_error = 0;
-
-    // static int prev_excess_temp1 = 0;
-    // static int prev_excess_temp2 = 0;
-    // static int prev_excess_temp3 = 0;
-    // static int prev_excess_temp4 = 0;
-    // static int prev_excess_temp5 = 0;
-
-    // static int prev_excess_temp_error = 0;
-    static int count_temp_sensor = 0;
 
     switch (res_data.code)
     {
     case CODE_REQUEST_STATUS_1:
         engine_status = (raw_data[8] | raw_data[9] << 0x08);
-        internal_state.engine_state = (engine_status >= ENGINE_RUNNING) ? Engine_State::RUNNING : Engine_State::STARTING;
+
+        //EFI2 Log
+        internal_state.engine_state = (Engine_State)engine_status;
+        internal_state.save_in_flash = raw_data[1] | raw_data[2] << 0x08;
+        internal_state.engine_temperature_sensor_status = raw_data[82] & 0x01;
+        internal_state.air_temperature_sensor_status = raw_data[82] & 0x02;
+        internal_state.air_pressure_sensor_status = raw_data[82] & 0x04;
+        internal_state.throttle_sensor_status = raw_data[82] & 0x08;
+        internal_state.k_throttle = new_throttle;
+        internal_state.thr_pos = (raw_data[72] | raw_data[73] << 0x08);
+        internal_state.air_temp = (raw_data[78] | raw_data[79] << 0x08);
+        internal_state.eng_temp = (raw_data[74] | raw_data[75] << 0x08);
+
+        //EFI1 Log
         internal_state.engine_speed_rpm = (raw_data[10] | raw_data[11] << 0x08);
         internal_state.cylinder_status->injection_time_ms = ((raw_data[32] | raw_data[33] << 0x08)) * INJECTION_TIME_RESOLUTION;
         internal_state.cylinder_status->ignition_timing_deg = (raw_data[34] | raw_data[35] << 0x08);
-        internal_state.cylinder_status->cylinder_head_temperature = (raw_data[74] | raw_data[75] << 0x08) + KELVIN_CONVERSION_CONSTANT;
-        // internal_state.battery_voltage = (raw_data[76] | raw_data[77] << 0x08); // TBD - internal state addition
-        internal_state.cylinder_status->exhaust_gas_temperature = (raw_data[78] | raw_data[79] << 0x08) + KELVIN_CONVERSION_CONSTANT;
-        internal_state.crankshaft_sensor_status = ((raw_data[82] & CRANK_SHAFT_SENSOR_OK) == CRANK_SHAFT_SENSOR_OK) ? Crankshaft_Sensor_Status::OK : Crankshaft_Sensor_Status::ERROR;
-        
-        // gcs().send_text(MAV_SEVERITY_INFO, "************************************");
-        gcs().send_text(MAV_SEVERITY_INFO, "HE: In Flash = %d", (raw_data[1] | raw_data[2] << 0x08));
-
-        if (prev_engine_status != engine_status) {
-            if (engine_status == 0)
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: 0 - Eng tune-up");
-            else if (engine_status == 1)
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: 1 - Igni On,No Crank");
-            else if (engine_status == 2)
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: 2 - Igni On,Low RPM");
-            else if (engine_status == 3)
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: 3 - Warming-up phase");
-            else
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: 4 - Engine running");
-
-            prev_engine_status = engine_status;
-        }
-        if (prev_sensor_status != raw_data[82]) {
-            if (!(raw_data[82] & 0x01))
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: Eng Temp ERROR");
-            if (!(raw_data[82] & 0x02))
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: Air Temp ERROR");
-            if (!(raw_data[82] & 0x04))
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: Air Pre ERROR");
-            if (!(raw_data[82] & 0x08))
-                gcs().send_text(MAV_SEVERITY_INFO, "HE: Throttle ERROR");
-            prev_engine_status = raw_data[82];
-
-        }
-        gcs().send_text(MAV_SEVERITY_INFO, "------------------------------------");
-        gcs().send_text(MAV_SEVERITY_INFO, "HE: Throttle = %d  CH3_in = %d", (int)internal_state.throttle_position_percent, (int)SRV_Channels::get_output_scaled(SRV_Channel::k_throttle));
-        gcs().send_text(MAV_SEVERITY_INFO, "HE: Air Temp = %f", internal_state.cylinder_status->exhaust_gas_temperature - 273.15);
-        gcs().send_text(MAV_SEVERITY_INFO, "HE: Eng Temp = %f", internal_state.cylinder_status->cylinder_head_temperature - 273.15);
+        //air temperature
+        internal_state.cylinder_status->cylinder_head_temperature = (raw_data[78] | raw_data[79] << 0x08) + KELVIN_CONVERSION_CONSTANT;
+        //engine temperature
+        internal_state.cylinder_status->exhaust_gas_temperature = (raw_data[74] | raw_data[75] << 0x08) + KELVIN_CONVERSION_CONSTANT;
+        internal_state.crankshaft_sensor_status = ((raw_data[82] & CRANK_SHAFT_SENSOR_OK) == CRANK_SHAFT_SENSOR_OK) ? Crankshaft_Sensor_Status::OK : Crankshaft_Sensor_Status::ERROR;     
 
         break;
 
     case CODE_REQUEST_STATUS_2:
-        // internal_state.injection_rate = ((raw_data[16] | raw_data[17] << 0x08)) * INJECTION_TIME_RESOLUTION; // TBD - internal state addition
         internal_state.fuel_consumption_rate_cm3pm = (raw_data[52] | raw_data[53] << 0x08) / FUEL_CONSUMPTION_RESOLUTION;
         internal_state.throttle_position_percent = (raw_data[62] | raw_data[63] << 0x08) / THROTTLE_POSITION_RESOLUTION;
-        // internal_state.injector_opening_time = (raw_data[70] | raw_data[71] << 0x08) * INJECTION_TIME_RESOLUTION // TBD - internal state addition
-
+        
+        //EFI2 Log
+        // internal_state.no_of_log_data = raw_data[52] | raw_data[53] << 0x08 | raw_data[53] << 0x08 | raw_data[53] << 0x08
         break;
 
     case CODE_REQUEST_STATUS_3: // TBD - internal state addition
-        // internal_state.Temp1 = ((raw_data[2] | raw_data[3] << 0x08) * 5 / 1024); // TBD - Average of Voltage Excess Temp1 to Tmep5
-        // internal_state.Temp2 = (raw_data[16] | raw_data[17] << 0x08); // TBD - Average of Excess Temp1 to Tmep5
-        // internal_state.MixingRatio1 = 1 / (raw_data[48] | raw_data[49] << 0x08);
-        // internal_state.MixingRatio2 = 1 / (raw_data[50] | raw_data[51] << 0x08);
-        // internal_state.fuel_pump = (raw_data[54] | raw_data[55] << 0x08);
-        // internal_state.exhaust_valve = (raw_data[56] | raw_data[57] << 0x08);
-        // internal_state.air_vane = (raw_data[58] | raw_data[59] << 0x08);
-        excess_temp1 = (raw_data[16] | raw_data[17] << 0x08);
-        excess_temp2 = (raw_data[18] | raw_data[19] << 0x08);
-        excess_temp3 = (raw_data[20] | raw_data[21] << 0x08);
-        excess_temp4 = (raw_data[22] | raw_data[23] << 0x08);
-        // excess_temp5 = (raw_data[24] | raw_data[25] << 0x08);
-
         excess_temp_error = (raw_data[46] | raw_data[47] << 0x08);
 
-        // int enrichment1 = (raw_data[74] | raw_data[75] << 0x08);
-        // int enrichment2 = (raw_data[76] | raw_data[77] << 0x08);
-        // int enrichment3 = (raw_data[78] | raw_data[79] << 0x08);
-        // int enrichment4 = (raw_data[80] | raw_data[81] << 0x08);
-
-        if (count_temp_sensor++ > 10)
-        {
-            
-            gcs().send_text(MAV_SEVERITY_INFO, "HE: CHT1 = %d", excess_temp1);
-            gcs().send_text(MAV_SEVERITY_INFO, "HE: CHT2 = %d", excess_temp2);
-            gcs().send_text(MAV_SEVERITY_INFO, "HE: EGT1 = %d", excess_temp3);
-            gcs().send_text(MAV_SEVERITY_INFO, "HE: EGT2 = %d", excess_temp4);
-            gcs().send_text(MAV_SEVERITY_INFO, "------------------------------------");
-            gcs().send_text(MAV_SEVERITY_INFO, "HE: C1 L= %d H= %d A= %d", (excess_temp_error & 0x01),(excess_temp_error & 0x02),(excess_temp_error & 0x04));
-            gcs().send_text(MAV_SEVERITY_INFO, "HE: C2 L= %d H= %d A= %d", (excess_temp_error & 0x08),(excess_temp_error & 0x10),(excess_temp_error & 0x20));
-            gcs().send_text(MAV_SEVERITY_INFO, "HE: E1 L= %d H= %d A= %d", (excess_temp_error & 0x40),(excess_temp_error & 0x80),(excess_temp_error & 0x100));
-            gcs().send_text(MAV_SEVERITY_INFO, "HE: E2 L= %d H= %d A= %d", (excess_temp_error & 0x200),(excess_temp_error & 0x400),(excess_temp_error & 0x800));
-        }
-
-        gcs().send_text(MAV_SEVERITY_INFO, "########################################");
-
+        //EFI2 Log
+        internal_state.CHT_1_error_excess_temperature_status = (excess_temp_error & 0x01) || (excess_temp_error & 0x02) || (excess_temp_error & 0x04);
+        internal_state.CHT_2_error_excess_temperature_status = (excess_temp_error & 0x08) || (excess_temp_error & 0x10) || (excess_temp_error & 0x20);
+        internal_state.EGT_1_error_excess_temperature_status = (excess_temp_error & 0x40) || (excess_temp_error & 0x80) || (excess_temp_error & 0x100);
+        internal_state.EGT_2_error_excess_temperature_status = (excess_temp_error & 0x200) || (excess_temp_error & 0x400) || (excess_temp_error & 0x800);
+        internal_state.cht1_temp = (raw_data[16] | raw_data[17] << 0x08);
+        internal_state.cht2_temp = (raw_data[18] | raw_data[19] << 0x08);
+        internal_state.egt1_temp = (raw_data[20] | raw_data[21] << 0x08);
+        internal_state.egt2_temp = (raw_data[22] | raw_data[23] << 0x08);
         break;
         
     // case CODE_SET_VALUE:
