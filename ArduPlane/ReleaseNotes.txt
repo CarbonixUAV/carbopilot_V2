@@ -1,3 +1,10 @@
+Release ArduPlane V4.2.1_Carbopilot V4.1.1 8th August 2022
+----------------------------------
+This is the Test release of Carbopilot 4.1.1
+ - implementation of Hirth engine interface - IC Engine, EFI, Telemetry
+
+Happy flying!
+
 Release ArduPlane V4.2.1_Carbopilot V4.1.0 17th June 2022
 ----------------------------------
 

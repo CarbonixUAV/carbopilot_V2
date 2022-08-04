@@ -40,6 +40,7 @@ AP_EFI_Serial_Hirth::AP_EFI_Serial_Hirth(AP_EFI &_frontend) : AP_EFI_Backend(_fr
 void AP_EFI_Serial_Hirth::update() {
     bool status = false;
     uint32_t now = AP_HAL::millis();
+
     //log the delay in loop interval
     internal_state.loop_cnt = now - last_loop_ms;
     last_loop_ms = now;
@@ -161,7 +162,6 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     uint8_t computed_checksum = 0;
 
     //clear buffer
-    //memcpy(&raw_data, 0, sizeof(raw_data));
     for (size_t i = 0; i < sizeof(raw_data); i++)
     {
         raw_data[i] = 0;
@@ -187,7 +187,6 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     //debug
     internal_state.packet_sent = 5;
     data_send =5;
-    // gcs().send_text(MAV_SEVERITY_INFO, "HE: %d, %d, %d ,%d, %d ", (int)raw_data[0],(int)raw_data[1],(int)raw_data[2], (int)raw_data[3],(int)raw_data[22]);
     
     expected_bytes = QUANTITY_ACK_SET_VALUES;
     //write data
