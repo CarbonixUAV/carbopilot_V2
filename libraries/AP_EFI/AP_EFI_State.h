@@ -226,4 +226,10 @@ struct EFI_State {
     uint32_t crc_fail_cnt;
     uint32_t uptime;
     uint32_t loop_cnt;
+    uint32_t ack_fail_cnt;
+    uint32_t packet_sent;
+    uint32_t ack_thr;
+    uint32_t ack_s1;
+    uint32_t ack_s2;
+    uint32_t ack_s3;
 };

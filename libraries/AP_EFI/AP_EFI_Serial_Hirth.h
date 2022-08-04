@@ -27,7 +27,7 @@
 #define CHECKSUM_MAX 256
 
 #define SERIAL_WAIT_DURATION 100
-#define SERIAL_WAIT_TIMEOUT 300
+#define SERIAL_WAIT_TIMEOUT 100
 
 #define ENGINE_RUNNING 4
 #define THROTTLE_POSITION_FACTOR 10
@@ -94,6 +94,7 @@ private:
     uint32_t last_response_ms;
     uint32_t last_loop_ms;
     uint32_t last_uptime;
+    uint32_t last_req_send_throttle;
 
     // Raw bytes - max size
     uint8_t raw_data[HIRTH_MAX_RAW_PKT_SIZE];
@@ -115,4 +116,6 @@ private:
     // Throttle values
     uint16_t new_throttle;
     uint16_t old_throttle;
+
+    uint8_t data_send;
 };

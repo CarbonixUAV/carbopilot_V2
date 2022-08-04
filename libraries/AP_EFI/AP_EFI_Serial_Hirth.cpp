@@ -44,66 +44,78 @@ void AP_EFI_Serial_Hirth::update() {
     internal_state.loop_cnt = now - last_loop_ms;
     last_loop_ms = now;
 
-    if ((port != nullptr) && (now - last_response_ms >= SERIAL_WAIT_DURATION)) {
+    if ((port != nullptr)) {
 
-        // reset request if not response for SERIAL_WAIT_TIMEOUT-ms
-        if (now - last_response_ms > SERIAL_WAIT_TIMEOUT) {
-            waiting_response = false;
-            port->discard_input();
-            last_response_ms = now;
-        }
-
+        //waiting for response
         if (waiting_response) {
-            num_bytes = port->available();
 
-            // if already requested
-            if (num_bytes >= expected_bytes) {
-                
-                // read data from buffer
-                uint8_t computed_checksum = 0;
-                computed_checksum += res_data.quantity = port->read();
-                computed_checksum += res_data.code = port->read();
-
-                if (res_data.code == req_data.code) {
-                    for (int i = 0; i < (res_data.quantity - QUANTITY_REQUEST_STATUS); i++) {
-                        computed_checksum += raw_data[i] = port->read();
-                    }
-                }
-
-                res_data.checksum = port->read();
-
-                // discard further bytes if checksum is not matching
-                if (res_data.checksum != (CHECKSUM_MAX - computed_checksum)) {
-                    internal_state.crc_fail_cnt++;
-                    port->discard_input();
-                }
-                else {
-                    internal_state.uptime = now - last_uptime;
-                    last_uptime = now;
-                    internal_state.last_updated_ms = now;
-                    decode_data();
-                    copy_to_frontend();
-                }
+            // reset request if not response for SERIAL_WAIT_TIMEOUT-ms
+            if (now - last_response_ms > SERIAL_WAIT_TIMEOUT) {
                 waiting_response = false;
+                port->discard_input();
+                last_response_ms = now;
+                internal_state.ack_fail_cnt++;
+                if(data_send == 1) {internal_state.ack_s1++;}
+                if(data_send == 2) {internal_state.ack_s2++;}
+                if(data_send == 3) {internal_state.ack_s3++;}
+                if(data_send == 5) {internal_state.ack_thr++;}
+            }
+            else{
+
+                num_bytes = port->available();
+
+                // if already requested
+                if (num_bytes >= expected_bytes) {
+                    
+                    // read data from buffer
+                    uint8_t computed_checksum = 0;
+                    computed_checksum += res_data.quantity = port->read();
+                    computed_checksum += res_data.code = port->read();
+
+                    if (res_data.code == req_data.code) {
+                        for (int i = 0; i < (res_data.quantity - QUANTITY_REQUEST_STATUS); i++) {
+                            computed_checksum += raw_data[i] = port->read();
+                        }
+                    }
+
+                    res_data.checksum = port->read();
+                    computed_checksum = computed_checksum % 256;
+                    // computed_checksum = (256 - computed_checksum);
+                    // discard further bytes if checksum is not matching
+                    if (res_data.checksum != (CHECKSUM_MAX - computed_checksum)) {
+                        internal_state.crc_fail_cnt++;
+                        port->discard_input();
+                    }
+                    else {
+                        internal_state.uptime = now - last_uptime;
+                        last_uptime = now;
+                        internal_state.last_updated_ms = now;
+                        decode_data();
+                        copy_to_frontend();
+                    }
+                    waiting_response = false;
+                }
             }
         }
-        else {
-            // Send requests only if response is completed
+        
+        //sending cmd
+        if(!waiting_response) {
 
+            // get new throttle value
             new_throttle = (uint16_t)SRV_Channels::get_output_scaled(SRV_Channel::k_throttle);
 
-            if (new_throttle != old_throttle) {
+            //check for change or timeout for throttle value
+            if ((new_throttle != old_throttle) || (now - last_req_send_throttle > 500)){
                 // if new throttle value, send throttle request
                 status = send_target_values(new_throttle);
                 old_throttle = new_throttle;
-                
+                internal_state.k_throttle = new_throttle;
+                last_req_send_throttle = now;
             }
             else {
-                // request Status request, if no throttle commands
+                //request Status request, if no throttle commands
                 status = send_request_status();
-            }
-
-            get_quantity();            
+            }      
 
             if (status == true) {
                 waiting_response = true;
@@ -145,10 +157,16 @@ void AP_EFI_Serial_Hirth::get_quantity() {
  * @return false - currently not implemented
  */
 bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
-    bool status = false;
     int idx = 0;
     uint8_t computed_checksum = 0;
 
+    //clear buffer
+    //memcpy(&raw_data, 0, sizeof(raw_data));
+    for (size_t i = 0; i < sizeof(raw_data); i++)
+    {
+        raw_data[i] = 0;
+    }
+    
     // Get throttle value
     uint16_t throttle = thr * THROTTLE_POSITION_FACTOR;
 
@@ -162,14 +180,20 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
         // 0 has no impact on checksum
         raw_data[idx] = 0;
     }
-
+    //checksum calculation
+    computed_checksum = computed_checksum % 256;
     raw_data[QUANTITY_SET_VALUE - 1] = (256 - computed_checksum);
 
+    //debug
+    internal_state.packet_sent = 5;
+    data_send =5;
+    // gcs().send_text(MAV_SEVERITY_INFO, "HE: %d, %d, %d ,%d, %d ", (int)raw_data[0],(int)raw_data[1],(int)raw_data[2], (int)raw_data[3],(int)raw_data[22]);
+    
+    expected_bytes = QUANTITY_ACK_SET_VALUES;
+    //write data
     port->write(raw_data, QUANTITY_SET_VALUE);
 
-    status = true;
-
-    return status;
+    return true;
 }
 
 
@@ -189,24 +213,36 @@ bool AP_EFI_Serial_Hirth::send_request_status() {
         req_data.quantity = QUANTITY_REQUEST_STATUS;
         req_data.code = CODE_REQUEST_STATUS_2;
         req_data.checksum = CHECKSUM_REQUEST_STATUS_2;
+        expected_bytes = QUANTITY_RESPONSE_STATUS_2;
+        internal_state.packet_sent = 2;
+        data_send =2;
         break;
     case CODE_REQUEST_STATUS_2:
         req_data.quantity = QUANTITY_REQUEST_STATUS;
         req_data.code = CODE_REQUEST_STATUS_3;
         req_data.checksum = CHECKSUM_REQUEST_STATUS_3;
+        expected_bytes = QUANTITY_RESPONSE_STATUS_3;
+        internal_state.packet_sent = 3;
+        data_send =3;
         break;
     case CODE_REQUEST_STATUS_3:
         req_data.quantity = QUANTITY_REQUEST_STATUS;
         req_data.code = CODE_REQUEST_STATUS_1;
         req_data.checksum = CHECKSUM_REQUEST_STATUS_1;
+        expected_bytes = QUANTITY_RESPONSE_STATUS_1;
+        internal_state.packet_sent = 1;
+        data_send =1;
         break;
     default:
         req_data.quantity = QUANTITY_REQUEST_STATUS;
         req_data.code = CODE_REQUEST_STATUS_1;
         req_data.checksum = CHECKSUM_REQUEST_STATUS_1;
+        expected_bytes = QUANTITY_RESPONSE_STATUS_1;
+        internal_state.packet_sent = 1;
+        data_send =1;
         break;
     }
-
+    //memcpy(&raw_data, 0, sizeof(raw_data));
     raw_data[0] = req_data.quantity;
     raw_data[1] = req_data.code;
     raw_data[2] = req_data.checksum;
@@ -240,7 +276,6 @@ void AP_EFI_Serial_Hirth::decode_data() {
         internal_state.air_temperature_sensor_status = raw_data[82] & 0x02;
         internal_state.air_pressure_sensor_status = raw_data[82] & 0x04;
         internal_state.throttle_sensor_status = raw_data[82] & 0x08;
-        internal_state.k_throttle = new_throttle;
         internal_state.thr_pos = (raw_data[72] | raw_data[73] << 0x08);
         internal_state.air_temp = (raw_data[78] | raw_data[79] << 0x08);
         internal_state.eng_temp = (raw_data[74] | raw_data[75] << 0x08);

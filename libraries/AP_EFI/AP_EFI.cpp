@@ -243,14 +243,20 @@ void AP_EFI::log_status(void)
                     uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI4",
-                    "TimeUS,crc,uptime,lpc,IDX",
-                    "s----",
-                    "F----",
-                    "QIIIB",
+                    "TimeUS,crc,uptime,lpc,ack,pkt,at,a1,a2,a3,IDX",
+                    "s----------",
+                    "F----------",
+                    "QIIIIIIIIIB",
                     AP_HAL::micros64(),
                     uint32_t(state.crc_fail_cnt),
                     uint32_t(state.uptime),
                     uint32_t(state.loop_cnt),
+                    uint32_t(state.ack_fail_cnt),
+                    uint32_t(state.packet_sent),
+                    uint32_t(state.ack_thr),
+                    uint32_t(state.ack_s1),
+                    uint32_t(state.ack_s2),
+                    uint32_t(state.ack_s3),
                     uint8_t(state.ecu_index));
 
 
