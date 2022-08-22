@@ -105,6 +105,12 @@ void AP_EFI_Serial_Hirth::update() {
             // get new throttle value
             new_throttle = (uint16_t)SRV_Channels::get_output_scaled(SRV_Channel::k_throttle);
 
+            // Limit throttle percent to 65% for testing purposes only
+            if (new_throttle > 65)
+            {
+                new_throttle = 65;
+            }
+
             //check for change or timeout for throttle value
             if ((new_throttle != old_throttle) || (now - last_req_send_throttle > 500)){
                 // if new throttle value, send throttle request
