@@ -62,7 +62,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @DisplayName: Eeprom format version number
     // @Description: This value is incremented when changes are made to the eeprom format
     // @User: Advanced
-    GSCALAR(format_version,         "FORMAT_VERSION", 0),
+    GSCALAR(format_version, "FORMAT_VERSION", 0),
 
     // @Param: CAN_NODE
     // @DisplayName: UAVCAN node that is used for this network
@@ -70,7 +70,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Range: 0 250
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(can_node,         "CAN_NODE", HAL_CAN_DEFAULT_NODE_ID),
+    GSCALAR(can_node, "CAN_NODE", HAL_CAN_DEFAULT_NODE_ID),
 
     // @Param: CAN_BAUDRATE
     // @DisplayName: Bitrate of CAN interface
@@ -78,7 +78,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Range: 10000 1000000
     // @User: Advanced
     // @RebootRequired: True
-    GARRAY(can_baudrate,     0, "CAN_BAUDRATE", 1000000),
+    GARRAY(can_baudrate, 0, "CAN_BAUDRATE", 1000000),
 
 #if HAL_NUM_CAN_IFACES >= 2
     // @Param: CAN_PROTOCOL
@@ -87,15 +87,15 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Values: 0:Disabled,1:UAVCAN,3:ToshibaCAN,4:PiccoloCAN,5:CANTester,6:EFI_NWPMU,7:USD1,8:KDECAN
     // @User: Advanced
     // @RebootRequired: True
-    GARRAY(can_protocol,     0, "CAN_PROTOCOL", AP_CANManager::Driver_Type_UAVCAN),
-    
+    GARRAY(can_protocol, 0, "CAN_PROTOCOL", AP_CANManager::Driver_Type_UAVCAN),
+
     // @Param: CAN2_BAUDRATE
     // @DisplayName: Bitrate of CAN2 interface
     // @Description: Bit rate can be set up to from 10000 to 1000000
     // @Range: 10000 1000000
     // @User: Advanced
     // @RebootRequired: True
-    GARRAY(can_baudrate,     1, "CAN2_BAUDRATE", 1000000),
+    GARRAY(can_baudrate, 1, "CAN2_BAUDRATE", 1000000),
 
     // @Param: CAN2_PROTOCOL
     // @DisplayName: Enable use of specific protocol to be used on this port
@@ -103,7 +103,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Values: 0:Disabled,1:UAVCAN,3:ToshibaCAN,4:PiccoloCAN,5:CANTester,6:EFI_NWPMU,7:USD1,8:KDECAN
     // @User: Advanced
     // @RebootRequired: True
-    GARRAY(can_protocol,     1, "CAN2_PROTOCOL", AP_CANManager::Driver_Type_UAVCAN),
+    GARRAY(can_protocol, 1, "CAN2_PROTOCOL", AP_CANManager::Driver_Type_UAVCAN),
 #endif
 
 #if HAL_NUM_CAN_IFACES >= 3
@@ -113,7 +113,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Range: 10000 1000000
     // @User: Advanced
     // @RebootRequired: True
-    GARRAY(can_baudrate,    2, "CAN3_BAUDRATE", 1000000),
+    GARRAY(can_baudrate, 2, "CAN3_BAUDRATE", 1000000),
 
     // @Param: CAN3_PROTOCOL
     // @DisplayName: Enable use of specific protocol to be used on this port
@@ -121,7 +121,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Values: 0:Disabled,1:UAVCAN,3:ToshibaCAN,4:PiccoloCAN,5:CANTester,6:EFI_NWPMU,7:USD1,8:KDECAN
     // @User: Advanced
     // @RebootRequired: True
-    GARRAY(can_protocol,    2, "CAN3_PROTOCOL", AP_CANManager::Driver_Type_UAVCAN),
+    GARRAY(can_protocol, 2, "CAN3_PROTOCOL", AP_CANManager::Driver_Type_UAVCAN),
 #endif
 
 #if !defined(HAL_NO_FLASH_SUPPORT) && !defined(HAL_NO_ROMFS_SUPPORT)
@@ -130,7 +130,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Description: DANGER! When enabled, the App will perform a bootloader update by copying the embedded bootloader over the existing bootloader. This may take a few seconds to perform and should only be done if you know what you're doing.
     // @Range: 0 1
     // @User: Advanced
-    GSCALAR(flash_bootloader,     "FLASH_BOOTLOADER", 0),
+    GSCALAR(flash_bootloader, "FLASH_BOOTLOADER", 0),
 #endif
 
     // @Param: DEBUG
@@ -155,7 +155,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Units: %
     // @Increment: 1
     // @User: Advanced
-    GSCALAR(buzz_volume,     "BUZZER_VOLUME", 100),
+    GSCALAR(buzz_volume, "BUZZER_VOLUME", 100),
 #endif
 
 #ifdef HAL_PERIPH_ENABLE_GPS
@@ -193,7 +193,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
 #ifdef HAL_PERIPH_ENABLE_MAG
     // @Group: COMPASS_
     // @Path: ../libraries/AP_Compass/AP_Compass.cpp
-    GOBJECT(compass,         "COMPASS_",     Compass),
+    GOBJECT(compass, "COMPASS_", Compass),
 #endif
 
 #ifdef HAL_PERIPH_ENABLE_BARO
@@ -303,7 +303,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // Servo driver
     // @Group: OUT
     // @Path: ../libraries/SRV_Channel/SRV_Channels.cpp
-    GOBJECT(servo_channels, "OUT",     SRV_Channels),
+    GOBJECT(servo_channels, "OUT", SRV_Channels),
 
     // @Param: ESC_PWM_TYPE
     // @DisplayName: Output PWM type
@@ -311,7 +311,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Values: 1:Normal,2:OneShot,3:OneShot125,4:Brushed,5:DShot150,6:DShot300,7:DShot600,8:DShot1200
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(esc_pwm_type, "ESC_PWM_TYPE",     0),
+    GSCALAR(esc_pwm_type, "ESC_PWM_TYPE", 0),
 
 #if HAL_WITH_ESC_TELEM && !HAL_GCS_ENABLED
     // @Param: ESC_TELEM_PORT
@@ -339,20 +339,20 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
 #ifdef HAL_PERIPH_ENABLE_NOTIFY
     // @Group: NTF_
     // @Path: ../libraries/AP_Notify/AP_Notify.cpp
-    GOBJECT(notify, "NTF_",  AP_Notify),
+    GOBJECT(notify, "NTF_", AP_Notify),
 #endif
 
 #if HAL_LOGGING_ENABLED
     // @Group: LOG
     // @Path: ../libraries/AP_Logger/AP_Logger.cpp
-    GOBJECT(logger,           "LOG",  AP_Logger),
+    GOBJECT(logger, "LOG", AP_Logger),
 
     // @Param: LOG_BITMASK
     // @DisplayName: Log bitmask
     // @Description: 4 byte bitmap of log types to enable
     // @Bitmask: 2:GPS
     // @User: Standard
-    GSCALAR(log_bitmask,    "LOG_BITMASK",          4),
+    GSCALAR(log_bitmask, "LOG_BITMASK", 4),
 #endif
 
 #if HAL_GCS_ENABLED
@@ -361,11 +361,11 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Description: Allows setting an individual system id for this vehicle to distinguish it from others on the same network
     // @Range: 1 255
     // @User: Advanced
-    GSCALAR(sysid_this_mav,         "SYSID_THISMAV",  MAV_SYSTEM_ID),
+    GSCALAR(sysid_this_mav, "SYSID_THISMAV", MAV_SYSTEM_ID),
 
     // @Group: SERIAL
     // @Path: ../libraries/AP_SerialManager/AP_SerialManager.cpp
-    GOBJECT(serial_manager, "SERIAL",   AP_SerialManager),
+    GOBJECT(serial_manager, "SERIAL", AP_SerialManager),
 #endif
 
 #if AP_SCRIPTING_ENABLED
@@ -383,6 +383,91 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
 #if HAL_PERIPH_ARM_MONITORING_ENABLE
     GSCALAR(disarm_delay, "DISARM_DELAY", 1000),
 #endif
+
+#if HAL_TESTING_ENABLED
+    // @Param: ADC5_min_val
+    // @DisplayName: ADC5 min val
+    // @Description: print error if ADC5 value is less than ADC5_min_val
+    // @Range: 0 4096
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC5_min_val, "ADC5_min_val", 0),
+
+    // @Param: ADC5_max_val
+    // @DisplayName: ADC5 max val
+    // @Description: print error if ADC5 value is greater than ADC5_max_val
+    // @Range: 0 4096
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC5_max_val, "ADC5_max_val", 4096),
+
+    // @Param: ADC6_min_val
+    // @DisplayName: ADC6 min val
+    // @Description: print error if ADC6 value is less than ADC6_min_val
+    // @Range: 0 4096
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC6_min_val, "ADC6_min_val", 0),
+
+    // @Param: ADC6_max_val
+    // @DisplayName: ADC6 max val
+    // @Description: print error if ADC6 value is greater than ADC6_max_val
+    // @Range: 0 4096
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC6_max_val, "ADC6_max_val", 4096),
+
+    // @Param: ADC8_min_val
+    // @DisplayName: ADC8 min val
+    // @Description: print error if ADC8 value is less than ADC8_min_val
+    // @Range: 0 4096
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC8_min_val, "ADC8_min_val", 0),
+
+    // @Param: ADC8_max_val
+    // @DisplayName: ADC8 max val
+    // @Description: print error if ADC8 value is greater than ADC8_max_val
+    // @Range: 0 4096
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC8_max_val, "ADC8_max_val", 4096),
+
+    // @Param: ADC9_min_val
+    // @DisplayName: ADC min val
+    // @Description: print error if ADC9 value is less than ADC9_min_val
+    // @Range: 0 4096
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC9_min_val, "ADC9_min_val", 0),
+
+    // @Param: ADC9_max_val
+    // @DisplayName: ADC9 max val
+    // @Description: print error if ADC9 value is greater than ADC9_max_val
+    // @Range: 0 4096
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC9_max_val, "ADC9_max_val", 4096),
+
+    // @Param: ADC_debounce
+    // @DisplayName: ADC_debounce
+    // @Description: checks 'ADC_debounce' times to confirm state transition
+    // @Range: 0 100
+    // @Increment: 1
+    // @User: Advanced
+    // @RebootRequired: True
+    GSCALAR(ADC_debounce, "ADC_debounce", 100),
+
+#endif // HAL_TESTING_ENABLED
+
     AP_VAREND
 };
 

@@ -53,6 +53,15 @@ public:
         k_param_esc_telem_port,
         k_param_node_stats,
         k_param_disarm_delay,
+        k_param_ADC5_min_val,
+        k_param_ADC5_max_val,
+        k_param_ADC6_min_val,
+        k_param_ADC6_max_val,
+        k_param_ADC8_min_val,
+        k_param_ADC8_max_val,
+        k_param_ADC9_min_val,
+        k_param_ADC9_max_val,
+        k_param_ADC_debounce,
     };
 
     AP_Int16 format_version;
@@ -129,7 +138,19 @@ public:
     AP_Int32 disarm_delay;
 #endif
 
-    Parameters() {}
+    AP_Int16 ADC5_min_val;
+    AP_Int16 ADC5_max_val;
+    AP_Int16 ADC6_min_val;
+    AP_Int16 ADC6_max_val;
+    AP_Int16 ADC8_min_val;
+    AP_Int16 ADC8_max_val;
+    AP_Int16 ADC9_min_val;
+    AP_Int16 ADC9_max_val;
+    AP_Int16 ADC_debounce;
+
+    Parameters()
+    {
+    }
 };
 
 extern const AP_Param::Info var_info[];

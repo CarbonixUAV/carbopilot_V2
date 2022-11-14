@@ -110,6 +110,7 @@ void AP_Periph_FW::init()
     stm32_watchdog_pat();
     gcs().init();
 #endif
+
     serial_manager.init();
 
 #if HAL_GCS_ENABLED
@@ -243,6 +244,16 @@ void AP_Periph_FW::init()
 #if AP_SCRIPTING_ENABLED
     scripting.init();
 #endif
+
+#ifdef HAL_TESTING_ENABLED
+    adc5 = hal.analogin->channel(5);
+    adc6 = hal.analogin->channel(6);
+    adc8 = hal.analogin->channel(8);
+    adc9 = hal.analogin->channel(9);
+
+    init_ADC_test_data();
+#endif
+
    //custom code carbonix
     GCS_SEND_TEXT(MAV_SEVERITY_INFO, "CPN Start %s", "Ottano Carbopilot V4.2.1");
     start_ms = AP_HAL::native_millis();
@@ -348,6 +359,13 @@ void AP_Periph_FW::update()
 
     static uint32_t last_led_ms;
     uint32_t now = AP_HAL::native_millis();
+
+#ifdef HAL_TESTING_ENABLED
+    if (now - last_led_ms > 100) {
+        test_ADC_input();
+    }
+#endif // HAL_TESTING_ENABLED   
+
     if (now - last_led_ms > 1000) {
         last_led_ms = now;
 #ifdef HAL_GPIO_PIN_LED
@@ -450,6 +468,125 @@ void AP_Periph_FW::update()
     adsb_update();
 #endif
 }
+
+#ifdef HAL_TESTING_ENABLED
+void AP_Periph_FW::init_ADC_test_data() { 
+    for (int i = 0; i < 4; i++){
+        ADC_state[i] = ADC_STATE_IN_RANGE;
+        ADC_count[i] = 0;
+    }
+    ADC_min_value[0] = g.ADC5_min_val;
+    ADC_min_value[1] = g.ADC6_min_val;
+    ADC_min_value[2] = g.ADC8_min_val;
+    ADC_min_value[3] = g.ADC9_min_val;
+
+    ADC_max_value[0] = g.ADC5_max_val;
+    ADC_max_value[1] = g.ADC6_max_val;
+    ADC_max_value[2] = g.ADC8_max_val;
+    ADC_max_value[3] = g.ADC9_max_val;
+}
+
+void AP_Periph_FW::check_ADC_range(int adc_instance, int adc_val) {
+    switch (ADC_state[adc_instance]){
+    case ADC_STATE_IN_MIN:
+        if (adc_val > ADC_min_value[adc_instance]){
+            ADC_state[adc_instance] = ADC_STATE_CHECK_MIN_TO_INRANGE;
+            ADC_count[adc_instance] = 1;
+        }
+        break;
+    case ADC_STATE_CHECK_MIN_TO_INRANGE:
+        if (adc_val > ADC_min_value[adc_instance]) {
+            if (ADC_count[adc_instance]++ > g.ADC_debounce) {
+                ADC_state[adc_instance] = ADC_STATE_IN_RANGE;
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d = %f", adc_instance + 5, adc_read_val);
+            }
+        }
+        else {
+            ADC_state[adc_instance] = ADC_STATE_IN_MIN;
+            ADC_count[adc_instance] = 1;
+        }
+        break;
+    case ADC_STATE_CHECK_INRANGE_TO_MIN:
+        if (adc_val < ADC_min_value[adc_instance]) {
+            if (ADC_count[adc_instance]++ > g.ADC_debounce) {
+                ADC_state[adc_instance] = ADC_STATE_IN_MIN;
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d < %f", adc_instance + 5, adc_read_val);
+            }
+        }
+        else {
+            ADC_state[adc_instance] = ADC_STATE_IN_RANGE;
+            ADC_count[adc_instance] = 1;
+        }
+        break;
+    case ADC_STATE_IN_RANGE:
+        if (adc_val < ADC_min_value[adc_instance]) {
+            ADC_state[adc_instance] = ADC_STATE_CHECK_INRANGE_TO_MIN;
+            ADC_count[adc_instance] = 1;
+        }
+        else if (adc_val > ADC_max_value[adc_instance]) {
+            ADC_state[adc_instance] = ADC_STATE_CHECK_INRANGE_TO_MAX;
+            ADC_count[adc_instance] = 1;
+        }
+        break;
+    case ADC_STATE_CHECK_INRANGE_TO_MAX:
+        if (adc_val > ADC_max_value[adc_instance]) {
+            if (ADC_count[adc_instance]++ > g.ADC_debounce) {
+                ADC_state[adc_instance] = ADC_STATE_IN_MAX;
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d > %f", adc_instance + 5, adc_read_val);
+            }
+        }
+        else {
+            ADC_state[adc_instance] = ADC_STATE_IN_RANGE;
+            ADC_count[adc_instance] = 1;
+        }
+        break;
+    case ADC_STATE_CHECK_MAX_TO_INRANGE:
+        if (adc_val < ADC_max_value[adc_instance]) {
+            if (ADC_count[adc_instance]++ > g.ADC_debounce) {
+                ADC_state[adc_instance] = ADC_STATE_IN_RANGE;
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d = %f", adc_instance + 5, adc_read_val);
+            }
+        }
+        else {
+            ADC_state[adc_instance] = ADC_STATE_IN_MAX;
+            ADC_count[adc_instance] = 1;
+        }
+        break;
+    case ADC_STATE_IN_MAX:
+    if (adc_val < ADC_max_value[adc_instance]) {
+            ADC_state[adc_instance] = ADC_STATE_CHECK_MAX_TO_INRANGE;
+            ADC_count[adc_instance] = 1;
+        }
+        break;
+    }
+}
+
+void AP_Periph_FW::test_ADC_input() {
+    /* Test ADC inputs */
+    adc_read_val = adc5->read_average();
+    check_ADC_range(0, adc_read_val);
+    // if (myCh = check_debounce(adc_read_val, 5)
+        // gcs().send_text(MAV_SEVERITY_INFO, "ADC5: read-%f", adc_read_val * ADC5_FACTOR);
+        // can_printf("ADC5: %f", adc_read_val);
+        // GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC5: read-%f", adc_read_val * ADC5_FACTOR);
+
+    adc_read_val = adc6->read_average();
+    check_ADC_range(1, adc_read_val);
+    // if (adc_read_val > 0)
+    //     can_printf("ADC6: read-%f", adc_read_val);
+
+    adc_read_val = adc8->read_average();
+    check_ADC_range(2, adc_read_val);
+    // if (adc_read_val > 0)
+    //     can_printf("ADC8: read-%f", adc_read_val);
+
+    adc_read_val = adc9->read_average();
+    check_ADC_range(3, adc_read_val);
+    // if (adc_read_val > 0)
+    //     can_printf("ADC9: read-%f", adc_read_val);
+}
+#endif // HAL_TESTING_ENABLED
+
 
 #ifdef HAL_PERIPH_LISTEN_FOR_SERIAL_UART_REBOOT_CMD_PORT
 // check for uploader.py reboot command

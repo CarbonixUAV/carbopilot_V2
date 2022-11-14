@@ -55,6 +55,20 @@ void stm32_watchdog_pat();
  */
 extern const struct app_descriptor app_descriptor;
 
+#ifdef HAL_TESTING_ENABLED
+typedef enum
+{
+    ADC_STATE_IN_MIN,
+    ADC_STATE_CHECK_INRANGE_TO_MIN,
+    ADC_STATE_CHECK_MIN_TO_INRANGE,
+    ADC_STATE_IN_RANGE,
+    ADC_STATE_CHECK_INRANGE_TO_MAX,
+    ADC_STATE_CHECK_MAX_TO_INRANGE,
+    ADC_STATE_IN_MAX
+} ADC_state_t;
+
+#endif // HAL_TESTING_ENABLED
+
 class AP_Periph_FW {
 public:
     AP_Periph_FW();
@@ -87,6 +101,24 @@ public:
 
     void load_parameters();
     void prepare_reboot();
+
+#ifdef HAL_TESTING_ENABLED
+    float adc_read_val = 0.0;
+
+    ADC_state_t ADC_state[4];
+    int ADC_count[4];
+    int ADC_min_value[4];
+    int ADC_max_value[4];
+
+    AP_HAL::AnalogSource *adc5;
+    AP_HAL::AnalogSource *adc6;
+    AP_HAL::AnalogSource *adc8;
+    AP_HAL::AnalogSource *adc9;
+
+    void init_ADC_test_data();
+    void check_ADC_range(int adc_instance, int adc_val);
+    void test_ADC_input();
+#endif // ifdef HAL_TESTING_ENABLED
 
 #ifdef HAL_PERIPH_LISTEN_FOR_SERIAL_UART_REBOOT_CMD_PORT
     void check_for_serial_reboot_cmd(const int8_t serial_index);
@@ -245,6 +277,7 @@ public:
 #if HAL_GCS_ENABLED
     GCS_Periph _gcs;
 #endif
+
 #if HAL_PERIPH_ARM_MONITORING_ENABLE
     bool arm_update_status;
 #endif
