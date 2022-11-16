@@ -392,7 +392,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(ADC5_min_val, "ADC5_min_val", 0),
+    GSCALAR(ADC5_min_val, "ADC1_min_val", 0),
 
     // @Param: ADC5_max_val
     // @DisplayName: ADC5 max val
@@ -401,7 +401,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(ADC5_max_val, "ADC5_max_val", 4096),
+    GSCALAR(ADC5_max_val, "ADC1_max_val", 4096),
 
     // @Param: ADC6_min_val
     // @DisplayName: ADC6 min val
@@ -410,7 +410,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(ADC6_min_val, "ADC6_min_val", 0),
+    GSCALAR(ADC6_min_val, "ADC2_min_val", 0),
 
     // @Param: ADC6_max_val
     // @DisplayName: ADC6 max val
@@ -419,7 +419,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(ADC6_max_val, "ADC6_max_val", 4096),
+    GSCALAR(ADC6_max_val, "ADC2_max_val", 4096),
 
     // @Param: ADC8_min_val
     // @DisplayName: ADC8 min val
@@ -428,7 +428,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(ADC8_min_val, "ADC8_min_val", 0),
+    GSCALAR(ADC8_min_val, "ADC3_min_val", 0),
 
     // @Param: ADC8_max_val
     // @DisplayName: ADC8 max val
@@ -437,7 +437,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(ADC8_max_val, "ADC8_max_val", 4096),
+    GSCALAR(ADC8_max_val, "ADC3_max_val", 4096),
 
     // @Param: ADC9_min_val
     // @DisplayName: ADC min val
@@ -446,7 +446,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(ADC9_min_val, "ADC9_min_val", 0),
+    GSCALAR(ADC9_min_val, "ADC4_min_val", 0),
 
     // @Param: ADC9_max_val
     // @DisplayName: ADC9 max val
@@ -455,7 +455,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     // @RebootRequired: True
-    GSCALAR(ADC9_max_val, "ADC9_max_val", 4096),
+    GSCALAR(ADC9_max_val, "ADC4_max_val", 4096),
 
     // @Param: ADC_debounce
     // @DisplayName: ADC_debounce

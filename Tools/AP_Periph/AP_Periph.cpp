@@ -486,7 +486,9 @@ void AP_Periph_FW::init_ADC_test_data() {
     ADC_max_value[3] = g.ADC9_max_val;
 }
 
-void AP_Periph_FW::check_ADC_range(int adc_instance, int adc_val) {
+bool AP_Periph_FW::check_ADC_range(int adc_instance, float adc_val) {
+    bool value_changed = false;
+
     switch (ADC_state[adc_instance]){
     case ADC_STATE_IN_MIN:
         if (adc_val > ADC_min_value[adc_instance]){
@@ -498,7 +500,8 @@ void AP_Periph_FW::check_ADC_range(int adc_instance, int adc_val) {
         if (adc_val > ADC_min_value[adc_instance]) {
             if (ADC_count[adc_instance]++ > g.ADC_debounce) {
                 ADC_state[adc_instance] = ADC_STATE_IN_RANGE;
-                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d = %f", adc_instance + 5, adc_read_val);
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d = %f", adc_instance + 1, adc_val);
+                value_changed = true;
             }
         }
         else {
@@ -510,7 +513,8 @@ void AP_Periph_FW::check_ADC_range(int adc_instance, int adc_val) {
         if (adc_val < ADC_min_value[adc_instance]) {
             if (ADC_count[adc_instance]++ > g.ADC_debounce) {
                 ADC_state[adc_instance] = ADC_STATE_IN_MIN;
-                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d < %f", adc_instance + 5, adc_read_val);
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d < %f", adc_instance + 1, adc_val);
+                value_changed = true;
             }
         }
         else {
@@ -532,7 +536,8 @@ void AP_Periph_FW::check_ADC_range(int adc_instance, int adc_val) {
         if (adc_val > ADC_max_value[adc_instance]) {
             if (ADC_count[adc_instance]++ > g.ADC_debounce) {
                 ADC_state[adc_instance] = ADC_STATE_IN_MAX;
-                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d > %f", adc_instance + 5, adc_read_val);
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d > %f", adc_instance + 1, adc_val);
+                value_changed = true;
             }
         }
         else {
@@ -544,7 +549,8 @@ void AP_Periph_FW::check_ADC_range(int adc_instance, int adc_val) {
         if (adc_val < ADC_max_value[adc_instance]) {
             if (ADC_count[adc_instance]++ > g.ADC_debounce) {
                 ADC_state[adc_instance] = ADC_STATE_IN_RANGE;
-                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d = %f", adc_instance + 5, adc_read_val);
+                GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC%d = %f", adc_instance + 1, adc_val);
+                value_changed = true;
             }
         }
         else {
@@ -559,31 +565,29 @@ void AP_Periph_FW::check_ADC_range(int adc_instance, int adc_val) {
         }
         break;
     }
+
+    return value_changed;
 }
 
 void AP_Periph_FW::test_ADC_input() {
+    bool value_changed = false;
+
     /* Test ADC inputs */
-    adc_read_val = adc5->read_average();
-    check_ADC_range(0, adc_read_val);
-    // if (myCh = check_debounce(adc_read_val, 5)
-        // gcs().send_text(MAV_SEVERITY_INFO, "ADC5: read-%f", adc_read_val * ADC5_FACTOR);
-        // can_printf("ADC5: %f", adc_read_val);
-        // GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC5: read-%f", adc_read_val * ADC5_FACTOR);
+    adc_read_val1 = adc5->read_average();
+    value_changed |= check_ADC_range(0, adc_read_val1);
 
-    adc_read_val = adc6->read_average();
-    check_ADC_range(1, adc_read_val);
-    // if (adc_read_val > 0)
-    //     can_printf("ADC6: read-%f", adc_read_val);
+    adc_read_val2 = adc6->read_average();
+    value_changed |= check_ADC_range(1, adc_read_val2);
 
-    adc_read_val = adc8->read_average();
-    check_ADC_range(2, adc_read_val);
-    // if (adc_read_val > 0)
-    //     can_printf("ADC8: read-%f", adc_read_val);
+    adc_read_val3 = adc8->read_average();
+    value_changed |= check_ADC_range(2, adc_read_val3);
 
-    adc_read_val = adc9->read_average();
-    check_ADC_range(3, adc_read_val);
-    // if (adc_read_val > 0)
-    //     can_printf("ADC9: read-%f", adc_read_val);
+    adc_read_val4 = adc9->read_average();
+    value_changed |= check_ADC_range(3, adc_read_val4);
+
+    if (value_changed == true) {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "(ADC 1: %5d | 2: %5d | 3: %5d | 4: %5d)", (int)adc_read_val1, (int)adc_read_val2, (int)adc_read_val3, (int)adc_read_val4);
+    }
 }
 #endif // HAL_TESTING_ENABLED
 

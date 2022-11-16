@@ -103,7 +103,10 @@ public:
     void prepare_reboot();
 
 #ifdef HAL_TESTING_ENABLED
-    float adc_read_val = 0.0;
+    float adc_read_val1 = 0.0;
+    float adc_read_val2 = 0.0;
+    float adc_read_val3 = 0.0;
+    float adc_read_val4 = 0.0;
 
     ADC_state_t ADC_state[4];
     int ADC_count[4];
@@ -116,7 +119,7 @@ public:
     AP_HAL::AnalogSource *adc9;
 
     void init_ADC_test_data();
-    void check_ADC_range(int adc_instance, int adc_val);
+    bool check_ADC_range(int adc_instance, float adc_val);
     void test_ADC_input();
 #endif // ifdef HAL_TESTING_ENABLED
 
