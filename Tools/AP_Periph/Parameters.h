@@ -53,14 +53,22 @@ public:
         k_param_esc_telem_port,
         k_param_node_stats,
         k_param_disarm_delay,
-        k_param_ADC5_min_val,
-        k_param_ADC5_max_val,
-        k_param_ADC6_min_val,
-        k_param_ADC6_max_val,
-        k_param_ADC8_min_val,
-        k_param_ADC8_max_val,
-        k_param_ADC9_min_val,
-        k_param_ADC9_max_val,
+        k_param_ADC5_min_val1,
+        k_param_ADC5_max_val1,
+        k_param_ADC5_slope,
+        k_param_ADC5_intercept,
+        k_param_ADC6_min_val1,
+        k_param_ADC6_max_val1,
+        k_param_ADC6_slope,
+        k_param_ADC6_intercept,
+        k_param_ADC8_min_val1,
+        k_param_ADC8_max_val1,
+        k_param_ADC8_slope,
+        k_param_ADC8_intercept,
+        k_param_ADC9_min_val1,
+        k_param_ADC9_max_val1,
+        k_param_ADC9_slope,
+        k_param_ADC9_intercept,
         k_param_ADC_debounce,
     };
 
@@ -138,14 +146,22 @@ public:
     AP_Int32 disarm_delay;
 #endif
 
-    AP_Int16 ADC5_min_val;
-    AP_Int16 ADC5_max_val;
-    AP_Int16 ADC6_min_val;
-    AP_Int16 ADC6_max_val;
-    AP_Int16 ADC8_min_val;
-    AP_Int16 ADC8_max_val;
-    AP_Int16 ADC9_min_val;
-    AP_Int16 ADC9_max_val;
+    AP_Float ADC5_min_val1;
+    AP_Float ADC5_max_val1;
+    AP_Float ADC5_slope;
+    AP_Float ADC5_intercept;
+    AP_Float ADC6_min_val1;
+    AP_Float ADC6_max_val1;
+    AP_Float ADC6_slope;
+    AP_Float ADC6_intercept;
+    AP_Float ADC8_min_val1;
+    AP_Float ADC8_max_val1;
+    AP_Float ADC8_slope;
+    AP_Float ADC8_intercept;
+    AP_Float ADC9_min_val1;
+    AP_Float ADC9_max_val1;
+    AP_Float ADC9_slope;
+    AP_Float ADC9_intercept;
     AP_Int16 ADC_debounce;
 
     Parameters()

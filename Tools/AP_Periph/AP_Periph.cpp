@@ -475,15 +475,25 @@ void AP_Periph_FW::init_ADC_test_data() {
         ADC_state[i] = ADC_STATE_IN_RANGE;
         ADC_count[i] = 0;
     }
-    ADC_min_value[0] = g.ADC5_min_val;
-    ADC_min_value[1] = g.ADC6_min_val;
-    ADC_min_value[2] = g.ADC8_min_val;
-    ADC_min_value[3] = g.ADC9_min_val;
+    ADC_min_value[0] = g.ADC5_min_val1;
+    ADC_min_value[1] = g.ADC6_min_val1;
+    ADC_min_value[2] = g.ADC8_min_val1;
+    ADC_min_value[3] = g.ADC9_min_val1;
 
-    ADC_max_value[0] = g.ADC5_max_val;
-    ADC_max_value[1] = g.ADC6_max_val;
-    ADC_max_value[2] = g.ADC8_max_val;
-    ADC_max_value[3] = g.ADC9_max_val;
+    ADC_max_value[0] = g.ADC5_max_val1;
+    ADC_max_value[1] = g.ADC6_max_val1;
+    ADC_max_value[2] = g.ADC8_max_val1;
+    ADC_max_value[3] = g.ADC9_max_val1;
+
+    ADC_slope[0] = g.ADC5_slope;
+    ADC_slope[1] = g.ADC6_slope;
+    ADC_slope[2] = g.ADC8_slope;
+    ADC_slope[3] = g.ADC9_slope;
+
+    ADC_intercept[0] = g.ADC5_intercept;
+    ADC_intercept[1] = g.ADC6_intercept;
+    ADC_intercept[2] = g.ADC8_intercept;
+    ADC_intercept[3] = g.ADC9_intercept;
 }
 
 bool AP_Periph_FW::check_ADC_range(int adc_instance, float adc_val) {
@@ -573,20 +583,20 @@ void AP_Periph_FW::test_ADC_input() {
     bool value_changed = false;
 
     /* Test ADC inputs */
-    adc_read_val1 = adc5->read_average();
+    adc_read_val1 = ((adc5->read_average() * ADC_slope[0]) + ADC_intercept[0]);
     value_changed |= check_ADC_range(0, adc_read_val1);
 
-    adc_read_val2 = adc6->read_average();
+    adc_read_val2 = ((adc6->read_average() * ADC_slope[1]) + ADC_intercept[1]);
     value_changed |= check_ADC_range(1, adc_read_val2);
 
-    adc_read_val3 = adc8->read_average();
+    adc_read_val3 = ((adc8->read_average() * ADC_slope[2]) + ADC_intercept[2]);
     value_changed |= check_ADC_range(2, adc_read_val3);
 
-    adc_read_val4 = adc9->read_average();
+    adc_read_val4 = ((adc9->read_average() * ADC_slope[3]) + ADC_intercept[3]);
     value_changed |= check_ADC_range(3, adc_read_val4);
 
     if (value_changed == true) {
-        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "(ADC 1: %5d | 2: %5d | 3: %5d | 4: %5d)", (int)adc_read_val1, (int)adc_read_val2, (int)adc_read_val3, (int)adc_read_val4);
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ADC (1: %5.2f | 2: %5.2f | 3: %5.2f | 4: %5.2f)", adc_read_val1, adc_read_val2, adc_read_val3, adc_read_val4);
     }
 }
 #endif // HAL_TESTING_ENABLED

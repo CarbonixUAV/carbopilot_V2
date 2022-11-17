@@ -110,8 +110,10 @@ public:
 
     ADC_state_t ADC_state[4];
     int ADC_count[4];
-    int ADC_min_value[4];
-    int ADC_max_value[4];
+    float ADC_min_value[4];
+    float ADC_max_value[4];
+    float ADC_slope[4];
+    float ADC_intercept[4];
 
     AP_HAL::AnalogSource *adc5;
     AP_HAL::AnalogSource *adc6;
