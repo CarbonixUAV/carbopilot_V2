@@ -392,6 +392,7 @@ void AP_Periph_FW::update()
         last_error_ms = now;
         can_printf("IERR 0x%x %u", unsigned(ierr.errors()), unsigned(ierr.last_error_line()));
     }
+//this will only monitor Arming signal
 #if HAL_PERIPH_ARM_MONITORING_ENABLE
     static uint32_t last_arm_check_ms;
     if (now - last_arm_check_ms > g.disarm_delay){
