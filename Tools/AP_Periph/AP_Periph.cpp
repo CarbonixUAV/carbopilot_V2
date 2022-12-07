@@ -255,7 +255,7 @@ void AP_Periph_FW::init()
 #endif
 
    //custom code carbonix
-    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "CPN Start %s", "Ottano Carbopilot V4.2.1");
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "CPN Start %s", "Ottano Carbopilot V4.2.1 OV3-394");
     start_ms = AP_HAL::native_millis();
 }
 
