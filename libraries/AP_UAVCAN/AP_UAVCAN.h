@@ -206,6 +206,7 @@ public:
     enum class Options : uint16_t {
         DNA_CLEAR_DATABASE        = (1U<<0),
         DNA_IGNORE_DUPLICATE_NODE = (1U<<1),
+        LOG_NODE_STATUS           = (1U<<3),
     };
 
     // check if a option is set
