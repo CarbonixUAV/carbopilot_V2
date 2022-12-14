@@ -23,6 +23,7 @@ class AP_UAVCAN_DNA_Server
     };
 
     enum ServerState {
+        FAILED_TO_CHECK_NODE = -4,
         STORAGE_FAILURE = -3,
         DUPLICATE_NODES = -2,
         FAILED_TO_ADD_NODE = -1,
@@ -127,6 +128,8 @@ public:
     // Log NodeInfo
     void log_NodeStatus(uint8_t node_id, uint32_t uptime_sec, uint8_t healthy, uint8_t mode, uint32_t delta);
     uint32_t last_can_init_delta_ms[126];
+
+    void handleNodesIDCheck(AP_UAVCAN* ap_uavcan);
 };
 
 namespace AP
