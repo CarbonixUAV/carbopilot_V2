@@ -296,6 +296,8 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
     if (!backend) {
         return;
     }
+    // Adding in new requested ECU telemetry fields for Hirth on 18/1/23 for live monitoring
+    // EGT and CGT variables are already in Celcius from Hirth
     mavlink_msg_efi_status_send(
         chan,
         AP_EFI::is_healthy(),
@@ -303,16 +305,18 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         state.engine_speed_rpm,
         state.estimated_consumed_fuel_volume_cm3,
         state.fuel_consumption_rate_cm3pm,
-        state.engine_load_percent,
-        state.throttle_position_percent,
-        state.spark_dwell_time_ms,
-        state.atmospheric_pressure_kpa,
+        state.egt2_temp,        //was state.engine_load_percent, //EGT2
+        state.throttle_position_percent, //throttle position
+        state.spark_dwell_time_ms, //TBD
+        state.cht2_temp, //was barometric pressure/state.atmospheric_pressure_kpa, //CHT2
         state.intake_manifold_pressure_kpa,
         KELVIN_TO_C(state.intake_manifold_temperature),
-        KELVIN_TO_C(state.cylinder_status[0].cylinder_head_temperature),
+        state.cht1_temp, //KELVIN_TO_C(state.cylinder_status[0].cylinder_head_temperature), //CHT1
         state.cylinder_status[0].ignition_timing_deg,
         state.cylinder_status[0].injection_time_ms,
-        0, 0, 0);
+        state.egt1_temp, //EGT1
+        state.thr_pos, //throttle_out from 0 - 100
+        float(state.engine_state)); //pt_compensation
 }
 
 namespace AP {
