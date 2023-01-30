@@ -106,10 +106,10 @@ void AP_EFI_Serial_Hirth::update() {
             new_throttle = (uint16_t)SRV_Channels::get_output_scaled(SRV_Channel::k_throttle);
 
             // Limit throttle percent to 65% for testing purposes only
-            if (new_throttle > 65)
-            {
-                new_throttle = 65;
-            }
+            //if (new_throttle > 65)
+            //{
+            //     new_throttle = 65;
+            // }
 
             //check for change or timeout for throttle value
             if ((new_throttle != old_throttle) || (now - last_req_send_throttle > 500)){
@@ -173,8 +173,8 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
         raw_data[i] = 0;
     }
     
-    // Get throttle value
-    uint16_t throttle = thr * THROTTLE_POSITION_FACTOR;
+    // Get throttle value from parameters config
+    uint16_t throttle = thr * THROTTLE_POSITION_FACTOR * get_throttle_scale();
 
     // set Quantity + Code + "20 bytes of records to set" + Checksum
     computed_checksum += raw_data[idx++] = req_data.quantity = QUANTITY_SET_VALUE;
@@ -284,6 +284,11 @@ void AP_EFI_Serial_Hirth::decode_data() {
         internal_state.thr_pos = (raw_data[72] | raw_data[73] << 0x08);
         internal_state.air_temp = (raw_data[78] | raw_data[79] << 0x08);
         internal_state.eng_temp = (raw_data[74] | raw_data[75] << 0x08);
+        //add in ADC voltage of MAP sensor > convert to MAP in kPa
+        internal_state.converted_map = (raw_data[50] | raw_data[51] << 0x08) * ADC_CALIBRATION * MAP_HPA_PER_VOLT_FACTOR * HPA_TO_KPA; 
+        //#define ADC_CALIBRATION 5.0/1024.0
+        //#define MAP_HPA_PER_VOLT_FACTOR 248.2673
+        //#define HPA_TO_KPA 0.1
 
         //EFI1 Log
         internal_state.engine_speed_rpm = (raw_data[10] | raw_data[11] << 0x08);

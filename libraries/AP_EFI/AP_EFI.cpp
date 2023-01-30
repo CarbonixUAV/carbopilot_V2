@@ -53,6 +53,14 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("_COEF2", 3, AP_EFI, coef2, 0),
 
+    // @Param: _THROTTLE_SCALE
+    // @DisplayName: EFI Throttle Scale Factor
+    // @Description: Scaling throttle into ECU.
+    // @Values: 0 - 1 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THT_SCALE", 4, AP_EFI, throttle_scale, 0.70),
+
     AP_GROUPEND
 };
 
@@ -308,8 +316,8 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         state.throttle_position_percent, //throttle position
         state.spark_dwell_time_ms, //TBD
         state.cht2_temp, //was barometric pressure/state.atmospheric_pressure_kpa, //CHT2
-        state.intake_manifold_pressure_kpa,
-        KELVIN_TO_C(state.intake_manifold_temperature),
+        state.converted_map, //was state.intake_manifold_pressure_kpa
+        state.air_temp, //was KELVIN_TO_C(state.intake_manifold_temperature),
         state.cht1_temp, //KELVIN_TO_C(state.cylinder_status[0].cylinder_head_temperature), //CHT1
         state.cylinder_status[0].ignition_timing_deg,
         state.cylinder_status[0].injection_time_ms,

@@ -223,6 +223,7 @@ struct EFI_State {
     float thr_pos;
     float air_temp;
     float eng_temp;
+    float converted_map;
     uint32_t crc_fail_cnt;
     uint32_t uptime;
     uint32_t loop_cnt;
