@@ -58,8 +58,61 @@ public:
     // Requests backend to update the frontend. Should be called at 10Hz.
     void update();
     
+    // Returns the Engine Load Perct
+    uint8_t get_load_prct() const { return state.engine_load_percent; }
+
     // Returns the RPM
     uint32_t get_rpm() const { return state.engine_speed_rpm; }
+
+    // Returns the atmospheric_pressure_kpa
+    float get_atm_press() const { return state.atmospheric_pressure_kpa; }
+    
+    // Returns the intake_manifold_pressure_kpa
+    float get_in_mani_press() const { return state.intake_manifold_pressure_kpa; }
+
+    // Returns the fuel_consumption_rate_cm3pm
+    float get_fuel_consumption_rate() const { return state.fuel_consumption_rate_cm3pm; }
+
+    // Returns the Engine state
+    uint8_t get_engine_state() const { return uint8_t(state.engine_state); }
+
+
+    
+    // Returns the k_throttle
+    float get_k_throttle() const { return state.k_throttle; }
+    
+    // Returns the thr_pos
+    float get_thr_pos() const { return state.thr_pos; }
+    
+ 
+
+    // Returns the crc_fail_cnt
+    uint32_t get_crc_fail_cnt() const { return state.crc_fail_cnt; }
+
+    //get_temperature
+    bool get_temperature(float &air_temp, float &eng_temp, float &cht1_temp, float &cht2_temp, float &egt1_temp, float &egt2_temp) {
+        air_temp= state.air_temp;
+        eng_temp= state.eng_temp;
+        cht1_temp= state.cht1_temp;
+        cht2_temp= state.cht2_temp;
+        egt1_temp= state.egt1_temp;
+        egt2_temp= state.egt2_temp;
+        return true;
+    }
+
+    // engine_temperature_sensor_status
+    bool get_sensor_status(uint8_t &engine_temperature_sensor_status, uint8_t &air_temperature_sensor_status, uint8_t &air_pressure_sensor_status,uint8_t &throttle_sensor_status, uint8_t &CHT_1_error_excess_temperature_status, uint8_t &CHT_2_error_excess_temperature_status, uint8_t &EGT_1_error_excess_temperature_status, uint8_t &EGT_2_error_excess_temperature_status) {
+
+        engine_temperature_sensor_status = state.engine_temperature_sensor_status;
+        air_temperature_sensor_status = state.air_temperature_sensor_status;
+        air_pressure_sensor_status = state.air_pressure_sensor_status;
+        throttle_sensor_status = state.throttle_sensor_status;
+        CHT_1_error_excess_temperature_status = state.CHT_1_error_excess_temperature_status;
+        CHT_2_error_excess_temperature_status = state.CHT_2_error_excess_temperature_status;
+        EGT_1_error_excess_temperature_status = state.EGT_1_error_excess_temperature_status;
+        EGT_2_error_excess_temperature_status = state.EGT_2_error_excess_temperature_status;
+        return true;
+    }
 
     // returns enabled state of EFI
     bool enabled() const { return type != Type::NONE; }

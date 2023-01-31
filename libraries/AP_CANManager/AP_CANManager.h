@@ -77,6 +77,9 @@ public:
         return HAL_MAX_CAN_PROTOCOL_DRIVERS;
     }
 
+    // can statistics driver
+    bool get_stats(uint8_t _driver_index, uint32_t &tx_requests, uint32_t &tx_rejected,uint32_t &tx_overflow,uint32_t &tx_success,uint32_t &tx_timedout ,uint32_t &tx_abort,uint32_t &rx_received,uint32_t &rx_overflow,uint32_t &rx_errors,uint32_t &num_busoff_err);
+    
     // return driver for index i
     AP_CANDriver* get_driver(uint8_t i) const
     {

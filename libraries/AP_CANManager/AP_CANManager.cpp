@@ -623,6 +623,36 @@ void AP_CANManager::can_frame_callback(uint8_t bus, const AP_HAL::CANFrame &fram
 }
 #endif // HAL_GCS_ENABLED
 
+// can statistics driver
+bool AP_CANManager::get_stats(uint8_t _driver_index, uint32_t &tx_requests, uint32_t &tx_rejected,uint32_t &tx_overflow,uint32_t &tx_success,uint32_t &tx_timedout ,uint32_t &tx_abort,uint32_t &rx_received,uint32_t &rx_overflow,uint32_t &rx_errors,uint32_t &num_busoff_err)
+{
+    const auto *iface = hal.can[_driver_index];
+    if (iface == nullptr) {
+        return false ;
+    }
+    const auto *stats = iface->get_statistics();
+    if (stats == nullptr) {
+        // statistics not implemented on this interface
+        return false;
+    }
+    const auto &s = *stats;
+    tx_requests = s.tx_requests;
+    tx_rejected = s.tx_rejected;
+    tx_rejected = s.tx_rejected;
+    tx_overflow = s.tx_overflow;
+    tx_success = s.tx_success;
+    tx_timedout = s.tx_timedout;
+    tx_abort = s.tx_abort;
+    rx_received = s.rx_received;
+    rx_overflow = s.rx_overflow;
+    rx_errors = s.rx_errors;
+    num_busoff_err = s.num_busoff_err;
+    return true;
+}
+
+
+
+
 AP_CANManager& AP::can()
 {
     return *AP_CANManager::get_singleton();

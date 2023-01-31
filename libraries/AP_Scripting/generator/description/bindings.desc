@@ -506,3 +506,25 @@ singleton AP_Follow method get_target_heading_deg boolean float'Null
 include AC_AttitudeControl/AC_AttitudeControl.h depends APM_BUILD_TYPE(APM_BUILD_ArduPlane)||APM_BUILD_COPTER_OR_HELI
 singleton AC_AttitudeControl depends APM_BUILD_TYPE(APM_BUILD_ArduPlane)||APM_BUILD_COPTER_OR_HELI
 singleton AC_AttitudeControl method get_rpy_srate void float'Ref float'Ref float'Ref
+
+include AP_CANManager/AP_CANManager.h
+singleton AP_CANManager alias can_m
+singleton AP_CANManager method get_num_drivers uint8_t
+singleton AP_CANManager method get_stats boolean uint8_t 0 UINT8_MAX uint32_t'Null uint32_t'Null uint32_t'Null uint32_t'Null uint32_t'Null uint32_t'Null uint32_t'Null uint32_t'Null uint32_t'Null uint32_t'Null
+
+include AP_EFI/AP_EFI.h
+singleton AP_EFI alias ecu
+singleton AP_EFI method is_healthy boolean
+singleton AP_EFI method get_sensor_status boolean uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null
+singleton AP_EFI method get_temperature boolean float'Null float'Null float'Null float'Null float'Null float'Null
+singleton AP_EFI method get_rpm uint32_t 
+singleton AP_EFI method get_load_prct uint8_t 
+singleton AP_EFI method get_atm_press float 
+singleton AP_EFI method get_in_mani_press float 
+singleton AP_EFI method get_fuel_consumption_rate float 
+singleton AP_EFI method get_engine_state uint8_t 
+singleton AP_EFI method get_k_throttle float 
+singleton AP_EFI method get_thr_pos float 
+singleton AP_EFI method get_crc_fail_cnt uint32_t
+singleton AP_EFI method enabled boolean
+
