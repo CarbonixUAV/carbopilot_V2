@@ -19,6 +19,7 @@
 #include <AP_Scripting/AP_Scripting.h>
 #include <AP_HAL/CANIface.h>
 #include <AP_Stats/AP_Stats.h>
+#include "version.h"
 #include "AP_ESC_APDHVPro.h"
 
 #if HAL_GCS_ENABLED
