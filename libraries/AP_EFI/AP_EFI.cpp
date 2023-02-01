@@ -61,6 +61,22 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @RebootRequired: True
     AP_GROUPINFO("_THT_SCALE", 4, AP_EFI, throttle_scale, 0.70),
 
+    // @Param: _THROTTLE_IDLE
+    // @DisplayName: EFI IDLE Throttle value
+    // @Description:  This is the offset value. Ensure ICE_IDLE_PCT=0 for this functionality to work.
+    // @Values: 0 - 100 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_IDLE", 5, AP_EFI, throttle_idle, 15),
+
+    // @Param: _THROTTLE_MAX
+    // @DisplayName: EFI Max Throttle value
+    // @Description: Throttle max cap. Throttle scaling is derived from _THROTTLE_MAX and _THROTTLE_IDLE.
+    // @Values: 0 - 100 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_MAX", 6, AP_EFI, throttle_max, 70),
+
     AP_GROUPEND
 };
 

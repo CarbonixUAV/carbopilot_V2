@@ -122,4 +122,6 @@ private:
     uint16_t old_throttle;
 
     uint8_t data_send;
+
+    float throttle_scaling_factor;
 };
