@@ -1,63 +1,21 @@
-Release Ottano Carbopilot V4.2.7 1st Feb 2023
+Release Ottano Carbopilot V4.3.0 1st Feb 2023
 ----------------------------------
 
 This Release includes
-- OV3-404 AP_Periph: version number in header
-
-Happy flying!
-
-Release Ottano Carbopilot V4.2.6 1st Feb 2023
-----------------------------------
-
-This Release includes
-- OV3-416 AP_Periph: Enable IST8310 compass on CPN
-
-Happy flying!
-
-Release Ottano Carbopilot V4.2.5 1st Feb 2023
-----------------------------------
-
-This Release includes
-- OV3-399 AP_CANManager: disable SLCAN when armed
-
-Happy flying!
-
-Release Ottano Carbopilot V4.2.4 12th December 2022
-----------------------------------
-
-This Release includes
-- OV3-398 AP_Periph ESC packet loss handlng
-
-Happy flying!
-
-Release Ottano Carbopilot V4.2.3 12th December 2022
-----------------------------------
-
-This Release includes
-- OV3-400 AP_UAVCAN: CAN Node status Log
-
-Happy flying!
-
-Release Ottano Carbopilot V4.2.2 12th December 2022
-----------------------------------
-
-This is a Relsease
-- OV3-415 add CAN Bus Statistics Logging 
-
-Happy flying!
-
-Release Ottano Carbopilot V4.2.1 6th December 2022
-----------------------------------
-
-This is a Relsease
- - Rebase of Ottano Code
- - AP_EFI_Hirth : Hirth Driver addition
- - AP_ICEngine : add GPIO test code for kill switch
- - AP_Vehicle: update EFI scheduler to 40 Hz
- - AP_Periph: Addition of ESC APD HVPro 
- - hwdef: CarbonixF405 & CarbonixL496 addition of AP ESC HVPro
- - AP_GPS: disable GPS lag checking in AP_Periph
- - AP_GPS: fixed injection of RTCM on 2 different CAN buses
+  - OV3-404 AP_Periph: version number in header
+  - OV3-416 AP_Periph: Enable IST8310 compass on CPN
+  - OV3-399 AP_CANManager: disable SLCAN when armed
+  - OV3-398 AP_Periph ESC packet loss handlng
+  - OV3-400 AP_UAVCAN: CAN Node status Log
+  - OV3-415 add CAN Bus Statistics Logging 
+  - Rebase of Ottano Code
+  - AP_EFI_Hirth : Hirth Driver addition
+  - AP_ICEngine : add GPIO test code for kill switch
+  - AP_Vehicle: update EFI scheduler to 40 Hz
+  - AP_Periph: Addition of ESC APD HVPro 
+  - hwdef: CarbonixF405 & CarbonixL496 addition of AP ESC HVPro
+  - AP_GPS: disable GPS lag checking in AP_Periph
+  - AP_GPS: fixed injection of RTCM on 2 different CAN buses
 
 Happy flying!
 
