@@ -24,7 +24,7 @@
 #define HIRTH_MAX_PKT_SIZE 100
 #define HIRTH_MAX_RAW_PKT_SIZE 103
 
-#define CHECKSUM_MAX 256
+#define BYTE_RANGE_MAX 256
 
 #define SERIAL_WAIT_DURATION 100
 #define SERIAL_WAIT_TIMEOUT 100
@@ -101,7 +101,7 @@ private:
     uint32_t last_req_send_throttle;
 
     // Raw bytes - max size
-    uint8_t raw_data[HIRTH_MAX_RAW_PKT_SIZE];
+    uint8_t raw_data[BYTE_RANGE_MAX];
 
     // request and response data 
     data_set_t req_data;

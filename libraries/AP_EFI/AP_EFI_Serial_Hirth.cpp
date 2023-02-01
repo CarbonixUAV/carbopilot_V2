@@ -54,8 +54,8 @@ void AP_EFI_Serial_Hirth::update() {
             // reset request if not response for SERIAL_WAIT_TIMEOUT-ms
             if (now - last_response_ms > SERIAL_WAIT_TIMEOUT) {
                 waiting_response = false;
-                port->discard_input();
                 last_response_ms = now;
+                port->discard_input();
                 internal_state.ack_fail_cnt++;
                 if(data_send == 1) {internal_state.ack_s1++;}
                 if(data_send == 2) {internal_state.ack_s2++;}
@@ -81,10 +81,8 @@ void AP_EFI_Serial_Hirth::update() {
                     }
 
                     res_data.checksum = port->read();
-                    computed_checksum = computed_checksum % 256;
-                    // computed_checksum = (256 - computed_checksum);
-                    // discard further bytes if checksum is not matching
-                    if (res_data.checksum != (CHECKSUM_MAX - computed_checksum)) {
+                    computed_checksum = computed_checksum % BYTE_RANGE_MAX;
+                    if (res_data.checksum != (BYTE_RANGE_MAX - computed_checksum)) {
                         internal_state.crc_fail_cnt++;
                         port->discard_input();
                     }
@@ -169,7 +167,7 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     uint8_t computed_checksum = 0;
 
     //clear buffer
-    for (size_t i = 0; i < sizeof(raw_data); i++)
+    for (size_t i = 0; i < BYTE_RANGE_MAX; i++)
     {
         raw_data[i] = 0;
     }
@@ -188,8 +186,8 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
         raw_data[idx] = 0;
     }
     //checksum calculation
-    computed_checksum = computed_checksum % 256;
-    raw_data[QUANTITY_SET_VALUE - 1] = (256 - computed_checksum);
+    computed_checksum = computed_checksum % BYTE_RANGE_MAX;
+    raw_data[QUANTITY_SET_VALUE - 1] = (BYTE_RANGE_MAX - computed_checksum);
 
     //debug
     internal_state.packet_sent = 5;
