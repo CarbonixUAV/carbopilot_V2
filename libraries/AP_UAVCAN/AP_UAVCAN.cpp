@@ -995,13 +995,15 @@ void AP_UAVCAN::handle_ESC_status(AP_UAVCAN* ap_uavcan, uint8_t node_id, const E
         .temperature_cdeg = int16_t((KELVIN_TO_C(cb.msg->temperature)) * 100),
         .voltage = cb.msg->voltage,
         .current = cb.msg->current,
+        .error_status = cb.msg->error_count,
     };
 
     ap_uavcan->update_rpm(esc_index, cb.msg->rpm);
     ap_uavcan->update_telem_data(esc_index, t,
         AP_ESC_Telem_Backend::TelemetryType::CURRENT
             | AP_ESC_Telem_Backend::TelemetryType::VOLTAGE
-            | AP_ESC_Telem_Backend::TelemetryType::TEMPERATURE);
+            | AP_ESC_Telem_Backend::TelemetryType::TEMPERATURE
+            | AP_ESC_Telem_Backend::TelemetryType::ERROR_STATUS);
 #endif
 }
 
