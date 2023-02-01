@@ -45,6 +45,8 @@ protected:
     float get_coef1(void) const;
     float get_coef2(void) const;
     float get_throttle_scale(void) const;
+    float get_throttle_idle(void) const;
+    float get_throttle_max(void) const;
 
 private:
     AP_EFI &frontend;

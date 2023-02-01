@@ -30,6 +30,7 @@
  */
 AP_EFI_Serial_Hirth::AP_EFI_Serial_Hirth(AP_EFI &_frontend) : AP_EFI_Backend(_frontend) {
     port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_EFI, 0);
+    throttle_scaling_factor = (get_throttle_max() - get_throttle_idle()) / 100;
 }
 
 
@@ -115,7 +116,7 @@ void AP_EFI_Serial_Hirth::update() {
             // check for change or timeout for throttle value
             if ((new_throttle != old_throttle) || (now - last_req_send_throttle > 500)) {
                 // if new throttle value, send throttle request
-                status = send_target_values(new_throttle);
+                status = send_target_values((new_throttle * throttle_scaling_factor) + get_throttle_idle());
                 old_throttle = new_throttle;
                 internal_state.k_throttle = new_throttle;
                 last_req_send_throttle = now;
@@ -175,7 +176,7 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     }
     
     // Get throttle value from parameters config
-    uint16_t throttle = thr * THROTTLE_POSITION_FACTOR * get_throttle_scale();
+    uint16_t throttle = thr * THROTTLE_POSITION_FACTOR; // * get_throttle_scale();
 
     // set Quantity + Code + "20 bytes of records to set" + Checksum
     computed_checksum += raw_data[idx++] = req_data.quantity = QUANTITY_SET_VALUE;

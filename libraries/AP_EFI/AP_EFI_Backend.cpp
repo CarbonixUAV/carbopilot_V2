@@ -46,4 +46,14 @@ float AP_EFI_Backend::get_throttle_scale(void) const
 {
     return frontend.throttle_scale;
 }
+
+float AP_EFI_Backend::get_throttle_idle(void) const
+{
+    return frontend.throttle_idle;
+}
+
+float AP_EFI_Backend::get_throttle_max(void) const
+{
+    return frontend.throttle_max;
+}
 #endif // HAL_EFI_ENABLED

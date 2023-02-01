@@ -102,6 +102,8 @@ protected:
     AP_Float coef1;
     AP_Float coef2;
     AP_Float throttle_scale;
+    AP_Float throttle_idle;
+    AP_Float throttle_max;
 
     EFI_State state;
 
