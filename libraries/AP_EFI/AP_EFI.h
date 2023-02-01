@@ -61,6 +61,14 @@ public:
     // Returns the RPM
     uint32_t get_rpm() const { return state.engine_speed_rpm; }
 
+    // for debugging pupose, this value is updated using lua script (which in turn can obtain it from a serial connector)
+    bool set_fuel_consumed(float fuel_consumed) {
+        bool status = true; // send true by default. no health check logic implemented
+        lua_fuel_consumed = fuel_consumed;
+        // state.estimated_consumed_fuel_volume_cm3 = fuel_consumed;
+        return status;
+    }
+
     // returns enabled state of EFI
     bool enabled() const { return type != Type::NONE; }
 
@@ -78,6 +86,8 @@ public:
         // LOWEHEISER = 4,
         Hirth = 6,
     };
+
+    float lua_fuel_consumed;
 
     static AP_EFI *get_singleton(void) {
         return singleton;
