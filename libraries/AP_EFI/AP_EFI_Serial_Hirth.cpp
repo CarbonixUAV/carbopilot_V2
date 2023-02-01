@@ -55,7 +55,9 @@ void AP_EFI_Serial_Hirth::update() {
             if (now - last_response_ms > SERIAL_WAIT_TIMEOUT) {
                 waiting_response = false;
                 last_response_ms = now;
+
                 port->discard_input();
+
                 internal_state.ack_fail_cnt++;
                 if(data_send == 1) {internal_state.ack_s1++;}
                 if(data_send == 2) {internal_state.ack_s2++;}
@@ -93,12 +95,13 @@ void AP_EFI_Serial_Hirth::update() {
                         decode_data();
                         copy_to_frontend();
                     }
+
                     waiting_response = false;
                 }
             }
         }
         
-        //sending cmd
+        // sending cmd
         if(!waiting_response) {
 
             // get new throttle value
@@ -110,8 +113,8 @@ void AP_EFI_Serial_Hirth::update() {
             //     new_throttle = 65;
             // }
 
-            //check for change or timeout for throttle value
-            if ((new_throttle != old_throttle) || (now - last_req_send_throttle > 500)){
+            // check for change or timeout for throttle value
+            if ((new_throttle != old_throttle) || (now - last_req_send_throttle > 500)) {
                 // if new throttle value, send throttle request
                 status = send_target_values((new_throttle * throttle_scaling_factor) + get_throttle_idle());
                 old_throttle = new_throttle;
@@ -119,7 +122,7 @@ void AP_EFI_Serial_Hirth::update() {
                 last_req_send_throttle = now;
             }
             else {
-                //request Status request, if no throttle commands
+                // request Status request, if no throttle commands
                 status = send_request_status();
             }      
 
@@ -166,7 +169,7 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     int idx = 0;
     uint8_t computed_checksum = 0;
 
-    //clear buffer
+    // clear buffer 
     for (size_t i = 0; i < BYTE_RANGE_MAX; i++)
     {
         raw_data[i] = 0;
@@ -191,7 +194,7 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
 
     //debug
     internal_state.packet_sent = 5;
-    data_send =5;
+    data_send = 5;
     
     expected_bytes = QUANTITY_ACK_SET_VALUES;
     //write data

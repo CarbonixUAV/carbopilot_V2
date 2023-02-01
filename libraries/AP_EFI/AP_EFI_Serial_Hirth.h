@@ -100,7 +100,7 @@ private:
     uint32_t last_uptime;
     uint32_t last_req_send_throttle;
 
-    // Raw bytes - max size
+    // raw bytes - max size
     uint8_t raw_data[BYTE_RANGE_MAX];
 
     // request and response data 
