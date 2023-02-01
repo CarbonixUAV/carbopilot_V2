@@ -27,7 +27,7 @@ public:
         float current;
         uint8_t mos_temperature;
         uint8_t cap_temperature;
-        uint16_t status;
+        uint32_t error_status;
         uint32_t error_count;
     };
 
