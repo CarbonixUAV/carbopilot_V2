@@ -6,7 +6,7 @@
 
 #include "ap_version.h"
 
-#define THISFIRMWARE "Ottano Carbopilot V4.2.7"
+#define THISFIRMWARE "Ottano Carbopilot V4.2.8"
 
 // the following line is parsed by the autotest scripts
 #define FIRMWARE_VERSION 4,2,1,FIRMWARE_VERSION_TYPE_OFFICIAL
