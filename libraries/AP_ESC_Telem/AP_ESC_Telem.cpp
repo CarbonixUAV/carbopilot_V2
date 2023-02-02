@@ -435,6 +435,9 @@ void AP_ESC_Telem::update_telem_data(const uint8_t esc_index, const AP_ESC_Telem
     if (data_mask & AP_ESC_Telem_Backend::TelemetryType::USAGE) {
         _telem_data[esc_index].usage_s = new_data.usage_s;
     }
+    if (data_mask & AP_ESC_Telem_Backend::TelemetryType::ERROR_STATUS) {
+        _telem_data[esc_index].error_status = new_data.error_status;
+    }
 
     _telem_data[esc_index].count++;
     _telem_data[esc_index].types |= data_mask;
@@ -504,7 +507,8 @@ void AP_ESC_Telem::update()
                     esc_temp    : _telem_data[i].temperature_cdeg,
                     current_tot : _telem_data[i].consumption_mah,
                     motor_temp  : _telem_data[i].motor_temp_cdeg,
-                    error_rate  : _rpm_data[i].error_rate
+                    error_rate  : _rpm_data[i].error_rate,
+                    error_status: _telem_data[i].error_status
                 };
                 AP::logger().WriteBlock(&pkt, sizeof(pkt));
                 _last_telem_log_ms[i] = _telem_data[i].last_update_ms;

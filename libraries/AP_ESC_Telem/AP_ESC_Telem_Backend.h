@@ -25,6 +25,7 @@ public:
         uint32_t last_update_ms;    // last update time in milliseconds, determines whether active
         uint16_t types;             // telemetry types present
         uint16_t count;             // number of times updated
+        uint32_t error_status;      // error status
     };
 
     struct RpmData {
@@ -41,7 +42,8 @@ public:
         VOLTAGE     = 1 << 2,
         CURRENT     = 1 << 3,
         CONSUMPTION = 1 << 4,
-        USAGE       = 1 << 5
+        USAGE       = 1 << 5,
+        ERROR_STATUS= 1 << 6
     };
 
 
