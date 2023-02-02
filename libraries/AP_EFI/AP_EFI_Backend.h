@@ -47,6 +47,10 @@ protected:
     float get_throttle_scale(void) const;
     float get_throttle_idle(void) const;
     float get_throttle_max(void) const;
+    float get_ecu_fcr_slope(void) const;
+    float get_ecu_fcr_offset(void) const;
+    int16_t get_ecu_fcr_average_count(void) const;
+    int16_t get_fuel_volume_in_ml(void) const;
 
 private:
     AP_EFI &frontend;

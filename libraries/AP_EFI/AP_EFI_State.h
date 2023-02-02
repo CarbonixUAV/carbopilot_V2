@@ -234,4 +234,7 @@ struct EFI_State {
     uint32_t ack_s1;
     uint32_t ack_s2;
     uint32_t ack_s3;
+    float fuel_consumption_rate_average;
+    float fuel_consumption_rate_raw;
+    float total_fuel_consumed;
 };

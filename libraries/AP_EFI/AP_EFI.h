@@ -104,6 +104,10 @@ protected:
     AP_Float throttle_scale;
     AP_Float throttle_idle;
     AP_Float throttle_max;
+    AP_Float ecu_fcr_slope;
+    AP_Float ecu_fcr_offset;
+    AP_Int16 ecu_fcr_average_count;
+    AP_Int16 fuel_volume_in_ml;
 
     EFI_State state;
 

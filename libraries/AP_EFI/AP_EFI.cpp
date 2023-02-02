@@ -77,6 +77,38 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @RebootRequired: True
     AP_GROUPINFO("_THTL_MAX", 6, AP_EFI, throttle_max, 70),
 
+    // @Param: _EFCR_SLP
+    // @DisplayName: ECU Fuel Consumption Rate factor
+    // @Description: ECU FCR gradient/factor. Must be used along with _EFCR_OFT
+    // @Values: 0 - 1000 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_EFCR_SLP", 7, AP_EFI, ecu_fcr_slope, 1),
+
+    // @Param: _EFCR_OFT
+    // @DisplayName: ECU Fuel Consumption Rate Offset
+    // @Description: ECU FCR intercept/offset. Must be used along with _EFCR_SLP
+    // @Values: 0 - 1000 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_EFCR_OFT", 8, AP_EFI, ecu_fcr_offset, 0),
+
+    // @Param: _EFCR_AVG
+    // @DisplayName: ECU Fuel Consumption Rate Average count
+    // @Description: Averages _EFCR_AVG consecutive reading
+    // @Values: 0 - 100 (1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_EFCR_AVG", 9, AP_EFI, ecu_fcr_average_count, 1),
+
+    // @Param: _FUEL_VOL
+    // @DisplayName: Full Fuel Volume
+    // @Description: Full fuel volume in ml
+    // @Values: 0 - 65535 (1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_FUEL_VOL", 10, AP_EFI, fuel_volume_in_ml, 1),
+
     AP_GROUPEND
 };
 
@@ -234,10 +266,10 @@ void AP_EFI::log_status(void)
     //                    uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI2",
-                    "TimeUS,Healthy,ES,SF,ETS,ATS,APS,TS,LogCt,CHT1_E,CHT2_E,IDX",
-                    "s-----------",
-                    "F-----------",
-                    "QBBBBBBBBBBB",
+                    "TimeUS,Healthy,ES,SF,ETS,ATS,APS,TS,LogCt,CHT1_E,CHT2_E,FRAW,FTOT,FAVG,IDX",
+                    "s--------------",
+                    "F----------???-",
+                    "QBBBBBBBBBBfffB",
                     AP_HAL::micros64(),
                     uint8_t(is_healthy()),
                     uint8_t(state.engine_state),
@@ -249,6 +281,9 @@ void AP_EFI::log_status(void)
                     uint8_t(state.no_of_log_data),
                     uint8_t(state.CHT_1_error_excess_temperature_status),
                     uint8_t(state.CHT_2_error_excess_temperature_status),
+                    float(state.fuel_consumption_rate_raw),
+                    float(state.total_fuel_consumed),
+                    float(state.fuel_consumption_rate_average),
                     uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI3",
