@@ -121,6 +121,11 @@ private:
     uint16_t new_throttle;
     uint16_t old_throttle;
 
+    float fuel_consumption_rate_average;
+    float fuel_consumption_rate_raw;
+    float fuel_consumption_rate;
+    float total_fuel_consumed;
+
     uint8_t data_send;
 
     float throttle_scaling_factor;
