@@ -44,6 +44,7 @@ protected:
     int8_t get_uavcan_node_id(void) const;
     float get_coef1(void) const;
     float get_coef2(void) const;
+    float get_throttle_scale(void) const;
 
 private:
     AP_EFI &frontend;
