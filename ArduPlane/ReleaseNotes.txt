@@ -1,3 +1,11 @@
+Release Ottano Carbopilot V4.3.1 OV3-489 2nd Feb 2023
+----------------------------------
+
+This release includes:
+ - OV3-489-hirth-ecu-telemetry-mavlink-modification
+
+Happy flying!
+
 Release Ottano Carbopilot V4.3.1 2nd Feb 2023
 ----------------------------------
 
