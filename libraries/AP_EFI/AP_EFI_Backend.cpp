@@ -56,4 +56,25 @@ float AP_EFI_Backend::get_throttle_max(void) const
 {
     return frontend.throttle_max;
 }
+
+float AP_EFI_Backend::get_ecu_fcr_slope(void) const
+{
+    return frontend.ecu_fcr_slope;
+}
+
+float AP_EFI_Backend::get_ecu_fcr_offset(void) const
+{
+    return frontend.ecu_fcr_offset;
+}
+
+int16_t AP_EFI_Backend::get_ecu_fcr_average_count(void) const
+{
+    return frontend.ecu_fcr_average_count;
+}
+
+int16_t AP_EFI_Backend::get_fuel_volume_in_ml(void) const
+{
+    return frontend.fuel_volume_in_ml;
+}
+
 #endif // HAL_EFI_ENABLED
