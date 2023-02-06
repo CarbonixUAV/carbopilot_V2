@@ -226,7 +226,8 @@ void AP_EFI::log_status(void)
                        float(state.oil_pressure),
                        float(state.oil_temperature),
                        float(state.fuel_pressure),
-                       float(state.fuel_consumption_rate_cm3pm),
+                       float(state.fuel_consumption_rate_raw),
+                       //float(state.fuel_consumption_rate_cm3pm),
                        float(state.estimated_consumed_fuel_volume_cm3),
                        uint8_t(state.throttle_position_percent),
                        uint8_t(state.ecu_index));
