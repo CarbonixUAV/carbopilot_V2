@@ -91,6 +91,8 @@ public:
 
     void get_quantity();
 
+    float get_avg_fuel_consumed(float fuel_consumed);
+
 private:
     // serial port instance
     AP_HAL::UARTDriver *port;
@@ -126,6 +128,10 @@ private:
     float fuel_consumption_rate_raw;
     float fuel_consumption_rate;
     float total_fuel_consumed;
+    float instance_fuel_reading[BYTE_RANGE_MAX];
+    uint8_t fuel_avg_count;
+    uint8_t fuel_avg_config;
+
 
     uint8_t data_send;
 
