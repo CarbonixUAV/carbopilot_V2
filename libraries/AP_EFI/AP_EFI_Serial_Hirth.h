@@ -91,7 +91,7 @@ public:
 
     void get_quantity();
 
-    float get_avg_fuel_consumed(float fuel_consumed);
+    float get_avg_fuel_consumption_rate(float fuel_consumed);
 
 private:
     // serial port instance
