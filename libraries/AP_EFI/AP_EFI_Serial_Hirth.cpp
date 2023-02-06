@@ -31,6 +31,7 @@
 AP_EFI_Serial_Hirth::AP_EFI_Serial_Hirth(AP_EFI &_frontend) : AP_EFI_Backend(_frontend) {
     port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_EFI, 0);
     throttle_scaling_factor = (get_throttle_max() - get_throttle_idle()) / 100;
+    fuel_avg_config = get_ecu_fcr_average_count();
 }
 
 
@@ -338,6 +339,19 @@ void AP_EFI_Serial_Hirth::decode_data() {
     //     // Do nothing for now
     //     break;
     }
+}
+
+
+float AP_EFI_Serial_Hirth::get_avg_fuel_consumed(float fuel_consumed) {
+    uint8_t idx = (fuel_avg_count++) % fuel_avg_config;
+    float avg_fuel_consumed = 0;
+
+    instance_fuel_reading[idx] = fuel_consumed;
+    for (int i = 0; i < fuel_avg_config; i++) {
+        avg_fuel_consumed += instance_fuel_reading[i];
+    }
+    
+    return (avg_fuel_consumed / fuel_avg_config);
 }
 
 #endif // HAL_EFI_ENABLED
