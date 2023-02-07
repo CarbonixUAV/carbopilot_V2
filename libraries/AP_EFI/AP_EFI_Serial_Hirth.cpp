@@ -23,6 +23,8 @@
 #include "SRV_Channel/SRV_Channel.h"
 
 
+extern const AP_HAL::HAL& hal;
+
 /**
  * @brief Constructor with port initialization
  * 
@@ -108,16 +110,17 @@ void AP_EFI_Serial_Hirth::update() {
             // get new throttle value
             new_throttle = (uint16_t)SRV_Channels::get_output_scaled(SRV_Channel::k_throttle);
 
-            // Limit throttle percent to 65% for testing purposes only
-            //if (new_throttle > 65)
-            //{
-            //     new_throttle = 65;
-            // }
-
             // check for change or timeout for throttle value
             if ((new_throttle != old_throttle) || (now - last_req_send_throttle > 500)) {
                 // if new throttle value, send throttle request
-                status = send_target_values((new_throttle * throttle_scaling_factor) + get_throttle_idle());
+                // also send new throttle value, only when ARMED
+                if (hal.util->persistent_data.armed) {
+                    status = send_target_values((new_throttle * throttle_scaling_factor) + get_throttle_idle());
+                }
+                else{
+                    status = send_target_values(0);
+                }
+
                 old_throttle = new_throttle;
                 internal_state.k_throttle = new_throttle;
                 last_req_send_throttle = now;
