@@ -1551,6 +1551,7 @@ void AP_Periph_FW::APD_ESC_Telem_update() {
     pkt.current = APD_ESC_Telem.decoded.bus_current;
     pkt.temperature = APD_ESC_Telem.decoded.temperature;
     pkt.rpm = APD_ESC_Telem.decoded.rpm;
+    pkt.error_count = APD_ESC_Telem.decoded.status;
     // pkt.power_rating_pct = APD_ESC_Telem.decoded.
 
     uint8_t buffer[UAVCAN_EQUIPMENT_ESC_STATUS_MAX_SIZE] {};

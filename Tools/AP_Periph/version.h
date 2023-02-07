@@ -3,7 +3,7 @@
 #ifndef __AP_PERIPH_FW_VERSION__
 #define __AP_PERIPH_FW_VERSION__
 
-#define THISFIRMWARE "Ottano Carbopilot V4.3.4 OV3-493"
+#define THISFIRMWARE "Ottano Carbopilot V4.3.5 - beta"
 
 // the following line is parsed by the autotest scripts
 #define FIRMWARE_VERSION 1,3,0,FIRMWARE_VERSION_TYPE_DEV

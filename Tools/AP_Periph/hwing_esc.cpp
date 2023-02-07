@@ -135,7 +135,7 @@ bool HWESC_Telem::parse_packet(void)
     decoded.current = int16_t(be16toh(pkt.current)) * 0.01;
     decoded.mos_temperature = temperature_decode(pkt.mos_temperature);
     decoded.cap_temperature = temperature_decode(pkt.cap_temperature);
-    decoded.status = be16toh(pkt.status);
+    decoded.status = be32toh(pkt.status);
     if (decoded.status != 0) {
         decoded.error_count++;
     }

@@ -2,7 +2,7 @@ Release Ottano Carbopilot V4.3.4 7th Feb 2023
 ----------------------------------
 
 This release includes:
- - feature/OV3-493-engine-parameters-configurable-rather-than-hard-coded
+ - feature/OV3-463-hv-pro-esc-status-reporting-sw
 
 Happy flying!
 
