@@ -53,21 +53,13 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("_COEF2", 3, AP_EFI, coef2, 0),
 
-    // @Param: _THROTTLE_SCALE
-    // @DisplayName: EFI Throttle Scale Factor
-    // @Description: Scaling throttle into ECU.
-    // @Values: 0 - 1 (0.1 Resolution)
-    // @User: Advanced
-    // @RebootRequired: True
-    AP_GROUPINFO("_THT_SCALE", 4, AP_EFI, throttle_scale, 0.70),
-
     // @Param: _THROTTLE_IDLE
     // @DisplayName: EFI IDLE Throttle value
     // @Description:  This is the offset value. Ensure ICE_IDLE_PCT=0 for this functionality to work.
     // @Values: 0 - 100 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_THTL_IDLE", 5, AP_EFI, throttle_idle, 15),
+    AP_GROUPINFO("_THTL_IDLE", 4, AP_EFI, throttle_idle, 15),
 
     // @Param: _THROTTLE_MAX
     // @DisplayName: EFI Max Throttle value
@@ -75,7 +67,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 100 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_THTL_MAX", 6, AP_EFI, throttle_max, 70),
+    AP_GROUPINFO("_THTL_MAX", 5, AP_EFI, throttle_max, 70),
 
     // @Param: _EFCR_SLP
     // @DisplayName: ECU Fuel Consumption Rate factor
@@ -83,7 +75,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 1000 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_SLP", 7, AP_EFI, ecu_fcr_slope, 1),
+    AP_GROUPINFO("_EFCR_SLP", 6, AP_EFI, ecu_fcr_slope, 1),
 
     // @Param: _EFCR_OFT
     // @DisplayName: ECU Fuel Consumption Rate Offset
@@ -91,7 +83,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 1000 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_OFT", 8, AP_EFI, ecu_fcr_offset, 0),
+    AP_GROUPINFO("_EFCR_OFT", 7, AP_EFI, ecu_fcr_offset, 0),
 
     // @Param: _EFCR_AVG
     // @DisplayName: ECU Fuel Consumption Rate Average count
@@ -99,15 +91,15 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 100 (1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_AVG", 9, AP_EFI, ecu_fcr_average_count, 1),
+    AP_GROUPINFO("_EFCR_AVG", 8, AP_EFI, ecu_fcr_average_count, 1),
 
     // @Param: _FUEL_VOL
-    // @DisplayName: Full Fuel Volume
+    // @DisplayName: Full Fuel Volume / Capacity
     // @Description: Full fuel volume in ml
     // @Values: 0 - 65535 (1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_FUEL_VOL", 10, AP_EFI, fuel_volume_in_ml, 1),
+    AP_GROUPINFO("_FUEL_VOL", 9, AP_EFI, fuel_volume_in_ml, 1),
 
     AP_GROUPEND
 };

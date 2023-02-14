@@ -180,7 +180,7 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
     }
     
     // Get throttle value from parameters config
-    uint16_t throttle = thr * THROTTLE_POSITION_FACTOR; // * get_throttle_scale();
+    uint16_t throttle = thr * THROTTLE_POSITION_FACTOR;
 
     // set Quantity + Code + "20 bytes of records to set" + Checksum
     computed_checksum += raw_data[idx++] = req_data.quantity = QUANTITY_SET_VALUE;

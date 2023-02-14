@@ -42,11 +42,6 @@ float AP_EFI_Backend::get_coef2(void) const
     return frontend.coef2;
 }
 
-float AP_EFI_Backend::get_throttle_scale(void) const
-{
-    return frontend.throttle_scale;
-}
-
 float AP_EFI_Backend::get_throttle_idle(void) const
 {
     return frontend.throttle_idle;
