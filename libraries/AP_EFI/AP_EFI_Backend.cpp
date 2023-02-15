@@ -64,6 +64,9 @@ float AP_EFI_Backend::get_ecu_fcr_offset(void) const
 
 int16_t AP_EFI_Backend::get_ecu_fcr_average_count(void) const
 {
+    if (frontend.ecu_fcr_average_count >= 255){
+        return 255;
+    }
     return frontend.ecu_fcr_average_count;
 }
 

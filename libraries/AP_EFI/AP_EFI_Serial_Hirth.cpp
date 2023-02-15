@@ -291,10 +291,7 @@ void AP_EFI_Serial_Hirth::decode_data() {
         internal_state.air_temp = (raw_data[78] | raw_data[79] << 0x08);
         internal_state.eng_temp = (raw_data[74] | raw_data[75] << 0x08);
         //add in ADC voltage of MAP sensor > convert to MAP in kPa
-        internal_state.converted_map = (raw_data[50] | raw_data[51] << 0x08) * ADC_CALIBRATION * MAP_HPA_PER_VOLT_FACTOR * HPA_TO_KPA; 
-        //#define ADC_CALIBRATION 5.0/1024.0
-        //#define MAP_HPA_PER_VOLT_FACTOR 248.2673
-        //#define HPA_TO_KPA 0.1
+        internal_state.converted_map = (raw_data[50] | raw_data[51] << 0x08) * ADC_CALIBRATION * MAP_HPA_PER_VOLT_FACTOR * HPA_TO_KPA;
         internal_state.battery_voltage = (raw_data[76] | raw_data[77] << 0x08) * VOLTAGE_RESOLUTION;
 
         //EFI1 Log
@@ -317,11 +314,7 @@ void AP_EFI_Serial_Hirth::decode_data() {
 
         total_fuel_consumed = total_fuel_consumed + internal_state.fuel_consumption_rate_cm3pm;
         internal_state.total_fuel_consumed = total_fuel_consumed;
-
         internal_state.throttle_position_percent = (raw_data[62] | raw_data[63] << 0x08) / THROTTLE_POSITION_RESOLUTION;
-        
-        //EFI2 Log
-        // internal_state.no_of_log_data = raw_data[52] | raw_data[53] << 0x08 | raw_data[53] << 0x08 | raw_data[53] << 0x08
         break;
 
     case CODE_REQUEST_STATUS_3: // TBD - internal state addition
@@ -346,10 +339,10 @@ void AP_EFI_Serial_Hirth::decode_data() {
 
 
 float AP_EFI_Serial_Hirth::get_avg_fuel_consumption_rate(float fuel_consumed) {
-    uint8_t idx = (fuel_avg_count++) % fuel_avg_config;
+    fuel_avg_count = (fuel_avg_count++) % fuel_avg_config;
     float avg_fuel_consumed = 0;
 
-    instance_fuel_reading[idx] = fuel_consumed;
+    instance_fuel_reading[fuel_avg_count] = fuel_consumed;
     for (int i = 0; i < fuel_avg_config; i++) {
         avg_fuel_consumed += instance_fuel_reading[i];
     }
