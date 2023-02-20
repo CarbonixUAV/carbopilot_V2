@@ -1,3 +1,15 @@
+Release Volanti Carbopilot V4.2.3 20th February 2023
+----------------------------------
+
+This Release includes
+- VO1-147 AP_Periph: version number in header
+- VO1-147 AP_CANManager: disable SLCAN when armed
+- VO1-147 AP_Periph: Add timeout to ESC driving when CAN packets are lost
+- VO1-147 AP_UAVCAN: CAN Node status Log
+- VO1-147 AP_UAVCAN: log bus statistics
+
+Happy flying!
+
 Release Volanti Carbopilot V4.2.2 20th February 2023
 ----------------------------------
 
