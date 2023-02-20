@@ -239,8 +239,11 @@ void AP_Periph_FW::init()
 #if AP_SCRIPTING_ENABLED
     scripting.init();
 #endif
-   //custom code carbonix
-    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "CPN Start %s", "Volanti Carbopilot V4.2.2");
+    // custom code carbonix
+    char *ap_periph_version;
+    asprintf(&ap_periph_version, "CPN Start (%s)", THISFIRMWARE);
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "%s", ap_periph_version);
+    ap_periph_version = nullptr;
     start_ms = AP_HAL::native_millis();
 }
 
@@ -392,6 +395,7 @@ void AP_Periph_FW::update()
         last_error_ms = now;
         can_printf("IERR 0x%x %u", unsigned(ierr.errors()), unsigned(ierr.last_error_line()));
     }
+//this will only monitor Arming signal
 #if HAL_PERIPH_ARM_MONITORING_ENABLE
     static uint32_t last_arm_check_ms;
     if (now - last_arm_check_ms > g.disarm_delay){

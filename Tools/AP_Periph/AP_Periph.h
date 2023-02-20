@@ -19,6 +19,7 @@
 #include <AP_Scripting/AP_Scripting.h>
 #include <AP_HAL/CANIface.h>
 #include <AP_Stats/AP_Stats.h>
+#include "version.h"
 
 #if HAL_GCS_ENABLED
 #include "GCS_MAVLink.h"
@@ -198,6 +199,9 @@ public:
 
     SRV_Channels servo_channels;
     bool rcout_has_new_data_to_update;
+
+    uint32_t last_esc_raw_command_ms;
+    uint8_t  last_esc_num_channels;
 
     void rcout_init();
     void rcout_init_1Hz();

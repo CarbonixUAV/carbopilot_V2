@@ -103,7 +103,7 @@ const AP_Param::GroupInfo AP_UAVCAN::var_info[] = {
     // @Param: OPTION
     // @DisplayName: UAVCAN options
     // @Description: Option flags
-    // @Bitmask: 0:ClearDNADatabase,1:IgnoreDNANodeConflicts
+    // @Bitmask: 0:ClearDNADatabase,1:IgnoreDNANodeConflicts,2:EnableCanfd,3:LogNodeStatus
     // @User: Advanced
     AP_GROUPINFO("OPTION", 5, AP_UAVCAN, _options, 0),
     
@@ -437,6 +437,7 @@ void AP_UAVCAN::loop(void)
         send_parameter_request();
         send_parameter_save_request();
         AP::uavcan_dna_server().verify_nodes(this);
+        logging();
     }
 }
 
@@ -484,7 +485,11 @@ void AP_UAVCAN::SRV_send_actuator(void)
         }
 
         if (i > 0) {
-            act_out_array[_driver_index]->broadcast(msg);
+            if (act_out_array[_driver_index]->broadcast(msg) > 0) {
+                _srv_send_count++;
+            } else {
+                _fail_send_count++;
+            }
 
             if (i == 15) {
                 repeat_send = true;
@@ -535,7 +540,11 @@ void AP_UAVCAN::SRV_send_esc(void)
             k++;
         }
 
-        esc_raw[_driver_index]->broadcast(esc_msg);
+        if (esc_raw[_driver_index]->broadcast(esc_msg) > 0) {
+            _esc_send_count++;
+        } else {
+            _fail_send_count++;
+        }
     }
 }
 
@@ -1149,6 +1158,54 @@ bool AP_UAVCAN::check_and_reset_option(Options option)
         _options.set_and_save(int16_t(_options.get() & ~uint16_t(option)));
     }
     return ret;
+}
+
+/*
+  periodic logging
+ */
+void AP_UAVCAN::logging(void)
+{
+#if HAL_LOGGING_ENABLED
+    const uint32_t now_ms = AP_HAL::millis();
+    if (now_ms - last_log_ms < 1000) {
+        return;
+    }
+    last_log_ms = now_ms;
+    if (HAL_NUM_CAN_IFACES <= _driver_index) {
+        // no interface?
+        return;
+    }
+    const auto *iface = hal.can[_driver_index];
+    if (iface == nullptr) {
+        return;
+    }
+    const auto *stats = iface->get_statistics();
+    if (stats == nullptr) {
+        // statistics not implemented on this interface
+        return;
+    }
+    const auto &s = *stats;
+    AP::logger().WriteStreaming("CANS",
+                                "TimeUS,I,T,Trq,Trej,Tov,Tto,Tab,R,Rov,Rer,Bo,Etx,Stx,Ftx",
+                                "s#-------------",
+                                "F--------------",
+                                "QBIIIIIIIIIIIII",
+                                AP_HAL::micros64(),
+                                _driver_index,
+                                s.tx_success,
+                                s.tx_requests,
+                                s.tx_rejected,
+                                s.tx_overflow,
+                                s.tx_timedout,
+                                s.tx_abort,
+                                s.rx_received,
+                                s.rx_overflow,
+                                s.rx_errors,
+                                s.num_busoff_err,
+                                _esc_send_count,
+                                _srv_send_count,
+                                _fail_send_count);
+#endif // HAL_LOGGING_ENABLED
 }
 
 #endif // HAL_NUM_CAN_IFACES
