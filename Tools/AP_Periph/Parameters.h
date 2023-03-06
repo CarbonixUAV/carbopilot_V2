@@ -54,6 +54,7 @@ public:
         k_param_node_stats,
         k_param_disarm_delay,
         k_param_esc_command_timeout_ms,
+        k_param_config_version,
     };
 
     AP_Int16 format_version;
@@ -130,6 +131,9 @@ public:
 #if HAL_PERIPH_ARM_MONITORING_ENABLE
     AP_Int32 disarm_delay;
 #endif
+
+    // configurations
+    AP_Float config_version; // config baseline version
 
     Parameters() {}
 };

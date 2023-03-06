@@ -352,6 +352,9 @@ public:
         k_param_gcs6,          // stream rates
         k_param_fence,         // vehicle fence
         k_param_acro_yaw_rate,
+
+        // configurations
+        k_param_config_version, // config baseline version
     };
 
     AP_Int16 format_version;
@@ -463,6 +466,9 @@ public:
     AP_Int8 override_channel;
 #endif
     AP_Int16 gcs_pid_mask;
+
+    // configurations
+    AP_Float config_version; // config baseline version
 };
 
 /*
