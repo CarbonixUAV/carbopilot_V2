@@ -397,17 +397,17 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Units: ms
     // @User: Advanced
     GSCALAR(disarm_delay, "DISARM_DELAY", 2000),
+#endif
 
     // @Param: CONFIG_VERSION
     // @DisplayName: Config Version
     // @Description: Baselined Config Version is updated here, for tracking and logging purposes
-    // @Values: 0: Baselined version not updated
-    // @Range: 0-65535
-    // @Increment: 0.1
+    // @Values: 0 - Baselined version not updated
+    // @Range: 0-2147483647
+    // @Increment: 1
     // @User: Standard
-    GSCALAR(config_version, "CONFIG_VERSION", 0.0),
-    
-#endif
+    GSCALAR(config_version, "CONFIG_VERSION", 0),
+
     AP_VAREND
 };
 

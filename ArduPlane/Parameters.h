@@ -468,7 +468,7 @@ public:
     AP_Int16 gcs_pid_mask;
 
     // configurations
-    AP_Float config_version; // config baseline version
+    AP_Int32 config_version; // config baseline version
 };
 
 /*

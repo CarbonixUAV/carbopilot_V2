@@ -741,11 +741,11 @@ const AP_Param::Info Plane::var_info[] = {
     // @Param: CONFIG_VERSION
     // @DisplayName: Config Version
     // @Description: Baselined Config Version is updated here, for tracking and logging purposes
-    // @Values: 0: Baselined version not updated
-    // @Range: 0-65535
-    // @Increment: 0.1
+    // @Values: 0 - Baselined version not updated
+    // @Range: 0-2147483647
+    // @Increment: 1
     // @User: Standard
-    GSCALAR(config_version,         "CONFIG_VERSION",   0.0),
+    GSCALAR(config_version, "CONFIG_VERSION", 0),
 
     // @Group: BARO
     // @Path: ../libraries/AP_Baro/AP_Baro.cpp
