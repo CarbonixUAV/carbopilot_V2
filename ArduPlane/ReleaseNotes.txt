@@ -1,3 +1,11 @@
+Release Volanti Carbopilot V4.3.1 13th Apr 2023
+----------------------------------
+
+This Release includes
+- feature/VO1-190-change-hal-periph-loop-delay-us-to-1024
+
+Happy Flying!
+
 Release Volanti Carbopilot V4.3.0 2nd March 2023
 ----------------------------------
 
