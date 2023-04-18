@@ -551,7 +551,7 @@ void AP_SerialManager::init()
 #endif
                     
                 case SerialProtocol_EFI:
-                    state[i].baud.set_default(AP_SERIALMANAGER_EFI_MS_BAUD);
+                    // state[i].baud.set_default(AP_SERIALMANAGER_EFI_MS_BAUD);
                     uart->begin(state[i].baudrate(),
                                          AP_SERIALMANAGER_EFI_MS_BUFSIZE_RX,
                                          AP_SERIALMANAGER_EFI_MS_BUFSIZE_TX);
