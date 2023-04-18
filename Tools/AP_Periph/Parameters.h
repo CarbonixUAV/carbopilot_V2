@@ -59,6 +59,7 @@ public:
         k_param_efi,
         k_param_efi_port,
         k_param_efi_baudrate,
+        k_param_disarm_delay,
     };
 
     AP_Int16 format_version;
@@ -143,6 +144,11 @@ public:
 #else
     static constexpr uint8_t can_fdmode = 0;
 #endif
+
+#if HAL_PERIPH_ARM_MONITORING_ENABLE
+    AP_Int32 disarm_delay;
+#endif
+
     Parameters() {}
 };
 
