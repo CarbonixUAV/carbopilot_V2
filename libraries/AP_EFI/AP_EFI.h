@@ -84,6 +84,7 @@ public:
         DroneCAN = 5,
         CurrawongECU = 6,
         SCRIPTING  = 7,
+        Hirth = 8,
     };
 
     static AP_EFI *get_singleton(void) {
