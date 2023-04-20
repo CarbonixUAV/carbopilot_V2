@@ -240,8 +240,11 @@ void AP_Periph_FW::init()
 #if AP_SCRIPTING_ENABLED
     scripting.init();
 #endif
-   //custom code carbonix
-    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "CPN Start %s", "AP_Periph V1.3dev_CarboPeriph V4.0");
+    // custom code carbonix
+    char *ap_periph_version;
+    asprintf(&ap_periph_version, "CPN Start (%s)", THISFIRMWARE);
+    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "%s", ap_periph_version);
+    ap_periph_version = nullptr;
     start_ms = AP_HAL::native_millis();
 }
 
