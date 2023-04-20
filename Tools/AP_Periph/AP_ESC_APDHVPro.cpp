@@ -36,9 +36,7 @@ bool AP_ESC_APDHVPro::update() {
             if (read_ESC_telemetry_data(bytes_read)) {
                 last_read_ms = AP_HAL::native_millis();
 
-                parse_ESC_telemetry_data();
-
-                status = true;
+                status = parse_ESC_telemetry_data();
             }
         }
     }
@@ -67,20 +65,38 @@ bool AP_ESC_APDHVPro::parse_ESC_telemetry_data() {
 
     int check_fletch = check_flectcher16();
 
-    decoded.voltage = (uint16_t)(((raw_buffer[1] << 8) + raw_buffer[0])/100);
-    
-    float rntc = (TEMPERATURE_MAX_RESOLUTION/(float)((raw_buffer[3] << 8) + raw_buffer[2])) - 1;
-    float temperature1 = (logF((SERIESRESISTOR / rntc) / (float)NOMINAL_RESISTANCE)) / BCOEFFICIENT;
-    decoded.temperature = (uint16_t)(1 / ((1 / ((float)NOMINAL_RESISTANCE + (float)273.15)) + temperature1)) - (float)273.15;
+    //decoded.voltage = (float)(((raw_buffer[1] << 8) | raw_buffer[0])/100.0);
+    decoded.voltage = (float)(((((raw_buffer[1] << 8) | raw_buffer[0])/100.0) - HVPRO_CALIB_INTCPT)/HVPRO_CALIB_SLOPE);
+ 
+    float rntc = (TEMPERATURE_MAX_RESOLUTION / (float)((raw_buffer[3] << 8) | raw_buffer[2])) - 1;
 
-    decoded.bus_current = (uint16_t)(((raw_buffer[5] << 8) + raw_buffer[4]) / CURRENT_COEFFICIENT);
-    decoded.reserved1 = (uint16_t)((raw_buffer[7] << 8) + raw_buffer[6]);
-    decoded.rpm = ((uint32_t)((raw_buffer[11] << 24) + (raw_buffer[10] << 16) + (raw_buffer[9] << 8) + raw_buffer[8])) / POLECOUNT;
-    decoded.input_duty = (uint16_t)((raw_buffer[13] << 8) + raw_buffer[12]) / 10;
-    decoded.motor_duty = (uint16_t)((raw_buffer[15] << 8) + raw_buffer[14]) / 10;
+    rntc = SERIESRESISTOR / rntc;
+
+    float temperature = rntc / (float)NOMINAL_RESISTANCE;
+    temperature = (float)logF(temperature);
+    temperature /= BCOEFFICIENT;
+
+    temperature += (float)1.0 / ((float)NOMINAL_TEMPERATURE + (float)273.15);
+    temperature = (float)1.0 / temperature;
+    temperature -= (float)273.15;
+
+    // filter bad values
+    if (temperature < 0 || temperature > 200){
+        temperature = 0;
+    }
+
+    decoded.temperature = ((float)trunc(temperature * 100) / 100) + 273.15;  // Temperature
+
+    float temp_current = (short)((raw_buffer[5] << 8) | raw_buffer[4]);
+    temp_current /= CURRENT_COEFFICIENT;
+    decoded.bus_current = (temp_current);
+    decoded.reserved1 = (uint16_t)((raw_buffer[7] << 8) | raw_buffer[6]);
+    decoded.rpm = ((uint32_t)((raw_buffer[11] << 24) | (raw_buffer[10] << 16) | (raw_buffer[9] << 8) | raw_buffer[8])) / POLEPAIRS;
+    decoded.input_duty = (uint16_t)((raw_buffer[13] << 8) | raw_buffer[12]) / 10;
+    decoded.motor_duty = (uint16_t)((raw_buffer[15] << 8) | raw_buffer[14]) / 10;
     decoded.status = raw_buffer[16];
     decoded.reserved2 = raw_buffer[17];
-    decoded.checksum = (uint16_t)((raw_buffer[19] << 8) + raw_buffer[18]);
+    decoded.checksum = (uint16_t)((raw_buffer[19] << 8) | raw_buffer[18]);
 
     // Currently, checksum code is not mandated
     if (check_fletch == (int)decoded.checksum) { 

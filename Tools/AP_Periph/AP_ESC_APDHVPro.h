@@ -11,6 +11,7 @@
 #define ESC_PACKET_SIZE 22
 
 #define POLECOUNT 42
+#define POLEPAIRS (POLECOUNT / 2)
 #define CURRENT_COEFFICIENT 12.5
 
 #define SERIESRESISTOR 10000
@@ -20,11 +21,13 @@
 
 #define TEMPERATURE_MAX_RESOLUTION 4096
 
+#define HVPRO_CALIB_SLOPE 0.9309
+#define HVPRO_CALIB_INTCPT 2.2297
 
 typedef struct {
-    uint16_t voltage;
-    uint16_t temperature;
-    uint16_t bus_current;
+    float voltage;
+    float temperature;
+    float bus_current;
     uint16_t reserved1;
     uint32_t rpm;
     uint16_t input_duty;
