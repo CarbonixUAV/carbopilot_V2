@@ -46,7 +46,12 @@ protected:
     float get_coef1(void) const;
     float get_coef2(void) const;
     float get_ecu_fuel_density(void) const;
-
+    float get_throttle_idle(void) const;
+    float get_throttle_max(void) const;
+    float get_ecu_fcr_slope(void) const;
+    float get_ecu_fcr_offset(void) const;
+    int16_t get_ecu_fcr_average_count(void) const;
+    int16_t get_fuel_volume_in_ml(void) const;
     HAL_Semaphore &get_sem(void);
 
 private:

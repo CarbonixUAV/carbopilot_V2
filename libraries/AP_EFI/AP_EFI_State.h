@@ -33,8 +33,9 @@
 enum class Engine_State : uint8_t {
     STOPPED  = 0,
     STARTING = 1,
-    RUNNING  = 2,
-    FAULT    = 3
+    FAULT    = 2,
+    STARTING_WARM_UP = 3,
+    RUNNING  = 4
 };
 
 enum class Crankshaft_Sensor_Status : uint8_t {
@@ -206,4 +207,38 @@ struct EFI_State {
 
     // PT compensation
     float pt_compensation;
+    
+    //custom parameters CX
+    uint8_t save_in_flash;
+    uint8_t engine_temperature_sensor_status;
+    uint8_t air_temperature_sensor_status;
+    uint8_t air_pressure_sensor_status;
+    uint8_t throttle_sensor_status;
+    uint8_t no_of_log_data;
+    uint8_t CHT_1_error_excess_temperature_status;
+    uint8_t CHT_2_error_excess_temperature_status;
+    uint8_t EGT_1_error_excess_temperature_status;
+    uint8_t EGT_2_error_excess_temperature_status;
+    float cht1_temp;
+    float cht2_temp;
+    float egt1_temp;
+    float egt2_temp;
+    float k_throttle;
+    float thr_pos;
+    float air_temp;
+    float eng_temp;
+    float battery_voltage;
+    float converted_map;
+    uint32_t crc_fail_cnt;
+    uint32_t uptime;
+    uint32_t loop_cnt;
+    uint32_t ack_fail_cnt;
+    uint32_t packet_sent;
+    uint32_t ack_thr;
+    uint32_t ack_s1;
+    uint32_t ack_s2;
+    uint32_t ack_s3;
+    float fuel_consumption_rate_average;
+    float fuel_consumption_rate_raw;
+    float total_fuel_consumed;
 };

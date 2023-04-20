@@ -63,6 +63,54 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Range: 0 10000
     // @User: Advanced
     AP_GROUPINFO("_FUEL_DENS", 4, AP_EFI, ecu_fuel_density, 0),
+       
+    // @Param: _THROTTLE_IDLE
+    // @DisplayName: EFI IDLE Throttle value
+    // @Description:  This is the offset value. Ensure ICE_IDLE_PCT=0 for this functionality to work.
+    // @Values: 0 - 100 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_IDLE", 4, AP_EFI, throttle_idle, 15),
+
+    // @Param: _THROTTLE_MAX
+    // @DisplayName: EFI Max Throttle value
+    // @Description: Throttle max cap. Throttle scaling is derived from _THROTTLE_MAX and _THROTTLE_IDLE.
+    // @Values: 0 - 100 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_MAX", 5, AP_EFI, throttle_max, 70),
+
+    // @Param: _EFCR_SLP
+    // @DisplayName: ECU Fuel Consumption Rate factor
+    // @Description: ECU FCR gradient/factor. Must be used along with _EFCR_OFT
+    // @Values: 0 - 1000 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_EFCR_SLP", 6, AP_EFI, ecu_fcr_slope, 1),
+
+    // @Param: _EFCR_OFT
+    // @DisplayName: ECU Fuel Consumption Rate Offset
+    // @Description: ECU FCR intercept/offset. Must be used along with _EFCR_SLP
+    // @Values: 0 - 1000 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_EFCR_OFT", 7, AP_EFI, ecu_fcr_offset, 0),
+
+    // @Param: _EFCR_AVG
+    // @DisplayName: ECU Fuel Consumption Rate Average count
+    // @Description: Averages _EFCR_AVG consecutive reading
+    // @Values: 0 - 100 (1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_EFCR_AVG", 8, AP_EFI, ecu_fcr_average_count, 1),
+
+    // @Param: _FUEL_VOL
+    // @DisplayName: Full Fuel Volume / Capacity
+    // @Description: Full fuel volume in ml
+    // @Values: 0 - 65535 (1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_FUEL_VOL", 9, AP_EFI, fuel_volume_in_ml, 1),
 
     AP_GROUPEND
 };
@@ -119,6 +167,8 @@ void AP_EFI::init(void)
         GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Unknown EFI type");
         break;
     }
+
+    lua_fuel_consumed = 0;
 }
 
 // Ask all backends to update the frontend
@@ -126,6 +176,7 @@ void AP_EFI::update()
 {
     if (backend) {
         backend->update();
+        state.estimated_consumed_fuel_volume_cm3 = lua_fuel_consumed;
 #if HAL_LOGGING_ENABLED
         log_status();
 #endif
@@ -160,26 +211,6 @@ void AP_EFI::log_status(void)
 // @Field: CFV: Consumed fueld volume
 // @Field: TPS: Throttle Position
 // @Field: IDX: Index of the publishing ECU
-    // AP::logger().WriteStreaming("EFI",
-    //                    "TimeUS,LP,Rpm,SDT,ATM,IMP,IMT,ECT,OilP,OilT,FP,FCR,CFV,TPS,IDX",
-    //                    "s%qsPPOOPOP--%-",
-    //                    "F00C--00-0-0000",
-    //                    "QBIffffffffffBB",
-    //                    AP_HAL::micros64(),
-    //                    uint8_t(state.engine_load_percent),
-    //                    uint32_t(state.engine_speed_rpm),
-    //                    float(state.spark_dwell_time_ms),
-    //                    float(state.atmospheric_pressure_kpa),
-    //                    float(state.intake_manifold_pressure_kpa),
-    //                    float(state.intake_manifold_temperature),
-    //                    float(state.coolant_temperature),
-    //                    float(state.oil_pressure),
-    //                    float(state.oil_temperature),
-    //                    float(state.fuel_pressure),
-    //                    float(state.fuel_consumption_rate_cm3pm),
-    //                    float(state.estimated_consumed_fuel_volume_cm3),
-    //                    uint8_t(state.throttle_position_percent),
-    //                    uint8_t(state.ecu_index));
     AP::logger().WriteStreaming("EFI",
                        "TimeUS,LP,Rpm,SDT,ATM,IMP,IMT,ECT,OilP,OilT,FP,FCR,CFV,TPS,IDX",
                        "s%qsPPOOPOP--%-",
@@ -196,7 +227,8 @@ void AP_EFI::log_status(void)
                        float(state.oil_pressure),
                        float(state.oil_temperature),
                        float(state.fuel_pressure),
-                       float(state.fuel_consumption_rate_cm3pm),
+                       float(state.fuel_consumption_rate_raw),
+                       //float(state.fuel_consumption_rate_cm3pm),
                        float(state.estimated_consumed_fuel_volume_cm3),
                        uint8_t(state.throttle_position_percent),
                        uint8_t(state.ecu_index));
@@ -216,30 +248,11 @@ void AP_EFI::log_status(void)
 // @Field: DebS: Debris status
 // @Field: SPU: Spark plug usage
 // @Field: IDX: Index of the publishing ECU
-    // AP::logger().WriteStreaming("EFI2",
-    //                    "TimeUS,Healthy,ES,GE,CSE,TS,FPS,OPS,DS,MS,DebS,SPU,IDX",
-    //                    "s------------",
-    //                    "F------------",
-    //                    "QBBBBBBBBBBBB",
-    //                    AP_HAL::micros64(),
-    //                    uint8_t(is_healthy()),
-    //                    uint8_t(state.engine_state),
-    //                    uint8_t(state.general_error),
-    //                    uint8_t(state.crankshaft_sensor_status),
-    //                    uint8_t(state.temperature_status),
-    //                    uint8_t(state.fuel_pressure_status),
-    //                    uint8_t(state.oil_pressure_status),
-    //                    uint8_t(state.detonation_status),
-    //                    uint8_t(state.misfire_status),
-    //                    uint8_t(state.debris_status),
-    //                    uint8_t(state.spark_plug_usage),
-    //                    uint8_t(state.ecu_index));
-
     AP::logger().WriteStreaming("EFI2",
-                    "TimeUS,Healthy,ES,SF,ETS,ATS,APS,TS,LogCt,CHT1_E,CHT2_E,IDX",
-                    "s-----------",
-                    "F-----------",
-                    "QBBBBBBBBBBB",
+                    "TimeUS,Healthy,ES,SF,ETS,ATS,APS,TS,LogCt,CHT1_E,CHT2_E,FRAW,FTOT,FAVG,IDX",
+                    "s--------------",
+                    "F--------------",
+                    "QBBBBBBBBBBfffB",
                     AP_HAL::micros64(),
                     uint8_t(is_healthy()),
                     uint8_t(state.engine_state),
@@ -251,6 +264,9 @@ void AP_EFI::log_status(void)
                     uint8_t(state.no_of_log_data),
                     uint8_t(state.CHT_1_error_excess_temperature_status),
                     uint8_t(state.CHT_2_error_excess_temperature_status),
+                    float(state.fuel_consumption_rate_raw),
+                    float(state.total_fuel_consumed),
+                    float(state.fuel_consumption_rate_average),
                     uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI3",
@@ -272,11 +288,12 @@ void AP_EFI::log_status(void)
                     uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI4",
-                    "TimeUS,crc,uptime,lpc,ack,pkt,at,a1,a2,a3,IDX",
-                    "s----------",
-                    "F----------",
-                    "QIIIIIIIIIB",
+                    "TimeUS,BVOL,crc,uptime,lpc,ack,pkt,at,a1,a2,a3,IDX",
+                    "sv----------",
+                    "F-----------",
+                    "QfIIIIIIIIIB",
                     AP_HAL::micros64(),
+                    float(state.battery_voltage),
                     uint32_t(state.crc_fail_cnt),
                     uint32_t(state.uptime),
                     uint32_t(state.loop_cnt),
@@ -289,7 +306,6 @@ void AP_EFI::log_status(void)
                     uint8_t(state.ecu_index));
 
 
-    for (uint8_t i = 0; i < ENGINE_MAX_CYLINDERS; i++) {
 // @LoggerMessage: ECYL
 // @Description: EFI per-cylinder information
 // @Field: TimeUS: Time since system startup
@@ -306,12 +322,12 @@ void AP_EFI::log_status(void)
                                 "F-0C0000",
                                 "QBfffffB",
                                 AP_HAL::micros64(),
-                                0,
-                                state.cylinder_status.ignition_timing_deg,
-                                state.cylinder_status.injection_time_ms,
-                                state.cylinder_status.cylinder_head_temperature,
-                                state.cylinder_status.exhaust_gas_temperature,
-                                state.cylinder_status.lambda_coefficient,
+                           0,
+                           state.cylinder_status.ignition_timing_deg,
+                           state.cylinder_status.injection_time_ms,
+                           state.cylinder_status.cylinder_head_temperature,
+                           state.cylinder_status.exhaust_gas_temperature,
+                           state.cylinder_status.lambda_coefficient,
                                 state.ecu_index);
 }
 #endif // LOGGING_ENABLED
@@ -324,6 +340,8 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
     if (!backend) {
         return;
     }
+    // Adding in new requested ECU telemetry fields for Hirth on 18/1/23 for live monitoring
+    // EGT and CGT variables are already in Celcius from Hirth
     mavlink_msg_efi_status_send(
         chan,
         AP_EFI::is_healthy(),
@@ -331,20 +349,20 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         state.engine_speed_rpm,
         state.estimated_consumed_fuel_volume_cm3,
         state.fuel_consumption_rate_cm3pm,
-        state.engine_load_percent,
-        state.throttle_position_percent,
-        state.spark_dwell_time_ms,
-        state.atmospheric_pressure_kpa,
-        state.intake_manifold_pressure_kpa,
-        KELVIN_TO_C(state.intake_manifold_temperature),
-        KELVIN_TO_C(state.cylinder_status.cylinder_head_temperature),
+        state.egt2_temp,        //was state.engine_load_percent, //EGT2
+        state.throttle_position_percent, //throttle position
+        state.spark_dwell_time_ms, //TBD
+        state.cht2_temp, //was barometric pressure/state.atmospheric_pressure_kpa, //CHT2
+        state.converted_map, //was state.intake_manifold_pressure_kpa
+        state.air_temp, //was KELVIN_TO_C(state.intake_manifold_temperature),
+        state.cht1_temp, //KELVIN_TO_C(state.cylinder_status[0].cylinder_head_temperature), //CHT1
         state.cylinder_status.ignition_timing_deg,
         state.cylinder_status.injection_time_ms,
-        KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature),
-        state.throttle_out,
-        state.pt_compensation,
+        state.egt1_temp, //EGT1
+        state.thr_pos, //throttle_out from 0 - 100
+        float(state.engine_state),//pt_compensation
         state.ignition_voltage
-        );
+        ); 
 }
 
 // get a copy of state structure
