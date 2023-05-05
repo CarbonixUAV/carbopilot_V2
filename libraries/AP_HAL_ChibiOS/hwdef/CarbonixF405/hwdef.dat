@@ -16,8 +16,8 @@ APJ_BOARD_ID 1064
 # setup build for a peripheral firmware
 env AP_PERIPH 1
 
-# crystal frequency set to 0 to use internal clock
-OSCILLATOR_HZ 0
+# crystal frequency set to 12MHz to use internal clock
+OSCILLATOR_HZ 12000000
 
 #MCU F405 Flash 1024
 FLASH_SIZE_KB 1024
@@ -146,7 +146,8 @@ COMPASS QMC5883P I2C:0:0x2C false ROTATION_YAW_180
 define HAL_PROBE_EXTERNAL_I2C_COMPASSES
 COMPASS IST8310 I2C:ALL_EXTERNAL:0x0E true ROTATION_NONE
 
-
+# enable Rangefinder
+define HAL_PERIPH_ENABLE_RANGEFINDER 1
 
 
 
