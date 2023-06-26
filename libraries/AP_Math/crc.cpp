@@ -494,3 +494,12 @@ uint64_t crc_crc64(const uint32_t *data, uint16_t num_words)
 
     return crc;
 }
+
+uint8_t sum_of_bytes_in_buffer_mod_256(uint8_t *data, uint16_t count)
+{
+    uint8_t ret = 0;
+    for (uint8_t i=0; i<count; i++) {
+        ret += data[i];
+    }
+    return ret;
+}
