@@ -19,6 +19,7 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Scheduler/AP_Scheduler.h>
 #include <AP_Notify/AP_Notify.h>
+#include <AP_Relay/AP_Relay.h>
 #include "AP_ICEngine.h"
 
 extern const AP_HAL::HAL& hal;
@@ -142,6 +143,13 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     // @Range: 0 1300
     AP_GROUPINFO("STARTCHN_MIN", 16, AP_ICEngine, start_chan_min_pwm, 0),
 
+    // @Param: IGNITION_RLY
+    // @DisplayName: Ignition relay channel
+    // @Description: This is a a relay channel to use for ignition control
+    // @User: Standard
+    // @Values: 0:None, 1:Relay1,2:Relay2,3:Relay3,4:Relay4
+    AP_GROUPINFO("IGNITION_RLY", 18, AP_ICEngine, ignition_relay, 0),
+    
     AP_GROUPEND
 };
 
@@ -308,19 +316,23 @@ void AP_ICEngine::update(void)
     switch (state) {
     case ICE_OFF:
         control_ign_str(IGN_OFF_STR_OFF);
+        ignition_relay_set(false);
         starter_start_time_ms = 0;
         break;
 
     case ICE_START_HEIGHT_DELAY:
     case ICE_START_DELAY:
         control_ign_str(IGN_ON_STR_OFF);
+        ignition_relay_set(false);
         break;
 
     case ICE_STARTING:
         if (!(hal.util->get_soft_armed() || allow_throttle_disarmed())) {
             control_ign_str(IGN_ON_STR_OFF);
+            ignition_relay_set(false);
         } else {
             control_ign_str(IGN_ON_STR_ON_DIR_ON);
+            ignition_relay_set(true);
         }
         
         if (starter_start_time_ms == 0) {
@@ -331,6 +343,7 @@ void AP_ICEngine::update(void)
 
     case ICE_RUNNING:
         control_ign_str(IGN_ON_STR_OFF);
+        ignition_relay_set(true);
         starter_start_time_ms = 0;
         break;
     }
@@ -528,6 +541,23 @@ void AP_ICEngine::control_ign_str(TCA9554_state_t value)
     else
     {
     	//Leave for now
+    }
+}
+
+/*
+  control relay for ICE ignition
+ */
+void AP_ICEngine::ignition_relay_set(bool on)
+{
+    if (ignition_relay > 0) {
+        auto *relay = AP::relay();
+        if (relay != nullptr) {
+            if (on) {
+                relay->on(ignition_relay);
+            } else {
+                relay->off(ignition_relay);
+            }
+        }
     }
 }
 
