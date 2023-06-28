@@ -20,7 +20,8 @@
 
 #if HAL_EFI_ENABLED
 #include <AP_SerialManager/AP_SerialManager.h>
-#include "SRV_Channel/SRV_Channel.h"
+#include <SRV_Channel/SRV_Channel.h>
+#include <AP_ICEngine/AP_ICEngine.h>
 
 
 extern const AP_HAL::HAL& hal;
@@ -115,7 +116,14 @@ void AP_EFI_Serial_Hirth::update() {
             if ((new_throttle != old_throttle) || (now - last_req_send_throttle > 500)) {
                 // if new throttle value, send throttle request
                 // also send new throttle value, only when ARMED
-                if (hal.util->persistent_data.armed) {
+                bool allow_throttle = hal.util->get_soft_armed();
+                if (!allow_throttle) {
+                    const auto *ice = AP::ice();
+                    if (ice != nullptr) {
+                        allow_throttle = ice->allow_throttle_disarmed();
+                    }
+                }
+                if (allow_throttle) {
                     status = send_target_values((new_throttle * throttle_scaling_factor) + get_throttle_idle());
                 }
                 else{
@@ -272,6 +280,8 @@ bool AP_EFI_Serial_Hirth::send_request_status() {
  * 
  */
 void AP_EFI_Serial_Hirth::decode_data() {
+    const uint32_t now_temp = AP_HAL::millis();
+
     int engine_status = 0;
 
     int excess_temp_error = 0;
@@ -305,6 +315,8 @@ void AP_EFI_Serial_Hirth::decode_data() {
         internal_state.cylinder_status.exhaust_gas_temperature = (raw_data[74] | raw_data[75] << 0x08) + KELVIN_CONVERSION_CONSTANT;
         internal_state.crankshaft_sensor_status = ((raw_data[82] & CRANK_SHAFT_SENSOR_OK) == CRANK_SHAFT_SENSOR_OK) ? Crankshaft_Sensor_Status::OK : Crankshaft_Sensor_Status::ERROR;     
 
+        internal_state.intake_manifold_temperature = internal_state.air_temp;
+
         break;
 
     case CODE_REQUEST_STATUS_2:
@@ -313,9 +325,11 @@ void AP_EFI_Serial_Hirth::decode_data() {
         internal_state.fuel_consumption_rate_raw = get_avg_fuel_consumption_rate(fuel_consumption_rate_raw);
         internal_state.fuel_consumption_rate_cm3pm = (fuel_consumption_rate_raw * get_ecu_fcr_slope()) + get_ecu_fcr_offset();
 
+        internal_state.estimated_consumed_fuel_volume_cm3 += internal_state.fuel_consumption_rate_cm3pm * (now_temp - internal_state.last_updated_ms)/60000.0f;
+
         total_fuel_consumed = total_fuel_consumed + internal_state.fuel_consumption_rate_cm3pm;
         internal_state.total_fuel_consumed = total_fuel_consumed;
-        internal_state.throttle_position_percent = (raw_data[62] | raw_data[63] << 0x08) / THROTTLE_POSITION_RESOLUTION;
+        internal_state.throttle_position_percent = (raw_data[62] | raw_data[63] << 0x08) / 10;
         break;
 
     case CODE_REQUEST_STATUS_3: // TBD - internal state addition
