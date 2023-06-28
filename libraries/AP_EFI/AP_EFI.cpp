@@ -249,7 +249,7 @@ void AP_EFI::log_status(void)
 // @Field: SPU: Spark plug usage
 // @Field: IDX: Index of the publishing ECU
     AP::logger().WriteStreaming("EFI2",
-                    "TimeUS,Healthy,ES,SF,ETS,ATS,APS,TS,LogCt,CHT1_E,CHT2_E,FRAW,FTOT,FAVG,IDX",
+                    "TimeUS,H,ES,SF,ETS,ATS,APS,TS,LCt,CT1_E,CT2_E,FR,FT,FA,IDX",
                     "s--------------",
                     "F--------------",
                     "QBBBBBBBBBBfffB",
@@ -270,8 +270,8 @@ void AP_EFI::log_status(void)
                     uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI3",
-                    "TimeUS,E1_E,E2_E,C1_T,C2_T,E1_T,E2_T,k_th,thr_f,air_t,eng_t,IDX",
-                    "s--00000000-",
+                    "TimeUS,E1_E,E2_E,C1_T,C2_T,E1_T,E2_T,k_th,thr_f,a_t,e_t,IDX",
+                    "s--OOOOOOOO-",
                     "F--00000000-",
                     "QBBffffffffB",
                     AP_HAL::micros64(),
