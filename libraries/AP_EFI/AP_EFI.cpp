@@ -70,7 +70,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 100 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_THTL_IDLE", 4, AP_EFI, throttle_idle, 15),
+    AP_GROUPINFO("_THTL_IDLE", 50, AP_EFI, throttle_idle, 15),
 
     // @Param: _THROTTLE_MAX
     // @DisplayName: EFI Max Throttle value
@@ -78,7 +78,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 100 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_THTL_MAX", 5, AP_EFI, throttle_max, 70),
+    AP_GROUPINFO("_THTL_MAX", 51, AP_EFI, throttle_max, 70),
 
     // @Param: _EFCR_SLP
     // @DisplayName: ECU Fuel Consumption Rate factor
@@ -86,7 +86,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 1000 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_SLP", 6, AP_EFI, ecu_fcr_slope, 1),
+    AP_GROUPINFO("_EFCR_SLP", 52, AP_EFI, ecu_fcr_slope, 1),
 
     // @Param: _EFCR_OFT
     // @DisplayName: ECU Fuel Consumption Rate Offset
@@ -94,7 +94,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 1000 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_OFT", 7, AP_EFI, ecu_fcr_offset, 0),
+    AP_GROUPINFO("_EFCR_OFT", 53, AP_EFI, ecu_fcr_offset, 0),
 
     // @Param: _EFCR_AVG
     // @DisplayName: ECU Fuel Consumption Rate Average count
@@ -102,7 +102,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 100 (1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_AVG", 8, AP_EFI, ecu_fcr_average_count, 1),
+    AP_GROUPINFO("_EFCR_AVG", 54, AP_EFI, ecu_fcr_average_count, 1),
 
     // @Param: _FUEL_VOL
     // @DisplayName: Full Fuel Volume / Capacity
@@ -110,7 +110,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 65535 (1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_FUEL_VOL", 9, AP_EFI, fuel_volume_in_ml, 1),
+    AP_GROUPINFO("_FUEL_VOL", 55, AP_EFI, fuel_volume_in_ml, 1),
 
     AP_GROUPEND
 };
