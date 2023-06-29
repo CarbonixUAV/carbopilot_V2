@@ -2370,10 +2370,11 @@ void QuadPlane::vtol_position_controller(void)
         const uint32_t min_airbrake_ms = 1000;
         if (poscontrol.get_state() == QPOS_AIRBRAKE &&
             poscontrol.time_since_state_start_ms() > min_airbrake_ms &&
-            (aspeed < aspeed_threshold ||
-             fabsf(degrees(closing_vel.angle(desired_closing_vel))) > 60 ||
-             closing_speed > MAX(desired_closing_speed*1.2, desired_closing_speed+2) ||
-             labs(plane.ahrs.roll_sensor - plane.nav_roll_cd) > attitude_error_threshold_cd ||
+            (aspeed < aspeed_threshold || // too low airspeed
+             fabsf(degrees(closing_vel.angle(desired_closing_vel))) > 60 || // wrong direction
+             closing_speed > MAX(desired_closing_speed*1.2, desired_closing_speed+2) || // too fast
+             closing_speed < desired_closing_speed*0.5 || // too slow ground speed
+             labs(plane.ahrs.roll_sensor - plane.nav_roll_cd) > attitude_error_threshold_cd || // bad attitude
              labs(plane.ahrs.pitch_sensor - plane.nav_pitch_cd) > attitude_error_threshold_cd)) {
             gcs().send_text(MAV_SEVERITY_INFO,"VTOL position1 v=%.1f d=%.1f h=%.1f dc=%.1f",
                             (double)groundspeed,
@@ -2385,6 +2386,18 @@ void QuadPlane::vtol_position_controller(void)
 
             // switch to vfwd for throttle control
             vel_forward.integrator = SRV_Channels::get_output_scaled(SRV_Channel::k_throttle);
+
+            // adjust the initial forward throttle based on our desired and actual closing speed
+            // this allows for significant initial forward throttle
+            // when we have a strong headwind, but low throttle in the usual case where
+            // we want to slow down ready for POSITION2
+            vel_forward.integrator = linear_interpolate(0, vel_forward.integrator,
+                                                        closing_speed,
+                                                        1.2*desired_closing_speed, 0.5*desired_closing_speed);
+
+            // limit our initial forward throttle in POSITION1 to be 0.5 of cruise throttle
+            vel_forward.integrator = constrain_float(vel_forward.integrator, 0, plane.aparm.throttle_cruise*0.5);
+            
             vel_forward.last_ms = now_ms;
         }
 
@@ -3835,6 +3848,20 @@ Vector2f QuadPlane::landing_desired_closing_velocity()
 
     // base target speed based on sqrt of distance
     float target_speed = safe_sqrt(2*transition_decel*dist);
+
+    // don't let the target speed go above landing approach speed
+    const float eas2tas = plane.ahrs.get_EAS2TAS();
+    float land_speed = plane.aparm.airspeed_cruise_cm * 0.01;
+    float tecs_land_airspeed = plane.TECS_controller.get_land_airspeed();
+    if (is_positive(tecs_land_airspeed)) {
+        land_speed = tecs_land_airspeed;
+    } else {
+        // use half way between min airspeed and cruise if
+        // TECS_LAND_AIRSPEED not set
+        land_speed = 0.5*(land_speed+plane.aparm.airspeed_min);
+    }
+    target_speed = MIN(target_speed, eas2tas * land_speed);
+
     Vector2f target_speed_xy = diff_wp.normalized() * target_speed;
 
     return target_speed_xy;
@@ -3845,7 +3872,8 @@ Vector2f QuadPlane::landing_desired_closing_velocity()
 */
 float QuadPlane::get_land_airspeed(void)
 {
-    if (poscontrol.get_state() == QPOS_APPROACH ||
+    const auto qstate = poscontrol.get_state();
+    if (qstate == QPOS_APPROACH ||
         plane.control_mode == &plane.mode_rtl) {
         float land_airspeed = plane.TECS_controller.get_land_airspeed();
         if (!is_positive(land_airspeed)) {
@@ -3861,12 +3889,17 @@ float QuadPlane::get_land_airspeed(void)
                                            20, 60);
         return land_airspeed;
     }
-    Vector2f vel = landing_desired_closing_velocity();
 
+    if (qstate == QPOS_AIRBRAKE) {
+        // during airbraking ask TECS to slow us to stall speed
+        return plane.aparm.airspeed_min;
+    }
+    
+    // calculate speed based on landing desired velocity
+    Vector2f vel = landing_desired_closing_velocity();
+    const Vector2f wind = plane.ahrs.wind_estimate().xy();
     const float eas2tas = plane.ahrs.get_EAS2TAS();
-    const Vector3f wind = plane.ahrs.wind_estimate();
-    vel.x -= wind.x;
-    vel.y -= wind.y;
+    vel -= wind;
     vel /= eas2tas;
     return vel.length();
 }
