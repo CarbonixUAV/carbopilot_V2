@@ -266,6 +266,10 @@ class VehicleInfo(object):
                 "waf_target": "bin/arduplane",
                 "default_params_filename": ["default_params/plane.parm", "default_params/plane-jet.parm"],
             },
+            "plane-ice": {
+                "waf_target": "bin/arduplane",
+                "default_params_filename": ["models/plane.parm", "default_params/plane-ice.parm"],
+            },
             "quadplane-copter_tailsitter": {
                 "waf_target": "bin/arduplane",
                 "default_params_filename": ["default_params/quadplane.parm","default_params/quadplane-copter_tailsitter.parm"],

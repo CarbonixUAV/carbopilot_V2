@@ -3430,11 +3430,12 @@ function'''
             'SIM_EFI_TYPE': efi_type,
             'EFI_TYPE': efi_type,
             'SERIAL5_PROTOCOL': 24,
-            'ICE_ENABLE': 1,
+            'RPM1_TYPE': 10,
         })
+
         self.customise_SITL_commandline(
             ["--uartF=sim:%s" % sim_name,
-             ], model="plane-ice",
+             ],
         )
         self.wait_ready_to_arm()
 
@@ -3444,6 +3445,7 @@ function'''
         m = self.assert_received_message_field_values("EFI_STATUS", {
             "throttle_out": 0,
             "health": 1,
+            "intake_manifold_temperature": 28,
         }, very_verbose=1)
 
         if abs(baro_temperature - m.intake_manifold_temperature) > 1:
@@ -3453,14 +3455,34 @@ function'''
 
         self.arm_vehicle()
 
-        self.delay_sim_time(5)  # should be wait_message_field_values when rebased on master
+        self.set_rc(3, 1300)
 
-        self.progress("Looking at RPM")
-        m = self.assert_receive_message("EFI_STATUS")
-        want_rpm = 1000
-        if m.rpm < want_rpm:
-            raise NotAchievedException("Expected some RPM (want=%f got=%f)" %
-                                       (want_rpm, m.rpm))
+        tstart = self.get_sim_time()
+        while True:
+            now = self.get_sim_time_cached()
+            if now - tstart > 10:
+                raise NotAchievedException("RPM1 and EFI_STATUS.rpm did not match")
+            rpm_m = self.assert_receive_message("RPM", verbose=1)
+            want_rpm = 1000
+            if rpm_m.rpm1 < want_rpm:
+                continue
+
+            m = self.assert_receive_message("EFI_STATUS", verbose=1)
+            if abs(m.rpm - rpm_m.rpm1) > 100:
+                continue
+
+            break
+
+        self.progress("now we're started, check a few more values")
+        m = self.assert_received_message_field_values("EFI_STATUS", {
+            "throttle_out": 31,
+            "health": 1,
+            "intake_manifold_temperature": 28,
+        }, very_verbose=1)
+        if abs(m.fuel_flow - 0.2) > 0.0001:
+            raise NotAchievedException("Expected fuel flow")
+
+        self.disarm_vehicle()
 
     def MegaSquirt(self):
         '''test MegaSquirt driver'''
