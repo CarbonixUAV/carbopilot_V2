@@ -128,6 +128,7 @@ private:
     float fuel_consumption_rate_raw;
     float fuel_consumption_rate;
     float total_fuel_consumed;
+    uint32_t last_fuel_integration_ms;
     float instance_fuel_reading[BYTE_RANGE_MAX];
     uint8_t fuel_avg_count;
     uint8_t fuel_avg_config;

@@ -324,8 +324,11 @@ void AP_EFI_Serial_Hirth::decode_data() {
         fuel_consumption_rate_raw = (raw_data[52] | raw_data[53] << 0x08) / FUEL_CONSUMPTION_RESOLUTION;
         internal_state.fuel_consumption_rate_raw = get_avg_fuel_consumption_rate(fuel_consumption_rate_raw);
         internal_state.fuel_consumption_rate_cm3pm = (fuel_consumption_rate_raw * get_ecu_fcr_slope()) + get_ecu_fcr_offset();
-        
-        internal_state.estimated_consumed_fuel_volume_cm3 += internal_state.fuel_consumption_rate_cm3pm * (now_temp - internal_state.last_updated_ms)/60000.0f;
+
+        if (last_fuel_integration_ms != 0) {
+            internal_state.estimated_consumed_fuel_volume_cm3 += internal_state.fuel_consumption_rate_cm3pm * (now_temp - last_fuel_integration_ms)/60000.0f;
+        }
+        last_fuel_integration_ms = now_temp;
 
         total_fuel_consumed = total_fuel_consumed + internal_state.fuel_consumption_rate_cm3pm;
         internal_state.total_fuel_consumed = total_fuel_consumed;
