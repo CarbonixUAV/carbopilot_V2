@@ -53,21 +53,37 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("_COEF2", 3, AP_EFI, coef2, 0),
 
-    // @Param: _THROTTLE_IDLE
-    // @DisplayName: EFI IDLE Throttle value
-    // @Description:  This is the offset value. Ensure ICE_IDLE_PCT=0 for this functionality to work.
-    // @Values: 0 - 100 (0.1 Resolution)
+    // @Param: _THTL_FO
+    // @DisplayName: Throttle value - First Order 
+    // @Description:  First Order Polynomial. (=1, if throttle is first order polynomial trendline)
+    // @Values: floating values with 0.0001 Resolution. Can be -ve
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_THTL_IDLE", 4, AP_EFI, throttle_idle, 15),
+    AP_GROUPINFO("_THTL_FOP", 4, AP_EFI, throttle_firstorder, 1),
 
-    // @Param: _THROTTLE_MAX
-    // @DisplayName: EFI Max Throttle value
-    // @Description: Throttle max cap. Throttle scaling is derived from _THROTTLE_MAX and _THROTTLE_IDLE.
+    // @Param: _THTL_SOP
+    // @DisplayName: Throttle value - Second Order 
+    // @Description:  Second Order Polynomial. (=0, if throttle is first order polynomial trendline)
+    // @Values: floating values with 0.0001 Resolution. Can be -ve
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_SOP", 5, AP_EFI, throttle_secondorder, 0),
+
+    // @Param: _THTL_TOP
+    // @DisplayName: Throttle value - First Order 
+    // @Description:  Third Order Polynomial. (=0, if throttle is first order polynomial trendline)
+    // @Values: floating values with 0.0001 Resolution. Can be -ve
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_TOP", 6, AP_EFI, throttle_thirdorder, 0),
+
+    // @Param: _THTL_OFF
+    // @DisplayName: EFI throttle linearization offset
+    // @Description: Offset for throttle linearization 
     // @Values: 0 - 100 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_THTL_MAX", 5, AP_EFI, throttle_max, 70),
+    AP_GROUPINFO("_THTL_OFF", 7, AP_EFI, throttle_offset, 10),
 
     // @Param: _EFCR_SLP
     // @DisplayName: ECU Fuel Consumption Rate factor
@@ -75,7 +91,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 1000 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_SLP", 6, AP_EFI, ecu_fcr_slope, 1),
+    AP_GROUPINFO("_EFCR_SLP", 8, AP_EFI, ecu_fcr_slope, 1),
 
     // @Param: _EFCR_OFT
     // @DisplayName: ECU Fuel Consumption Rate Offset
@@ -83,7 +99,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 1000 (0.1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_OFT", 7, AP_EFI, ecu_fcr_offset, 0),
+    AP_GROUPINFO("_EFCR_OFT", 9, AP_EFI, ecu_fcr_offset, 0),
 
     // @Param: _EFCR_AVG
     // @DisplayName: ECU Fuel Consumption Rate Average count
@@ -91,7 +107,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 100 (1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_EFCR_AVG", 8, AP_EFI, ecu_fcr_average_count, 1),
+    AP_GROUPINFO("_EFCR_AVG", 10, AP_EFI, ecu_fcr_average_count, 1),
 
     // @Param: _FUEL_VOL
     // @DisplayName: Full Fuel Volume / Capacity
@@ -99,7 +115,7 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Values: 0 - 65535 (1 Resolution)
     // @User: Advanced
     // @RebootRequired: True
-    AP_GROUPINFO("_FUEL_VOL", 9, AP_EFI, fuel_volume_in_ml, 1),
+    AP_GROUPINFO("_FUEL_VOL", 11, AP_EFI, fuel_volume_in_ml, 1),
 
     AP_GROUPEND
 };

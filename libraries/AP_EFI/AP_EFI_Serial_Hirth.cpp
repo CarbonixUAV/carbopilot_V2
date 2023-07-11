@@ -33,11 +33,21 @@ extern const AP_HAL::HAL& hal;
  */
 AP_EFI_Serial_Hirth::AP_EFI_Serial_Hirth(AP_EFI &_frontend) : AP_EFI_Backend(_frontend) {
     port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_EFI, 0);
-    throttle_scaling_factor = (get_throttle_max() - get_throttle_idle()) / 100;
+    get_throttle_polynomial();
     fuel_avg_config = get_ecu_fcr_average_count();
     fuel_avg_count = 0;
 }
 
+/**
+ * @brief initializes the polynomials 
+ * 
+ */
+void AP_EFI_Serial_Hirth::get_throttle_polynomial() {
+    throttle_fop = get_throttle_firstorder();
+    throttle_sop = get_throttle_secondorder();
+    throttle_top = get_throttle_thirdorder();
+    throttle_offset = get_throttle_offset();
+}
 
 /**
  * @brief checks for response from or makes requests to Hirth ECU periodically
@@ -124,7 +134,7 @@ void AP_EFI_Serial_Hirth::update() {
                     }
                 }
                 if (allow_throttle) {
-                    status = send_target_values((new_throttle * throttle_scaling_factor) + get_throttle_idle());
+                    status = send_target_values(new_throttle);
                 }
                 else{
                     status = send_target_values(0);
@@ -188,8 +198,12 @@ bool AP_EFI_Serial_Hirth::send_target_values(uint16_t thr) {
         raw_data[i] = 0;
     }
     
-    // Get throttle value from parameters config
-    uint16_t throttle = thr * THROTTLE_POSITION_FACTOR;
+    // throttle value is computed as a polynomial defined by the config parameters
+    // to disable linearization, set throttle_top=0, throttle_sop=0, throttle_fop=1, throttle_offset=0
+    uint16_t throttle = ((throttle_top * thr * thr * thr) 
+                        + (throttle_sop * thr * thr) 
+                        + (throttle_fop * thr) 
+                        + throttle_offset) * THROTTLE_POSITION_FACTOR;
 
     // set Quantity + Code + "20 bytes of records to set" + Checksum
     computed_checksum += raw_data[idx++] = req_data.quantity = QUANTITY_SET_VALUE;

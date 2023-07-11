@@ -44,8 +44,10 @@ protected:
     int8_t get_uavcan_node_id(void) const;
     float get_coef1(void) const;
     float get_coef2(void) const;
-    float get_throttle_idle(void) const;
-    float get_throttle_max(void) const;
+    float get_throttle_firstorder(void) const;
+    float get_throttle_secondorder(void) const;
+    float get_throttle_thirdorder(void) const;
+    float get_throttle_offset(void) const;
     float get_ecu_fcr_slope(void) const;
     float get_ecu_fcr_offset(void) const;
     int16_t get_ecu_fcr_average_count(void) const;
