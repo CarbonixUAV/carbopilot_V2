@@ -1,3 +1,9 @@
+Release Ottano Carbopilot V4.3.21 11th Jul 2023
+----------------------------------
+
+This release includes: 
+ - OV3-479-software-ecu-commanded-by-rpm_throttle_linear
+
 Release Ottano Carbopilot V4.3.20 11th July 2023
 ----------------------------------
 
