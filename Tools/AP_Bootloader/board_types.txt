@@ -167,3 +167,15 @@ AP_HW_CUBEORANGE_PERIPH              1400
 AP_HW_CUBEBLACK_PERIPH               1401
 AP_HW_PIXRACER_PERIPH                1402
 AP_HW_SWBOOMBOARD_PERIPH             1403
+
+# IDs 5000-5100 reserved for Carbonix
+AP_HW_CarbonixCubeOrange             5000
+AP_HW_CarbonixF405_M1                5001
+AP_HW_CarbonixF405_M2                5002
+AP_HW_CarbonixF405_M3                5003
+AP_HW_CarbonixF405_M4                5004
+AP_HW_CarbonixF405_M5                5005
+AP_HW_CarbonixF405_LWing             5006
+AP_HW_CarbonixF405_RWing             5007
+AP_HW_CarbonixF405_LTail             5008
+AP_HW_CarbonixF405_RTail             5009

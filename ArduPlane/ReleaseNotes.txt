@@ -1,3 +1,12 @@
+Release Ottano Carbopilot V4.3.20 11th July 2023
+----------------------------------
+
+This release includes: 
+ - OV3-733: Script add to CubeOrange Cx_LED_Driver
+ - OV3-733: hwdef: add new boards Carbonix
+ - OV3-733: Tools: Carbonix waf build script
+ - OV3-733: AP_Bootloader: reserve 100 IDs for Carbonix boards and allocating new Ids
+
 Release Ottano Carbopilot V4.3.19 30th Jun 2023
 ----------------------------------
 
