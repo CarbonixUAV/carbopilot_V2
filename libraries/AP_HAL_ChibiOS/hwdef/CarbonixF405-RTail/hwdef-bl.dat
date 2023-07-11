@@ -1,0 +1,8 @@
+include ../CarbonixF405/hwdef-bl.dat
+
+undef CAN_APP_NODE_NAME
+undef APJ_BOARD_ID
+
+APJ_BOARD_ID 5009
+
+define CAN_APP_NODE_NAME "CPN-17-Right-Tail"
