@@ -355,6 +355,8 @@ void AP_ICEngine::update(void)
     /* now set output channels */
     switch (state) {
     case ICE_OFF:
+        SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_off);
+        SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
         control_ign_str(IGN_OFF_STR_OFF);
         ignition_relay_set(false);
         starter_start_time_ms = 0;
@@ -362,11 +364,15 @@ void AP_ICEngine::update(void)
 
     case ICE_START_HEIGHT_DELAY:
     case ICE_START_DELAY:
+        SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
+        SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
         control_ign_str(IGN_ON_STR_OFF);
         ignition_relay_set(false);
         break;
 
     case ICE_STARTING:
+        SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
+        SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_on);
         if (!(hal.util->get_soft_armed() || allow_throttle_disarmed())) {
             control_ign_str(IGN_ON_STR_OFF);
             ignition_relay_set(false);
@@ -382,6 +388,8 @@ void AP_ICEngine::update(void)
         break;
 
     case ICE_RUNNING:
+        SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
+        SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
         control_ign_str(IGN_ON_STR_OFF);
         ignition_relay_set(true);
         starter_start_time_ms = 0;
