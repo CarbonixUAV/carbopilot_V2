@@ -1,0 +1,5 @@
+console add RPM "RPM: %.0f" RPM.rpm1
+console add vrpm "VRPM: %.0f %.0f %.0f %.0f" ESC_TELEMETRY_1_TO_4.rpm[0],ESC_TELEMETRY_1_TO_4.rpm[1],ESC_TELEMETRY_1_TO_4.rpm[2],ESC_TELEMETRY_1_TO_4.rpm[3]
+console add CHead "CHead: %.0f %.0f" EFI_STATUS.cylinder_head_temperature,EFI_STATUS.barometric_pressure
+console add Ign "Ign: %.0f" RC_CHANNELS.chan7_raw
+console add Aspd "Aspd %.1f %.1f" VFR_HUD.airspeed,NAMED_VALUE_FLOAT["AS2"].value 5
