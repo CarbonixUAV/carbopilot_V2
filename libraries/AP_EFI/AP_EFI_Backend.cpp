@@ -42,14 +42,24 @@ float AP_EFI_Backend::get_coef2(void) const
     return frontend.coef2;
 }
 
-float AP_EFI_Backend::get_throttle_idle(void) const
+float AP_EFI_Backend::get_throttle_firstorder(void) const
 {
-    return frontend.throttle_idle;
+    return frontend.throttle_firstorder;
 }
 
-float AP_EFI_Backend::get_throttle_max(void) const
+float AP_EFI_Backend::get_throttle_secondorder(void) const
 {
-    return frontend.throttle_max;
+    return frontend.throttle_secondorder;
+}
+
+float AP_EFI_Backend::get_throttle_thirdorder(void) const
+{
+    return frontend.throttle_thirdorder;
+}
+
+float AP_EFI_Backend::get_throttle_offset(void) const
+{
+    return frontend.throttle_offset;
 }
 
 float AP_EFI_Backend::get_ecu_fcr_slope(void) const

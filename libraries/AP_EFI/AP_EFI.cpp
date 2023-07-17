@@ -63,7 +63,31 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @Range: 0 10000
     // @User: Advanced
     AP_GROUPINFO("_FUEL_DENS", 4, AP_EFI, ecu_fuel_density, 0),
-       
+
+    // @Param: _THTL_FO
+    // @DisplayName: Throttle value - First Order 
+    // @Description:  First Order Polynomial. (=1, if throttle is first order polynomial trendline)
+    // @Values: floating values with 0.0001 Resolution. Can be -ve
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_FOP", 5, AP_EFI, throttle_firstorder, 1),
+
+    // @Param: _THTL_SOP
+    // @DisplayName: Throttle value - Second Order 
+    // @Description:  Second Order Polynomial. (=0, if throttle is first order polynomial trendline)
+    // @Values: floating values with 0.0001 Resolution. Can be -ve
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_SOP", 6, AP_EFI, throttle_secondorder, 0),
+
+    // @Param: _THTL_TOP
+    // @DisplayName: Throttle value - First Order 
+    // @Description:  Third Order Polynomial. (=0, if throttle is first order polynomial trendline)
+    // @Values: floating values with 0.0001 Resolution. Can be -ve
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_TOP", 7, AP_EFI, throttle_thirdorder, 0),
+
     // @Param: _THROTTLE_IDLE
     // @DisplayName: EFI IDLE Throttle value
     // @Description:  This is the offset value. Ensure ICE_IDLE_PCT=0 for this functionality to work.

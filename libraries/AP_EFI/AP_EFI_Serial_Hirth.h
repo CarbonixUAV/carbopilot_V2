@@ -93,6 +93,8 @@ public:
 
     float get_avg_fuel_consumption_rate(float fuel_consumed);
 
+    void get_throttle_polynomial();
+
 private:
     // serial port instance
     AP_HAL::UARTDriver *port;
@@ -128,12 +130,16 @@ private:
     float fuel_consumption_rate_raw;
     float fuel_consumption_rate;
     float total_fuel_consumed;
+    uint32_t last_fuel_integration_ms;
     float instance_fuel_reading[BYTE_RANGE_MAX];
     uint8_t fuel_avg_count;
     uint8_t fuel_avg_config;
 
 
-    uint8_t data_send;
+    float throttle_fop;
+    float throttle_sop;
+    float throttle_top;
+    float throttle_offset;
 
-    float throttle_scaling_factor;
+    uint8_t data_send;
 };
