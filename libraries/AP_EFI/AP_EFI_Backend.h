@@ -48,6 +48,10 @@ protected:
     float get_ecu_fuel_density(void) const;
     float get_throttle_idle(void) const;
     float get_throttle_max(void) const;
+    float get_throttle_firstorder(void) const;
+    float get_throttle_secondorder(void) const;
+    float get_throttle_thirdorder(void) const;
+    float get_throttle_offset(void) const;
     float get_ecu_fcr_slope(void) const;
     float get_ecu_fcr_offset(void) const;
     int16_t get_ecu_fcr_average_count(void) const;

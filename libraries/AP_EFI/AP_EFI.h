@@ -117,6 +117,14 @@ protected:
     AP_Float ecu_fuel_density;
     AP_Float throttle_idle;
     AP_Float throttle_max;
+
+    // polynomial config variables for throttle linearization  
+    AP_Float throttle_firstorder;
+    AP_Float throttle_secondorder;
+    AP_Float throttle_thirdorder;
+    AP_Float throttle_offset;
+
+    // ECU fuel consumption calculation
     AP_Float ecu_fcr_slope;
     AP_Float ecu_fcr_offset;
     AP_Int16 ecu_fcr_average_count;
