@@ -48,6 +48,7 @@
 #include <SITL/SIM_LORD.h>
 #include <SITL/SIM_AIS.h>
 #include <SITL/SIM_GPS.h>
+#include <SITL/SIM_EFI_Hirth.h>
 
 #include <SITL/SIM_Frsky_D.h>
 #include <SITL/SIM_CRSF.h>
@@ -286,6 +287,9 @@ private:
 
     // simulated EFI MegaSquirt device:
     SITL::EFI_MegaSquirt *efi_ms;
+
+    // simulated EFI Hirth device:
+    SITL::EFI_Hirth *efi_hirth;
 
     // output socket for flightgear viewing
     SocketAPM fg_socket{true};
