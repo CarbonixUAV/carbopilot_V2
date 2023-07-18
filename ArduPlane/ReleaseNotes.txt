@@ -1,3 +1,9 @@
+Release Ottano Carbopilot V5.0.0 18th Jul 2023
+----------------------------------
+
+This release includes: 
+ - OV3-645 Ardupilot Changes
+
 Release 4.3.7 31st May 2023
 ---------------------------
 
