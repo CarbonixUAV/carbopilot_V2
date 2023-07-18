@@ -492,7 +492,7 @@ void AP_UAVCAN_DNA_Server::handleNodeStatus(uint8_t node_id, const NodeStatusCb 
     //to calculate the delta b/w handlenode status pkt
     uint32_t now = AP_HAL::native_millis();
 
-    if (_ap_uavcan->option_is_set(AP_UAVCAN::Options::LOG_NODE_STATUS)) {
+    if (_ap_uavcan->option_is_set(AP_UAVCAN::Options::ENABLE_STATS)) {
         log_NodeStatus(node_id, cb.msg->uptime_sec, cb.msg->health, cb.msg->mode , now - last_can_init_delta_ms[node_id]);
     }
 
