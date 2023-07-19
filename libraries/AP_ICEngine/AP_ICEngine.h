@@ -80,8 +80,8 @@ private:
 
     enum TCA9554_state_t {
         IGN_OFF_STR_OFF = 0x30,	 		//output register - 0011 0000
-        IGN_ON_STR_OFF = 0x33,		 	//output register - 0011 0011
-		IGN_ON_STR_ON_DIR_ON = 0x03, 	//output register - 0000 0011
+        IGN_ON_STR_OFF = 0x30,		 	//output register - 0011 0000
+		IGN_ON_STR_ON_DIR_ON = 0x11, 	//output register - 0001 0001
     } TCA9554_state = IGN_OFF_STR_OFF;
 
     enum i2c_init_t {
