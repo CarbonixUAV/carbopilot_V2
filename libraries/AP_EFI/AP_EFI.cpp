@@ -200,10 +200,10 @@ void AP_EFI::log_status(void)
                        uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI2",
-                    "TimeUS,H,ES,SF,ETS,ATS,APS,TS,LCt,CT1_E,CT2_E,FR,FT,FA,IDX",
-                    "s--------------",
-                    "F--------------",
-                    "QBBBBBBBBBBfffB",
+                    "TimeUS,H,ES,SF,ETS,ATS,APS,TS,LCt,CT1_E,CT2_E,FR,FT,IDX",
+                    "s-------------",
+                    "F-------------",
+                    "QBBBBBBBBBBffB",
                     AP_HAL::micros64(),
                     uint8_t(is_healthy()),
                     uint8_t(state.engine_state),
@@ -215,9 +215,8 @@ void AP_EFI::log_status(void)
                     uint8_t(state.no_of_log_data),
                     uint8_t(state.CHT_1_error_excess_temperature_status),
                     uint8_t(state.CHT_2_error_excess_temperature_status),
-                    float(state.fuel_consumption_rate_raw),
-                    float(state.total_fuel_consumed),
-                    float(state.fuel_consumption_rate_average),
+                    float(state.fuel_consumption_rate_raw),    //average litre per hour
+                    float(state.total_fuel_consumed),           
                     uint8_t(state.ecu_index));
 
     AP::logger().WriteStreaming("EFI3",
