@@ -88,6 +88,14 @@ const AP_Param::GroupInfo AP_EFI::var_info[] = {
     // @RebootRequired: True
     AP_GROUPINFO("_THTL_TOP", 7, AP_EFI, throttle_thirdorder, 0),
 
+    // @Param: _THTL_OFF
+    // @DisplayName: EFI throttle linearization offset
+    // @Description: Offset for throttle linearization 
+    // @Values: 0 - 100 (0.1 Resolution)
+    // @User: Advanced
+    // @RebootRequired: True
+    AP_GROUPINFO("_THTL_OFF", 8, AP_EFI, throttle_offset, 10),
+
     // @Param: _THROTTLE_IDLE
     // @DisplayName: EFI IDLE Throttle value
     // @Description:  This is the offset value. Ensure ICE_IDLE_PCT=0 for this functionality to work.
