@@ -3,6 +3,7 @@ Release Ottano Carbopilot V4.3.22 24th Jul 2023
 
 This release includes: 
  - OV3-875-forward-and-reverse-motor-direction-configurable
+ - OV3-418-reventech-fuel-level-sensor-test-code-and-adc-calibration
 
 Release Ottano Carbopilot V4.3.21 11th Jul 2023
 ----------------------------------
