@@ -20,6 +20,20 @@
 #include <Filter/LowPassFilter.h>
 #include "AP_BattMonitor.h"
 #include "AP_BattMonitor_Backend.h"
+#include <Filter/Filter.h>                     // Filter library
+#include <Filter/AverageFilter.h>      // AverageFilter class (inherits from Filter class)
+
+// ADC Calibration for CX31021020 Rev D Voltage Divider for ADC #3
+#define CPN_ADC_5V_SLP 797.76
+#define CPN_ADC_5V_OFF 1.11
+
+// Quadratic fit for LS800 sensor readings to convert to actual fuel in tank
+#define LS800_FIT_FIRST_COEFF 1.0015
+#define LS800_FIT_SECOND_COEFF 0.2419
+#define LS800_FIT_THIRD_COEFF -0.0213
+#define LS800_FIT_OFFSET 0.1766
+
+#define FILTER_MAX 60
 
 class AP_BattMonitor_FuelLevel_Analog : public AP_BattMonitor_Backend
 {
@@ -45,10 +59,13 @@ private:
 
     AP_Float _fuel_level_empty_voltage;
     AP_Float _fuel_level_voltage_mult;
-    AP_Float _fuel_level_filter_frequency;
+    AP_Float _fuel_level_filter_frequency;    
     AP_Int8  _pin;
+
+    AP_Float _ls800_max_fuel_level_litres;
 
     AP_HAL::AnalogSource *_analog_source;
 
     LowPassFilterFloat _voltage_filter;
+    AverageFilter<float,float,FILTER_MAX> _ls800_filter;
 };

@@ -17,7 +17,7 @@
 #include "AP_BattMonitor_LTC2946.h"
 #include "AP_BattMonitor_Torqeedo.h"
 #include "AP_BattMonitor_FuelLevel_Analog.h"
-
+#include "AP_BattMonitor_AD7091R5.h"
 #include <AP_HAL/AP_HAL.h>
 
 #if HAL_ENABLE_LIBUAVCAN_DRIVERS

@@ -103,11 +103,8 @@ public:
         INA2XX                     = 21,
         LTC2946                    = 22,
         Torqeedo                   = 23,
-<<<<<<< HEAD
         AD7091R5                   = 24,
-=======
-        FuelLevel_Analog           = 24,
->>>>>>> 3a9c225931... AP_BattMonitor: Add Fuel Level Analog driver
+        FuelLevel_Analog           = 25,
     };
 
     FUNCTOR_TYPEDEF(battery_failsafe_handler_fn_t, void, const char *, const int8_t);

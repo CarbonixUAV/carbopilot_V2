@@ -52,6 +52,10 @@ const AP_Param::GroupInfo AP_BattMonitor_FuelLevel_Analog::var_info[] = {
     // @Description: Analog input pin that fuel level sensor is connected to. Airspeed ports can be used for Analog input. When using analog pin 103, the maximum value of the input in 3.3V.
     // @Values: -1:Not Used,11:Pixracer,13:Pixhawk ADC4,14:Pixhawk ADC3,15:Pixhawk ADC6/Pixhawk2 ADC,103:Pixhawk SBUS
     AP_GROUPINFO("FL_PIN", 43, AP_BattMonitor_FuelLevel_Analog, _pin, -1),
+   
+    // @Param: LS800_MAX_LEVEL
+    // @DisplayName: LS800 maximum fuel level
+    AP_GROUPINFO("LS800_MAX", 46, AP_BattMonitor_FuelLevel_Analog, _ls800_max_fuel_level_litres, 1),
 
     // Param indexes must be between 40 and 49 to avoid conflict with other battery monitor param tables loaded by pointer
 
@@ -89,18 +93,25 @@ void AP_BattMonitor_FuelLevel_Analog::read()
 
     // get a dt and a timestamp
     const uint32_t tnow = AP_HAL::micros();
-    const uint32_t dt_us = tnow - _state.last_time_micros;
+    //const uint32_t dt_us = tnow - _state.last_time_micros;
 
-    // get voltage from an ADC pin and filter it
-    const float voltage = _analog_source->voltage_average();
-    const float filtered_voltage = _voltage_filter.apply(voltage, float(dt_us) * 1.0e-6f);
+    // get voltage from an ADC pin
+    const float ls800_raw = (_analog_source->read_average() - CPN_ADC_5V_OFF) / CPN_ADC_5V_SLP;
+
+    // Converting sensor reading to actual volume in tank in Litres (quadratic fit)
+    const float voltage = (LS800_FIT_THIRD_COEFF * ls800_raw * ls800_raw * ls800_raw) + (LS800_FIT_SECOND_COEFF * ls800_raw * ls800_raw) + 
+                            (LS800_FIT_FIRST_COEFF * ls800_raw * ls800_raw) + LS800_FIT_OFFSET;
+
+    // Add averaging filter at 1Hz for 1minute duration
+    const float filtered_voltage = _ls800_filter.apply(voltage);    
     const float &voltage_used = (_fuel_level_filter_frequency >= 0) ? filtered_voltage : voltage;
 
     // output the ADC voltage to the voltage field for easier calibration of sensors
     // also output filtered voltage as a measure of tank slosh filtering
     // this could be useful for tuning the LPF
-    _state.voltage = voltage;
-    _state.current_amps = filtered_voltage;
+
+    _state.voltage = constrain_float(filtered_voltage,0.0,_ls800_max_fuel_level_litres);  
+    _state.current_amps = ls800_raw; //raw ADC from Sensor
 
     // this driver assumes that CAPACITY is set to tank volume in millilitres.
     // _fuel_level_voltage_mult is calculated by the user as 1 / (full_voltage - empty_voltage)
