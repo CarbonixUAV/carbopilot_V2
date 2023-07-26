@@ -100,7 +100,7 @@ void AP_BattMonitor_FuelLevel_Analog::read()
 
     // Converting sensor reading to actual volume in tank in Litres (quadratic fit)
     const float voltage = (LS800_FIT_THIRD_COEFF * ls800_raw * ls800_raw * ls800_raw) + (LS800_FIT_SECOND_COEFF * ls800_raw * ls800_raw) + 
-                            (LS800_FIT_FIRST_COEFF * ls800_raw * ls800_raw) + LS800_FIT_OFFSET;
+                            (LS800_FIT_FIRST_COEFF * ls800_raw) + LS800_FIT_OFFSET;
 
     // Add averaging filter at 1Hz for 1minute duration
     const float filtered_voltage = _ls800_filter.apply(voltage);    
