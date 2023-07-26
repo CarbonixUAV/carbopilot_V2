@@ -149,6 +149,13 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     // @User: Standard
     // @Values: 0:None, 1:Relay1,2:Relay2,3:Relay3,4:Relay4
     AP_GROUPINFO("IGNITION_RLY", 18, AP_ICEngine, ignition_relay, 0),
+
+    // @Param: CRNK_DIR
+    // @DisplayName: Crank Direction 
+    // @Description: This is a flag to control which direction the PMU will crank Hirth Engine
+    // @User: Standard
+    // @Values: 0: Reverse, 1: Forward
+    AP_GROUPINFO("CRNK_DIR", 19, AP_ICEngine, crnk_dir_val, 1),
     
     AP_GROUPEND
 };
@@ -337,8 +344,15 @@ void AP_ICEngine::update(void)
             control_ign_str(IGN_ON_STR_OFF);
             ignition_relay_set(false);
         } else {
-            control_ign_str(IGN_ON_STR_ON_DIR_ON);
-            ignition_relay_set(true);
+            if (crnk_dir_val == true) { //CRNK_DIR is set to 1 (Forward)
+                control_ign_str(IGN_ON_STR_ON_DIR_ON_FWD);
+                ignition_relay_set(true);
+            }
+            else { //CRNK_DIR is set to 0 (Reverse)
+                control_ign_str(IGN_ON_STR_ON_DIR_ON_REV);
+                ignition_relay_set(true);
+            }
+            
         }
         
         if (starter_start_time_ms == 0) {
