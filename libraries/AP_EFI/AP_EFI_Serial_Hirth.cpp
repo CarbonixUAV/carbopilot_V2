@@ -335,17 +335,22 @@ void AP_EFI_Serial_Hirth::decode_data() {
 
     case CODE_REQUEST_STATUS_2:
 
-        fuel_consumption_rate_raw = (raw_data[52] | raw_data[53] << 0x08) / FUEL_CONSUMPTION_RESOLUTION;
+        //fuel_consumption_rate_raw value is in l/h from hirth
+        fuel_consumption_rate_raw = (raw_data[52] | raw_data[53] << 0x08) / FUEL_CONSUMPTION_RESOLUTION; 
         internal_state.fuel_consumption_rate_raw = get_avg_fuel_consumption_rate(fuel_consumption_rate_raw);
-        internal_state.fuel_consumption_rate_cm3pm = (fuel_consumption_rate_raw * get_ecu_fcr_slope()) + get_ecu_fcr_offset();
+        //fuel_consumption_rate_cm3pm is in cm3/pm
+        internal_state.fuel_consumption_rate_cm3pm = ((fuel_consumption_rate_raw * get_ecu_fcr_slope())) * LPH_TO_CCMPM; 
 
         if (last_fuel_integration_ms != 0) {
+            //estimated_consumed_fuel_volume_cm3 is in cm3/pm
             internal_state.estimated_consumed_fuel_volume_cm3 += internal_state.fuel_consumption_rate_cm3pm * (now_temp - last_fuel_integration_ms)/60000.0f;
         }
         last_fuel_integration_ms = now_temp;
 
-        total_fuel_consumed = total_fuel_consumed + internal_state.fuel_consumption_rate_cm3pm;
+        //total_fuel_consumed value is logged in litter
+        total_fuel_consumed = total_fuel_consumed + (fuel_consumption_rate_raw * get_ecu_fcr_slope()); 
         internal_state.total_fuel_consumed = total_fuel_consumed;
+
         internal_state.throttle_position_percent = (raw_data[62] | raw_data[63] << 0x08) / 10;
         break;
 

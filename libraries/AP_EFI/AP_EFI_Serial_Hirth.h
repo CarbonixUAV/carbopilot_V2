@@ -41,6 +41,7 @@
 #define MAP_HPA_PER_VOLT_FACTOR 248.2673
 #define HPA_TO_KPA 0.1
 #define TPS_SCALE 0.70
+#define LPH_TO_CCMPM 16.67
 
 const uint8_t QUANTITY_REQUEST_STATUS    = 0x03;
 const uint8_t QUANTITY_SET_VALUE         = 0x17;

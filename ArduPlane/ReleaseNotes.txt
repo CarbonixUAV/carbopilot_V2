@@ -1,3 +1,9 @@
+Release Ottano Carbopilot V4.3.24 28th Jul 2023
+----------------------------------
+
+This release includes: 
+ - OV3-847-hirth-fuel-flow-calculation-correction
+ 
 Release Ottano Carbopilot V4.3.23 27th July 2023
 ----------------------------------
 
