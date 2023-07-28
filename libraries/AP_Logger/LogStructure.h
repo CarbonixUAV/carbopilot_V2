@@ -464,6 +464,15 @@ struct PACKED log_CSRV {
     uint8_t power_pct;
 };
 
+struct PACKED log_CSVI {
+  LOG_PACKET_HEADER;
+  uint64_t time_us;
+  uint8_t id;
+  float voltage;
+  float current;
+  uint8_t error_flags;
+};
+
 struct PACKED log_ARSP {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -1333,6 +1342,8 @@ LOG_STRUCTURE_FROM_AVOIDANCE \
 LOG_STRUCTURE_FROM_ESC_TELEM \
     { LOG_CSRV_MSG, sizeof(log_CSRV), \
       "CSRV","QBfffB","TimeUS,Id,Pos,Force,Speed,Pow", "s#---%", "F-0000", true }, \
+    { LOG_CSVI_MSG, sizeof(log_CSVI), \
+      "CSVI","QBffB","TimeUS,CId,vol,cur,err", "s#--%", "F-000", true }, \
     { LOG_PIDR_MSG, sizeof(log_PID), \
       "PIDR", PID_FMT,  PID_LABELS, PID_UNITS, PID_MULTS, true },  \
     { LOG_PIDP_MSG, sizeof(log_PID), \
@@ -1419,6 +1430,7 @@ enum LogMessages : uint8_t {
     LOG_IDS_FROM_CAMERA,
     LOG_TERRAIN_MSG,
     LOG_CSRV_MSG,
+    LOG_CSVI_MSG,
     LOG_IDS_FROM_ESC_TELEM,
     LOG_IDS_FROM_BATTMONITOR,
 

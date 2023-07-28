@@ -30,6 +30,7 @@
 #include <uavcan/equipment/actuator/ArrayCommand.hpp>
 #include <uavcan/equipment/actuator/Command.hpp>
 #include <uavcan/equipment/actuator/Status.hpp>
+#include <uavcan/equipment/power/CircuitStatus.hpp>
 
 #include <uavcan/equipment/esc/RawCommand.hpp>
 #include <uavcan/equipment/esc/Status.hpp>
@@ -162,6 +163,10 @@ static uavcan::Subscriber<ardupilot::equipment::trafficmonitor::TrafficReport, T
 // handler actuator status
 UC_REGISTRY_BINDER(ActuatorStatusCb, uavcan::equipment::actuator::Status);
 static uavcan::Subscriber<uavcan::equipment::actuator::Status, ActuatorStatusCb> *actuator_status_listener[HAL_MAX_CAN_PROTOCOL_DRIVERS];
+
+// handler actuator status
+UC_REGISTRY_BINDER(ActuatorCktStatusCb, uavcan::equipment::power::CircuitStatus);
+static uavcan::Subscriber<uavcan::equipment::power::CircuitStatus, ActuatorCktStatusCb> *actuator_cktstatus_listener[HAL_MAX_CAN_PROTOCOL_DRIVERS];
 
 // handler ESC status
 UC_REGISTRY_BINDER(ESCStatusCb, uavcan::equipment::esc::Status);
@@ -351,6 +356,11 @@ void AP_UAVCAN::init(uint8_t driver_index, bool enable_filters)
     actuator_status_listener[driver_index] = new uavcan::Subscriber<uavcan::equipment::actuator::Status, ActuatorStatusCb>(*_node);
     if (actuator_status_listener[driver_index]) {
         actuator_status_listener[driver_index]->start(ActuatorStatusCb(this, &handle_actuator_status));
+    }
+
+    actuator_cktstatus_listener[driver_index] = new uavcan::Subscriber<uavcan::equipment::power::CircuitStatus, ActuatorCktStatusCb>(*_node);
+    if (actuator_cktstatus_listener[driver_index]) {
+        actuator_cktstatus_listener[driver_index]->start(ActuatorCktStatusCb(this, &handle_actuator_cktstatus));
     }
 
     esc_status_listener[driver_index] = new uavcan::Subscriber<uavcan::equipment::esc::Status, ESCStatusCb>(*_node);
@@ -950,6 +960,20 @@ void AP_UAVCAN::handle_actuator_status(AP_UAVCAN* ap_uavcan, uint8_t node_id, co
                                    cb.msg->speed,
                                    cb.msg->power_rating_pct);
 }
+
+/*
+  handle actuator volz status message
+ */
+void AP_UAVCAN::handle_actuator_cktstatus(AP_UAVCAN* ap_uavcan, uint8_t node_id, const ActuatorCktStatusCb &cb)
+{
+    // log as VOLZ message
+    AP::logger().Write_ServoCktStatus(AP_HAL::native_micros64(),
+                                   cb.msg->circuit_id,
+                                   cb.msg->voltage,
+                                   cb.msg->current,
+                                   cb.msg->error_flags);
+}
+
 
 /*
   handle ESC status message
