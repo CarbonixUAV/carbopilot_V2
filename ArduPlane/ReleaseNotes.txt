@@ -1,3 +1,9 @@
+Release Ottano Carbopilot V4.3.24 OV3-884 Zeus  28th Jul 2023
+----------------------------------
+
+This release includes: 
+ - OV3-884-zeus-can-servo-driver (Test Build)
+
 Release Ottano Carbopilot V4.3.24 28th Jul 2023
 ----------------------------------
 
