@@ -162,8 +162,6 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     // @Values: 0:None, 1:Relay1,2:Relay2,3:Relay3,4:Relay4
     AP_GROUPINFO("IGNITION_RLY", 18, AP_ICEngine, ignition_relay, 0),
 
-<<<<<<< HEAD
-=======
     // @Param: CRNK_DIR
     // @DisplayName: Crank Direction 
     // @Description: This is a flag to control which direction the PMU will crank Hirth Engine
@@ -171,7 +169,6 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     // @Values: 0: Reverse, 1: Forward
     AP_GROUPINFO("CRNK_DIR", 19, AP_ICEngine, crnk_dir_val, 1),
     
->>>>>>> 760e470... Merge pull request #62 from CarbonixUAV/OV3-875-forward-and-reverse-motor-direction-configuratble
     AP_GROUPEND
 };
 
