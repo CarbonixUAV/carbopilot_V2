@@ -569,9 +569,16 @@ userdata EFI_State field pt_compensation float'skip_check write
 ap_object AP_EFI_Backend depends (AP_EFI_SCRIPTING_ENABLED == 1)
 ap_object AP_EFI_Backend method handle_scripting boolean EFI_State
 
-singleton AP_EFI depends (AP_EFI_SCRIPTING_ENABLED == 1)
 singleton AP_EFI rename efi
 singleton AP_EFI method get_backend AP_EFI_Backend uint8_t 0 UINT8_MAX
+singleton AP_EFI method get_rpm uint32_t
+singleton AP_EFI method get_eng_load_prct uint8_t
+singleton AP_EFI method get_state uint8_t
+singleton AP_EFI method get_crc_fail_ct uint32_t
+singleton AP_EFI method get_pressure boolean float'Null float'Null
+singleton AP_EFI method get_thr_pos boolean float'Null float'Null
+singleton AP_EFI method get_sensor_status boolean uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null uint8_t'Null
+singleton AP_EFI method get_temp boolean float'Null float'Null float'Null float'Null float'Null float'Null
 
 -- ----END EFI Library----
 
