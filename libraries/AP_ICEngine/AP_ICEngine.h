@@ -79,9 +79,10 @@ private:
      */
 
     enum TCA9554_state_t {
-        IGN_OFF_STR_OFF = 0x30,	 		//output register - 0011 0000
-        IGN_ON_STR_OFF = 0x30,		 	//output register - 0011 0000
-		IGN_ON_STR_ON_DIR_ON = 0x11, 	//output register - 0001 0001
+        IGN_OFF_STR_OFF = 0x30,	 		    //output register - 0011 0000
+        IGN_ON_STR_OFF = 0x30,		 	    //output register - 0011 0000
+		IGN_ON_STR_ON_DIR_ON_REV = 0x01, 	//output register - 0000 0001 - Reverse
+   		IGN_ON_STR_ON_DIR_ON_FWD = 0x11, 	//output register - 0001 0001 - Forward
     } TCA9554_state = IGN_OFF_STR_OFF;
 
     enum i2c_init_t {
@@ -157,6 +158,9 @@ private:
     
     // relay number for ignition
     AP_Int8 ignition_relay;
+
+    // Crank direction value
+    AP_Int8 crnk_dir_val;
     
     // height when we enter ICE_START_HEIGHT_DELAY
     float initial_height;
