@@ -1,3 +1,9 @@
+Release Ottano Carbopilot V4.3.25 11th August 2023
+----------------------------------
+
+This release includes: 
+ - OV3-916 update fuel level sensor code to 1min avereage
+
 Release Ottano Carbopilot V4.3.24 28th Jul 2023
 ----------------------------------
 
