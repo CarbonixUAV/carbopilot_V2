@@ -421,8 +421,8 @@ void AP_Periph_FW::update()
 #endif
     
 #ifdef HAL_PERIPH_ENABLE_BATTERY
-    if (now - battery.last_read_ms >= 100) {
-        // update battery at 10Hz
+    if (now - battery.last_read_ms >= 1000) {
+        // update battery at 1Hz
         battery.last_read_ms = now;
         battery.lib.read();
     }

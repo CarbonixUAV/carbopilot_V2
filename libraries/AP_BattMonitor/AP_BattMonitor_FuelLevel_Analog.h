@@ -33,7 +33,7 @@
 #define LS800_FIT_THIRD_COEFF -0.0213
 #define LS800_FIT_OFFSET 0.1766
 
-#define FILTER_MAX 60
+#define FILTER_MAX 60 //battery monitor called at 1Hz
 
 class AP_BattMonitor_FuelLevel_Analog : public AP_BattMonitor_Backend
 {

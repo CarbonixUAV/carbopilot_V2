@@ -55,7 +55,7 @@ const AP_Param::GroupInfo AP_BattMonitor_FuelLevel_Analog::var_info[] = {
    
     // @Param: LS800_MAX_LEVEL
     // @DisplayName: LS800 maximum fuel level
-    AP_GROUPINFO("LS800_MAX", 46, AP_BattMonitor_FuelLevel_Analog, _ls800_max_fuel_level_litres, 1),
+    AP_GROUPINFO("LS800_MAX", 44, AP_BattMonitor_FuelLevel_Analog, _ls800_max_fuel_level_litres, 1),
 
     // Param indexes must be between 40 and 49 to avoid conflict with other battery monitor param tables loaded by pointer
 
