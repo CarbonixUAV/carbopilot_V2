@@ -1749,8 +1749,8 @@ void AP_Periph_FW::can_battery_update(void)
 {
 #ifdef HAL_PERIPH_ENABLE_BATTERY
     const uint32_t now_ms = AP_HAL::native_millis();
-    if (now_ms - battery.last_can_send_ms < 100) {
-        return;
+    if (now_ms - battery.last_can_send_ms < 1000) {
+        return; //change to 1Hz rate
     }
     battery.last_can_send_ms = now_ms;
 
