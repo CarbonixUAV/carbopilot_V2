@@ -1,3 +1,11 @@
+Release Volanti Carbopilot V4.3.2 10th Aug 2023
+----------------------------------
+
+This Release includes
+- feature/VO1-244-volanti-cherrypick-24535-anduril
+
+Happy Flying!
+
 Release Volanti Carbopilot V4.3.1 13th Apr 2023
 ----------------------------------
 
