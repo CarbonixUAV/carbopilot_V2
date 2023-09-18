@@ -16,8 +16,8 @@ APJ_BOARD_ID 1064
 # setup build for a peripheral firmware
 env AP_PERIPH 1
 
-# crystal frequency set to 0 to use internal clock
-OSCILLATOR_HZ 0
+# crystal frequency set to 0 to use internal clock; currently configured for external crystal 12MHZ
+OSCILLATOR_HZ 12000000
 
 #MCU F405 Flash 1024
 FLASH_SIZE_KB 1024
