@@ -1,84 +1,27 @@
-Release Volanti Carbopilot V4.3.6 18th Sep 2023
+Release Volanti Carbopilot V4.4.0 22nd Sep 2023
 ----------------------------------
 
-This Release includes
-- feature/VO1-245-gps-delta-crystal-oscillator
-
-Happy Flying!
-
-Release Volanti Carbopilot V4.3.5 18th Sep 2023
-----------------------------------
-
-This Release includes
-- Plane: QRTL if RTL is expecting to VTOL land and close home with VTOL motors active VO1-272
-
-Happy Flying!
-
-Release Volanti Carbopilot V4.3.4 23rd Aug 2023
-----------------------------------
-
-This Release includes
-- feature/VO1-247-merge-ottano-imp-commits-aug
-
-Happy Flying!
-
-Release Volanti Carbopilot V4.3.3 23rd Aug 2023
-----------------------------------
-
-This Release includes
-- ffeature/VO1-203-volanti-cherry-pick-from-ap-4-3-7
-
-Happy Flying!
-
-Release Volanti Carbopilot V4.3.2 10th Aug 2023
-----------------------------------
-
-This Release includes
-- feature/VO1-244-volanti-cherrypick-24535-anduril
-
-Happy Flying!
-
-Release Volanti Carbopilot V4.3.1 13th Apr 2023
-----------------------------------
-
-This Release includes
-- feature/VO1-190-change-hal-periph-loop-delay-us-to-1024
+This Production Release includes
+- VO1-245-gps-delta-crystal-oscillator
+- VO1-272 Plane: QRTL if RTL is expecting to VTOL land and close home with VTOL motors active 
+- VO1-247-merge-ottano-imp-commits-aug
+- VO1-203-volanti-cherry-pick-from-ap-4-3-7
+- VO1-244-volanti-cherrypick-24535-anduril
+- VO1-190-change-hal-periph-loop-delay-us-to-1024
 
 Happy Flying!
 
 Release Volanti Carbopilot V4.3.0 2nd March 2023
 ----------------------------------
 
-This Release includes
- - Production Release
+This Production Release includes
 
-
-Happy flying!
-
-Release Volanti Carbopilot V4.2.3 20th February 2023
-----------------------------------
-
-This Release includes
 - VO1-147 AP_Periph: version number in header
 - VO1-147 AP_CANManager: disable SLCAN when armed
 - VO1-147 AP_Periph: Add timeout to ESC driving when CAN packets are lost
 - VO1-147 AP_UAVCAN: CAN Node status Log
 - VO1-147 AP_UAVCAN: log bus statistics
-
-Happy flying!
-
-Release Volanti Carbopilot V4.2.2 20th February 2023
-----------------------------------
-
-This Release includes
 - V01-140 GPS Unhealthy Fix
-
-Happy flying!
-
-Release Volanti Carbopilot V4.2.1 10th January 2023
-----------------------------------
-
-This Release includes
 - V01-136 AP_UAVCAN: IST8310 enable on UAVCAN
 
 Happy flying!
