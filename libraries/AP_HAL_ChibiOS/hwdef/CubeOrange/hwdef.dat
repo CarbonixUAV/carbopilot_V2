@@ -4,3 +4,5 @@
 MCU STM32H7xx STM32H743xx
 
 include hwdef.inc
+
+define AP_CUSTOM_FIRMWARE_STRING "CxPilot_V5.0.1"
