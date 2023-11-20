@@ -17,7 +17,7 @@ $GPP_COMPILER -print-sysroot
 SYS_ROOT=$($GPP_COMPILER -print-sysroot)
 echo "SYS_ROOT=$SYS_ROOT"
 
-git config --global --add safe.directory /cygdrive/d/a/ardupilot/ardupilot
+git config --global --add safe.directory *
 
 rm -rf artifacts
 mkdir artifacts
