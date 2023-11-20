@@ -2,6 +2,9 @@ name: test ap_periph
 
 on: 
   push:
+    branches:
+      - CxPilot
+      - master
     paths-ignore:
       # remove other vehicles than copter
       - 'AntennaTracker/**'
