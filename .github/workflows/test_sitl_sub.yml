@@ -2,6 +2,9 @@ name: test sub
 
 on:
   push:
+    branches:
+      - CxPilot
+      - master
     paths-ignore:
       # remove other vehicles
       - 'AntennaTracker/**'

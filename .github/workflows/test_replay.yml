@@ -2,6 +2,9 @@ name: test replay
 
 on:
   push:
+    branches:
+      - CxPilot
+      - master
     paths-ignore:
       # remove other vehicles
       - 'AntennaTracker/**'
