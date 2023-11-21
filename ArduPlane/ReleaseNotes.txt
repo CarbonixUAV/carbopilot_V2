@@ -1,3 +1,13 @@
+Release 5.0.1 20th Nov 2023
+---------------------------
+Changes since 4.3.8:
+ - AP_BattMonitor: Addition of AD7091R5 ADC I2C Read Driver #23564
+ - AP_Compass: Add in QMC5883P driver #25230
+ - Carbonix PR - AP_BattMonitor: Add in reventech fuel level driver #25219
+ - WIP: Hirth Engine Integration #21805
+ - feature/OV3-1018-enable-ardupilot-apd-implementation-in-hwdef
+ 
+
 Release 4.3.8 24th August 2023
 ------------------------------
 
