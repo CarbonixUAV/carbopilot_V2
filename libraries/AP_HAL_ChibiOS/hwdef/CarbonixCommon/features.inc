@@ -1,7 +1,3 @@
-# hw definition file for processing by chibios_hwdef.py
-
-include ../CubeOrange/hwdef.dat
-
 undef HAL_NAVEKF3_AVAILABLE
 undef HAL_NAVEKF2_AVAILABLE
 undef HAL_EXTERNAL_AHRS_ENABLED
