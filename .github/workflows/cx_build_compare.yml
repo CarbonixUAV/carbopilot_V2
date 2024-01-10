@@ -118,6 +118,12 @@ jobs:
 
           echo [`date`] Built PR with no versions
       
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.board }}
+          path: $GITHUB_WORKSPACE/${{ matrix.board }}
+
       - name: Compare build outputs
         shell: bash
         run: |
