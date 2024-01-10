@@ -26,7 +26,8 @@ jobs:
           - gcc: 10
             toolchain: chibios-clang
         board: ["CarbonixCubeOrange", "Volanti-M2", "Volanti-M3", "Volanti-M4", "Volanti-M5", "Volanti-LWing", "Volanti-RWing", "Volanti-LTail", "Volanti-RTail", "Ottano-M1", "Ottano-M2", "Ottano-M3", "Ottano-M4", "Ottano-M5", "Ottano-LWing", "Ottano-RWing", "Ottano-LTail", "Ottano-RTail"]
-
+      max-parallel: 1
+        
     steps:
       # git checkout the PR
       - uses: actions/checkout@v3
@@ -122,7 +123,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.board }}
-          path: $GITHUB_WORKSPACE/${{ matrix.board }}
+          path: ${{ github.workspace }}/${{ matrix.board }}
+          if-no-files-found: warn
 
       - name: Compare build outputs
         shell: bash
