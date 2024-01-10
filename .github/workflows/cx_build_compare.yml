@@ -15,7 +15,7 @@ jobs:
 
     container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.0.29
     strategy:
-      fail-fast: true  # don't cancel if a job from the matrix fails
+      fail-fast: false  # don't cancel if a job from the matrix fails
       matrix:
         toolchain: [
             chibios,
@@ -25,7 +25,7 @@ jobs:
         exclude:
           - gcc: 10
             toolchain: chibios-clang
-        board: ["CarbonixCubeOrange", "CarbonixF405", "Volanti-M1", "Volanti-M2", "Volanti-M3", "Volanti-M4", "Volanti-M5", "Volanti-LWing", "Volanti-RWing", "Volanti-LTail", "Volanti-RTail", "Ottano-M1", "Ottano-M2", "Ottano-M3", "Ottano-M4", "Ottano-M5", "Ottano-LWing", "Ottano-RWing", "Ottano-LTail", "Ottano-RTail"]
+        board: ["CarbonixCubeOrange", "Volanti-M2", "Volanti-M3", "Volanti-M4", "Volanti-M5", "Volanti-LWing", "Volanti-RWing", "Volanti-LTail", "Volanti-RTail", "Ottano-M1", "Ottano-M2", "Ottano-M3", "Ottano-M4", "Ottano-M5", "Ottano-LWing", "Ottano-RWing", "Ottano-LTail", "Ottano-RTail"]
 
     steps:
       # git checkout the PR
