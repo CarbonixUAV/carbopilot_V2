@@ -1,8 +1,8 @@
 name: Compare Build Outputs
 
-on:
-  pull_request:
-    types: [labeled]
+on: [push, pull_request]
+  # pull_request:
+  #   types: [labeled]
 
 concurrency:
     group: ci-${{github.workflow}}-${{ github.ref }}
@@ -10,7 +10,7 @@ concurrency:
       
 jobs:
   build-and-compare:
-    if: github.event.label.name == 'CX_NO_CODE_CHANGE'
+    # if: github.event.label.name == 'CX_NO_CODE_CHANGE'
     runs-on: ubuntu-20.04
 
     container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.0.29
