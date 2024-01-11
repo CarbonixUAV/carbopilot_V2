@@ -76,9 +76,7 @@ jobs:
 
             echo [`date`] Built ${{ github.event.pull_request.base.ref }} with no versions
 
-            PR_BRANCH=${GITHUB_REF#refs/pull/*/merge}
-            git fetch origin pull/$PR_BRANCH/head:PR_BRANCH
-            git checkout PR_BRANCH
+            git checkout ${{ github.event.pull_request.head.ref }} 
 
             # export some environment variables designed to get
             #            repeatable builds from the same source:
