@@ -62,13 +62,6 @@ jobs:
 
             # build the base branch
             cd base_branch
-            ./Tools/Carbonix_scripts/carbonix_board_build.sh ${{ matrix.board }}
-
-            mkdir -p $GITHUB_WORKSPACE/${{matrix.board}}/base_branch_bin
-            cp -r build/${{matrix.board}}/bin/* $GITHUB_WORKSPACE/${{matrix.board}}/base_branch_bin/
-
-            # build a set of binaries without symbols so we can check if
-            #  the binaries have changed.
             echo [`date`] Building ${{ github.event.pull_request.base.ref }} with no versions
   
             NO_VERSIONS_DIR="$GITHUB_WORKSPACE/${{matrix.board}}/base_branch_bin_no_versions"
@@ -84,50 +77,22 @@ jobs:
 
             echo [`date`] Built ${{ github.event.pull_request.base.ref }} with no versions
 
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          path: 'pr'
-          submodules: 'recursive'
-      
+            PR_BRANCH=${GITHUB_REF#refs/pull/*/merge}
+            git fetch origin pull/$PR_BRANCH/head:PR_BRANCH
+            git checkout PR_BRANCH
 
-      - name: Build PR rebased ${{matrix.board}} 
-        shell: bash
-        run: |
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          PATH="/github/home/.local/bin:$PATH"
+            NO_VERSIONS_DIR="$GITHUB_WORKSPACE/${{matrix.board}}/pr_bin_no_versions"
+            mkdir "$NO_VERSIONS_DIR"
 
-          # Check for unstaged changes
-          echo "Checking for unstaged changes..."
-          if ! git diff --exit-code > /dev/null; then
-            echo "There are unstaged changes."
-          else
-            echo "There are no unstaged changes."
-          fi
-          
-          # build the base branch
-          cd base_branch
-          ./Tools/Carbonix_scripts/carbonix_board_build.sh ${{ matrix.board }}
+            # export some environment variables designed to get
+            #            repeatable builds from the same source:
+            export CHIBIOS_GIT_VERSION="12345678"
+            export GIT_VERSION="abcdef"
+            export GIT_VERSION_INT="15"
+            ./Tools/Carbonix_scripts/carbonix_board_build.sh ${{ matrix.board }}
+            cp -r build/${{matrix.board}}/bin/* "$NO_VERSIONS_DIR"
 
-          mkdir -p $GITHUB_WORKSPACE/${{matrix.board}}/pr_bin
-          cp -r build/${{matrix.board}}/bin/* $GITHUB_WORKSPACE/${{matrix.board}}/pr_bin/
-
-          # build a set of binaries without symbols so we can check if
-          #  the binaries have changed.
-          echo [`date`] Building PR with no versions
-
-          NO_VERSIONS_DIR="$GITHUB_WORKSPACE/${{matrix.board}}/pr_bin_no_versions"
-          mkdir "$NO_VERSIONS_DIR"
-
-          # export some environment variables designed to get
-          #            repeatable builds from the same source:
-          export CHIBIOS_GIT_VERSION="12345678"
-          export GIT_VERSION="abcdef"
-          export GIT_VERSION_INT="15"
-          ./Tools/Carbonix_scripts/carbonix_board_build.sh ${{ matrix.board }}
-          cp -r build/${{matrix.board}}/bin/* "$NO_VERSIONS_DIR"
-
-          echo [`date`] Built PR with no versions
+            echo [`date`] Built PR with no versions
       
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
