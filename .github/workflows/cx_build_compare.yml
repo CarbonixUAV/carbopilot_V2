@@ -62,17 +62,16 @@ jobs:
 
             # build the base branch
             cd base_branch
-            echo [`date`] Building ${{ github.event.pull_request.base.ref }} with no versions
-  
-            NO_VERSIONS_DIR="$GITHUB_WORKSPACE/${{matrix.board}}/base_branch_bin_no_versions"
-            mkdir "$NO_VERSIONS_DIR"
-  
+
             # export some environment variables designed to get
             #            repeatable builds from the same source:
             export CHIBIOS_GIT_VERSION="12345678"
             export GIT_VERSION="abcdef"
             export GIT_VERSION_INT="15"
             ./Tools/Carbonix_scripts/carbonix_board_build.sh ${{ matrix.board }}
+  
+            NO_VERSIONS_DIR="$GITHUB_WORKSPACE/${{matrix.board}}/base_branch_bin_no_versions"
+            mkdir -p "$NO_VERSIONS_DIR"  
             cp -r build/${{matrix.board}}/bin/* "$NO_VERSIONS_DIR"
 
             echo [`date`] Built ${{ github.event.pull_request.base.ref }} with no versions
@@ -81,15 +80,15 @@ jobs:
             git fetch origin pull/$PR_BRANCH/head:PR_BRANCH
             git checkout PR_BRANCH
 
-            NO_VERSIONS_DIR="$GITHUB_WORKSPACE/${{matrix.board}}/pr_bin_no_versions"
-            mkdir "$NO_VERSIONS_DIR"
-
             # export some environment variables designed to get
             #            repeatable builds from the same source:
             export CHIBIOS_GIT_VERSION="12345678"
             export GIT_VERSION="abcdef"
             export GIT_VERSION_INT="15"
             ./Tools/Carbonix_scripts/carbonix_board_build.sh ${{ matrix.board }}
+
+            NO_VERSIONS_DIR="$GITHUB_WORKSPACE/${{matrix.board}}/pr_bin_no_versions"
+            mkdir -p "$NO_VERSIONS_DIR"
             cp -r build/${{matrix.board}}/bin/* "$NO_VERSIONS_DIR"
 
             echo [`date`] Built PR with no versions
