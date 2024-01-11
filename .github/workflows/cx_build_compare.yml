@@ -88,6 +88,8 @@ jobs:
         with:
           fetch-depth: 0
           path: 'pr'
+          submodules: 'recursive'
+      
 
       - name: Build PR rebased ${{matrix.board}} 
         shell: bash
@@ -95,6 +97,14 @@ jobs:
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
           PATH="/github/home/.local/bin:$PATH"
 
+          # Check for unstaged changes
+          echo "Checking for unstaged changes..."
+          if ! git diff --exit-code > /dev/null; then
+            echo "There are unstaged changes."
+          else
+            echo "There are no unstaged changes."
+          fi
+          
           # build the base branch
           cd base_branch
           ./Tools/Carbonix_scripts/carbonix_board_build.sh ${{ matrix.board }}
