@@ -316,6 +316,11 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         ignition_voltage,
         fuel_pressure
         );
+// TODO: Sending these values over mavlink is disabled for Periph.Should be included once te CI errors are resolved
+#ifndef HAL_BUILD_AP_PERIPH
+    gcs().send_named_float("CHT2", KELVIN_TO_C(state.cylinder_status.cylinder_head_temperature2));
+    gcs().send_named_float("EGT2", KELVIN_TO_C(state.cylinder_status.exhaust_gas_temperature2));
+#endif
 }
 
 // get a copy of state structure
