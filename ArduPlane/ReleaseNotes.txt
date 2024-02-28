@@ -1,3 +1,14 @@
+Release 5.1.0_beta1 29th Feb 2024
+------------------------------
+ - Parameter: CRASH_DETECT Param doc update to add 1 in value set
+ - workflow: Deleted test_coverage CI
+ - AP_EFI : Addition of Engine Information over Mavlink
+ - CI : build.zip file changes WIP
+ - Servo: CAN servo telemetry data for MKS/Zeus servos
+ - Adding ThM (modified throttle send to engine) to EFIS log
+ - Lua bindings for safety checks
+
+
 Release 5.0.0 23rd Jan 2024
 ------------------------------
  - workflow: Added cx_build_compare CI for Carbonix board for build compare, triggered on Label CX_NO_CODE_CHANGE
