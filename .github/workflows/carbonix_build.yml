@@ -168,7 +168,7 @@ jobs:
       - name: build Carbonix Flight Controller
         shell: bash
         run: |
-          boards=("CubeOrange" "CarbonixCubeOrange" "sitl")
+          boards=("CubeOrange" "CarbonixCubeOrange" "CarbonixCubeOrangePlus" "sitl")
           for board in "${boards[@]}"; do
             echo "Compiling AP_Periph for $board..."
             ./Tools/scripts/build_bootloaders.py "$board"
@@ -191,7 +191,7 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@v2
         with:
-          files: "build/CubeOrange/*, build/CarbonixCubeOrange/*, build/sitl/*, build/CarbonixF405/*, build/Volanti-M1/*, build/Volanti-M2/*, build/Volanti-M3/*, build/Volanti-M4/*, build/Volanti-M5/*, build/Volanti-LWing/*, build/Volanti-RWing/*, build/Volanti-LTail/*, build/Volanti-RTail/*, build/Ottano-M1/*, build/Ottano-M2/*, build/Ottano-M3/*, build/Ottano-M4/*, build/Ottano-M5/*, build/Ottano-LWing/*, build/Ottano-RWing/*, build/Ottano-LTail/*, build/Ottano-RTail/*"
+          files: "build/CarbonixCubeOrangePlus/*, build/CubeOrange/*, build/CarbonixCubeOrange/*, build/sitl/*, build/CarbonixF405/*, build/Volanti-M1/*, build/Volanti-M2/*, build/Volanti-M3/*, build/Volanti-M4/*, build/Volanti-M5/*, build/Volanti-LWing/*, build/Volanti-RWing/*, build/Volanti-LTail/*, build/Volanti-RTail/*, build/Ottano-M1/*, build/Ottano-M2/*, build/Ottano-M3/*, build/Ottano-M4/*, build/Ottano-M5/*, build/Ottano-LWing/*, build/Ottano-RWing/*, build/Ottano-LTail/*, build/Ottano-RTail/*"
           fail: true
       - name: Install zip utility
         run: sudo apt-get install zip
