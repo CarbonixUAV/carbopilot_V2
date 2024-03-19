@@ -168,6 +168,13 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     // 18 was IGNITION_RLY
 
 
+    // @Param: CRANK_DIR
+    // @DisplayName: Engine Cranking Direction for TCA9554
+    // @Description: This will define which direction the engine is cranking for the TCA9554 starter control
+    // @User: Standard
+    // @Values: 0:Forward,1:Reverse
+    AP_GROUPINFO("CRANK_DIR", 19, AP_ICEngine, crank_direction, 0),
+
     AP_GROUPEND
 };
 
@@ -620,7 +627,7 @@ void AP_ICEngine::set_starter(bool on)
     SRV_Channels::set_output_pwm(SRV_Channel::k_starter, on? pwm_starter_on : pwm_starter_off);
 
 #if AP_ICENGINE_TCA9554_STARTER_ENABLED
-    tca9554_starter.set_starter(on);
+    tca9554_starter.set_starter(on, crank_direction);
 #endif
 
 #if AP_RELAY_ENABLED
