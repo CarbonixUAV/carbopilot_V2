@@ -141,6 +141,9 @@ private:
     AP_Float idle_slew;
 #endif
 
+    // crank engine direction
+    AP_Int8 crank_direction;
+
     // height when we enter ICE_START_HEIGHT_DELAY
     float initial_height;
 
