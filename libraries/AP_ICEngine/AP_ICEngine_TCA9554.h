@@ -15,8 +15,12 @@ private:
     AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_TCA9554;
 
     enum TCA9554_state_t {
-        STARTER_OFF = 0x30,	// output register - 0011 0000
-        STARTER_ON  = 0x11, // output register - 0001 0001 - Forward direction
+        STARTER_OFF = 0x30, // output register - 0011 0000
+#ifdef AP_ICENGINE_TCA9554_DIRECTION_REVERSE
+        STARTER_ON = 0x01, // output register - 0000 0001 - Reverse direction
+#else
+        STARTER_ON = 0x11, // output register - 0001 0001 - Forward direction
+#endif // AP_ICENGINE_TCA9554_DIRECTION_REVERSE
     };
     TCA9554_state_t last_state;
 
