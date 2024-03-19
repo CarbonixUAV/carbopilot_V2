@@ -402,7 +402,12 @@ void AP_ICEngine::update(void)
 
     case ICE_STARTING:
         set_ignition(true);
-        set_starter(true);
+
+        if (allow_throttle_while_disarmed()) {
+            set_starter(true);
+        } else {
+            set_starter(false);
+        }
 
         if (starter_start_time_ms == 0) {
             starter_start_time_ms = now;
