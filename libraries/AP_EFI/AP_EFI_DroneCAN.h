@@ -1,5 +1,8 @@
 #pragma once
 
+#include "AP_EFI_config.h"
+
+#if HAL_EFI_ENABLED && HAL_EFI_DRONECAN_ENABLED
 #include "AP_EFI.h"
 #include "AP_EFI_Backend.h"
 

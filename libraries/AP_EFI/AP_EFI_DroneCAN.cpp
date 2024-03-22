@@ -1,4 +1,3 @@
-#include <AP_HAL/AP_HAL.h>
 #include "AP_EFI_config.h"
 
 #if HAL_EFI_ENABLED
