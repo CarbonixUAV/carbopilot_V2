@@ -43,7 +43,7 @@ jobs:
         id: ccache_cache_timestamp
         run: |
           NOW=$(date -u +"%F-%T")
-          echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
+          echo "{timestamp}=${NOW}" >> $GITHUB_OUTPUT
       - name: ccache cache files
         uses: actions/cache@v3
         with:
@@ -243,9 +243,12 @@ jobs:
           EF_BASE_BRANCH_BINARY="$GITHUB_WORKSPACE/base_branch_bin/$EF_BINARY_NAME"
           EF_PR_BRANCH_BINARY="$GITHUB_WORKSPACE/pr_bin/$EF_BINARY_NAME"
 
-          Tools/scripts/extract_features.py "$EF_BASE_BRANCH_BINARY" -nm "${BIN_PREFIX}nm" >features-base_branch.txt
-          Tools/scripts/extract_features.py "$EF_PR_BRANCH_BINARY" -nm "${BIN_PREFIX}nm" >features-pr.txt
-          diff -u features-base_branch.txt features-pr.txt || true
+      - name: Archive elf_diff output
+        uses: actions/upload-artifact@v3
+        with:
+           name: ELF_DIFF_${{matrix.config}}
+           path: elf_diff.zip
+           retention-days: 14
 
       - name: Checksum compare with ${{ github.event.pull_request.base.ref }}
         shell: bash
