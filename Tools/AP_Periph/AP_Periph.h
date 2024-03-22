@@ -35,6 +35,8 @@
 #include "GCS_MAVLink.h"
 #endif
 
+#include "esc_apd_telem.h"
+
 #if defined(HAL_PERIPH_NEOPIXEL_COUNT_WITHOUT_NOTIFY) || defined(HAL_PERIPH_ENABLE_NCP5623_LED_WITHOUT_NOTIFY) || defined(HAL_PERIPH_ENABLE_NCP5623_BGR_LED_WITHOUT_NOTIFY) || defined(HAL_PERIPH_ENABLE_TOSHIBA_LED_WITHOUT_NOTIFY)
 #define AP_PERIPH_HAVE_LED_WITHOUT_NOTIFY
 #endif
@@ -228,6 +230,11 @@ public:
     uint32_t efi_update_ms;
 #endif
     
+#ifdef HAL_PERIPH_ENABLE_ESC_APD
+    ESC_APD_Telem *apd_esc_telem[APD_ESC_INSTANCES];
+    void apd_esc_telem_update();
+#endif
+
 #ifdef HAL_PERIPH_ENABLE_RC_OUT
 #if HAL_WITH_ESC_TELEM
     AP_ESC_Telem esc_telem;
@@ -319,5 +326,3 @@ namespace AP
 }
 
 extern AP_Periph_FW periph;
-
-
