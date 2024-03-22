@@ -481,6 +481,17 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Group: EFI
     // @Path: ../libraries/AP_EFI/AP_EFI.cpp
     GOBJECT(efi, "EFI", AP_EFI),
+#endif 
+
+#ifdef HAL_PERIPH_ARM_MONITORING_ENABLE
+    // @Param: DISARM_DELAY
+    // @DisplayName: ARM Command Timeout
+    // @Description: This is the duration (ms) with which if not received a signal will disarm the system default to 2 sec as ARM packet is set to 1 Hz
+    // @Range: 0 10000
+    // @Units: ms
+    // @User: Advanced
+    GSCALAR(disarm_delay, "DISARM_DELAY", 2000),
+    
 #endif
 
 #ifdef HAL_PERIPH_ENABLE_PRX
