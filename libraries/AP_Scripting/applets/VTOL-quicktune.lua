@@ -404,6 +404,7 @@ end
 
 -- limit a gain change to QUIK_MAX_REDUCE
 function limit_gain(pname, value)
+   local P = params[pname]
    local saved_value = param_saved[pname]
    local max_reduction = QUIK_MAX_REDUCE:get()
    if max_reduction >= 0 and max_reduction < 100 and saved_value > 0 then
@@ -590,7 +591,7 @@ function update()
          new_gain = 0.001
       end
       adjust_gain_limited(pname, new_gain)
-      logger.write('QUIK','SRate,Gain,Param', 'ffn', srate, P:get(), axis .. stage)
+      logger:write('QUIK','SRate,Gain,Param', 'ffn', srate, P:get(), axis .. stage)
       if get_time() - last_gain_report > 3 then
          last_gain_report = get_time()
          gcs:send_text(MAV_SEVERITY_INFO, string.format("%s %.4f sr:%.2f", pname, new_gain, srate))
