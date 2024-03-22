@@ -9837,7 +9837,7 @@ class AutoTestCopter(AutoTest):
             "AltEstimation": "See https://github.com/ArduPilot/ardupilot/issues/15191",
             "GroundEffectCompensation_takeOffExpected": "Flapping",
             "GroundEffectCompensation_touchDownExpected": "Flapping",
-            "FlyMissionTwice": "See https://github.com/ArduPilot/ardupilot/pull/18561",
+            "GyroFFTAverage": "Feature disabled, see https://github.com/ardupilot/ardupilot/commit/a4835634e043b1038f04226d219ac4a4fdd87897"
         }
 
 
