@@ -14,10 +14,6 @@
  */
 #pragma once
 
-#include "AP_EFI_config.h"
-
-#if HAL_EFI_ENABLED
-
 #include "AP_EFI.h"
 #include "AP_EFI_State.h"
 #include <AP_HAL/Semaphores.h>
@@ -64,4 +60,3 @@ protected:
 private:
     AP_EFI &frontend;
 };
-#endif // HAL_EFI_ENABLED

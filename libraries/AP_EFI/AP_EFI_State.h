@@ -15,9 +15,8 @@
 
 #pragma once
 
-#include <AP_EFI/AP_EFI_config.h>
-
-#if HAL_EFI_ENABLED
+#define EFI_MAX_INSTANCES 2
+#define EFI_MAX_BACKENDS 2
 
 #include <AP_Common/AP_Common.h>
 #include <AP_HAL/AP_HAL.h>
@@ -214,5 +213,3 @@ struct EFI_State {
     // PT compensation
     float pt_compensation;
 };
-
-#endif // HAL_EFI_ENABLED
