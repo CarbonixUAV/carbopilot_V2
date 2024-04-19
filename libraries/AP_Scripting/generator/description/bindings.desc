@@ -304,6 +304,7 @@ singleton AP_ESC_Telem method get_current boolean uint8_t 0 NUM_SERVO_CHANNELS f
 singleton AP_ESC_Telem method get_voltage boolean uint8_t 0 NUM_SERVO_CHANNELS float'Null
 singleton AP_ESC_Telem method get_consumption_mah boolean uint8_t 0 NUM_SERVO_CHANNELS float'Null
 singleton AP_ESC_Telem method get_usage_seconds boolean uint8_t 0 NUM_SERVO_CHANNELS uint32_t'Null
+singleton AP_ESC_Telem method get_last_telem_data_ms uint32_t uint8_t 0 NUM_SERVO_CHANNELS
 
 include AP_Param/AP_Param.h
 singleton AP_Param alias param
@@ -383,6 +384,8 @@ singleton AP_MotorsMatrix alias MotorsMatrix
 singleton AP_MotorsMatrix method init boolean uint8_t 0 AP_MOTORS_MAX_NUM_MOTORS
 singleton AP_MotorsMatrix method add_motor_raw void int8_t 0 (AP_MOTORS_MAX_NUM_MOTORS-1) float'skip_check float'skip_check float'skip_check uint8_t 0 AP_MOTORS_MAX_NUM_MOTORS
 singleton AP_MotorsMatrix method set_throttle_factor boolean int8_t 0 (AP_MOTORS_MAX_NUM_MOTORS-1) float 0 FLT_MAX
+singleton AP_MotorsMatrix method get_lost_motor uint8_t
+singleton AP_MotorsMatrix method get_thrust_boost boolean
 
 include AP_Frsky_Telem/AP_Frsky_SPort.h
 singleton AP_Frsky_SPort alias frsky_sport
