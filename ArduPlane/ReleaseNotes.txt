@@ -1,3 +1,13 @@
+Release Volanti Carbopilot V4.5.0 19th April 2024
+----------------------------------
+
+This Production Release includes
+- lua binding added ESC- `get_last_telem_data_ms` MotorMatrix `get_lost_motor` MotorMatrix `get_thrust_boost`
+- Added Cx_built_in_test.lua to CubeOrange
+- Cx_built_in_test.lua added ESC telemetry and RPM drop test
+
+Happy Flying!
+
 Release Volanti Carbopilot V4.4.0 22nd Sep 2023
 ----------------------------------
 
