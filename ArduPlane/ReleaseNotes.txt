@@ -1,3 +1,8 @@
+Release 5.1.2 6th May 2024
+------------------------------
+- .github: added no crystal build for Carbonix AP_Periph boards
+- hwdef: CarbonixF405-NoCrystal added
+ 
 Release 5.1.1 20th March 2024
 ------------------------------
 - AP_ICEngine: Added a new parameter CRANK_DIR for controlling the direction of engine cranking, providing flexibility in engine configurations.
