@@ -1,3 +1,13 @@
+Release Volanti Carbopilot V4.6.0 16th May 2024
+----------------------------------
+
+This Production Release includes
+- Fixed a Bug where lua could cause a hardfault in Flight controller.
+- AP_Scripting: stash and restore FPU register context in LUAI_TRY
+- AP_Scripting: fixed float register save/restore in setjmp/longjmp
+
+Happy Flying!
+
 Release Volanti Carbopilot V4.5.0 19th April 2024
 ----------------------------------
 
