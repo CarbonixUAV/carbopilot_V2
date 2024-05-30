@@ -60,7 +60,7 @@ local THR_FAILSAFE = bind_param('THR_FAILSAFE')
   // @Range: 0 100000
   // @User: Standard
 --]]
-local RANGE  = bind_add_param('RANGE', 1, 5000)
+local RANGE  = bind_add_param('RANGE', 1, -1)
 
 -- flag to track if failsafe should be enabled
 local failsafe_enabled = false
@@ -70,6 +70,14 @@ local last_mode_warning = 0
 
 -- update function, called at UPDATE_RATE_HZ
 local function update()
+    -- if range is negative, this feature is disabled. This does not restore the
+    -- THR_FAILSAFE parameter to its original value. It just essentially
+    -- disables the script. (this way the script doesn't interfere with the
+    -- user's configuration by default)
+    if RANGE:get() < 0 then
+        return
+    end
+
     local distance = 0
     local home = ahrs:get_home()
     local cur_loc = ahrs:get_location()
