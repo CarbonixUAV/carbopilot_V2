@@ -204,10 +204,10 @@ jobs:
           else
             echo "ReleaseNotes.txt File does not exist"
           fi
-          if [ -d "libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/payloads" ]; then
-            cp -vr libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/payloads temp/
+          if [ -d "libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/parameter_patches" ]; then
+            cp -vr libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/parameter_patches temp/
           else
-            echo "payloads Folder does not exist"
+            echo "parameter_patches Folder does not exist"
           fi
         shell: sh -e {0}
       - name: Archive production artifacts
