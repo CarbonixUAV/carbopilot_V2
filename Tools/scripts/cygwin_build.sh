@@ -32,7 +32,7 @@ mkdir artifacts
     # python ./waf sub 2>&1
 
 # Get Carbonix version number to name the exe file
-FIRMWARE_VERSION=$(grep -oP '#define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_Common/CxVersion.h)
+FIRMWARE_VERSION=$(grep -oP '#define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_Common/CxVersion.h)-$(git rev-parse --short HEAD)
 
 # copy both with exe and without to cope with differences
 # between windows versions in CI
