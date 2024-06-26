@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 '''
 Build SITL default parameter files for use with SITL launcher
 '''

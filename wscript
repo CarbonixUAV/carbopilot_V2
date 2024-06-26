@@ -400,6 +400,26 @@ def configure(cfg):
     if cfg.options.board is None:
         cfg.options.board = 'sitl'
 
+    if cfg.options.board == 'sitl':
+        # Loop through all .parm files in libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/sitl_params/
+        param_folder = 'libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/sitl_params/'
+        for file in os.listdir(param_folder):
+            if not file.endswith('.parm'):
+                continue
+
+            # make build/sitl directory if it doesn't exist
+            if not os.path.exists('build'):
+                os.makedirs('build')
+            if not os.path.exists('build/sitl'):
+                os.makedirs('build/sitl')
+
+            in_file = os.path.join(param_folder, file)
+            out_file = os.path.join('build/sitl', file)
+
+            # Call Tools/Carbonix_scripts/process_sitl_defaults.py $in_file $out_file
+            cfg.msg('Processing default parameters', file)
+            subprocess.run(['Tools/Carbonix_scripts/process_sitl_defaults.py', in_file, out_file])
+
     boards_names = boards.get_boards_names()
     if not cfg.options.board in boards_names:
         for b in boards_names:
