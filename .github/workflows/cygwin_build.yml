@@ -2,6 +2,10 @@ name: Cygwin Build
 
 on:
   push:
+    branches:
+      - CxPilot
+      - CxPilot-*
+      - master
     paths-ignore:
       # remove other vehicles
       - 'AntennaTracker/**'
@@ -64,8 +68,6 @@ on:
       # Remove some directories check
       - '.vscode/**'
       - '.github/ISSUE_TEMPLATE/**'
-      # Remove change on other workflows
-      - '.github/workflows/test_environment.yml'
 
   pull_request:
     paths-ignore:
@@ -130,8 +132,6 @@ on:
       # Remove some directories check
       - '.vscode/**'
       - '.github/ISSUE_TEMPLATE/**'
-      # Remove change on other workflows
-      - '.github/workflows/test_environment.yml'
 
   workflow_dispatch:
 
@@ -211,7 +211,7 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@v2
         with:
-          files: "artifacts/*"
+          files: "artifacts/ArduPlane.elf.exe"
           fail: true
 
       - name: Archive build
@@ -219,4 +219,4 @@ jobs:
         with:
           name: binaries
           path: artifacts
-          retention-days: 7
+          retention-days: 90
