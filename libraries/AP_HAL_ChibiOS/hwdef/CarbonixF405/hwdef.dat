@@ -19,6 +19,8 @@ env AP_PERIPH 1
 # crystal frequency set to 0 to use internal clock; currently configured for external crystal 12MHZ
 OSCILLATOR_HZ 12000000
 
+define AP_CUSTOM_FIRMWARE_STRING "CarboPilot V5.0.1-dev"
+
 #MCU F405 Flash 1024
 FLASH_SIZE_KB 1024
 
@@ -110,12 +112,10 @@ define HAL_NO_GCS
 define HAL_NO_MONITOR_THREAD
 
 define AP_PARAM_MAX_EMBEDDED_PARAM 512
-
 # enable ESC control
 define HAL_PERIPH_ENABLE_RC_OUT
 define HAL_PERIPH_ARM_MONITORING_ENABLE
 define HAL_SUPPORT_RCOUT_SERIAL 1
-define HAL_WITH_ESC_TELEM 1
 
 # enable GPS
 define HAL_PERIPH_ENABLE_GPS
