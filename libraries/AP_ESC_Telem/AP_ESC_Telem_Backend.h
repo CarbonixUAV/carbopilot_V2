@@ -19,6 +19,11 @@ public:
         uint32_t last_update_ms;    // last update time in milliseconds, determines whether active
         uint16_t types;             // telemetry types present
         uint16_t count;             // number of times updated
+#if AP_EXTENDED_ESC_TELEM_ENABLED
+        uint8_t input_duty;         // input duty cycle
+        uint8_t output_duty;        // output duty cycle
+        uint32_t flags;             // Status flags
+#endif // AP_EXTENDED_ESC_TELEM_ENABLED
 
         // return true if the data is stale
         bool stale(uint32_t now_ms=0) const volatile;
@@ -42,6 +47,11 @@ public:
         USAGE       = 1 << 5,
         TEMPERATURE_EXTERNAL = 1 << 6,
         MOTOR_TEMPERATURE_EXTERNAL  = 1 << 7,
+#if AP_EXTENDED_ESC_TELEM_ENABLED
+        INPUT_DUTY  = 1 << 10,
+        OUTPUT_DUTY = 1 << 11,
+        FLAGS       = 1 << 12
+#endif // AP_EXTENDED_ESC_TELEM_ENABLED
     };
 
 
