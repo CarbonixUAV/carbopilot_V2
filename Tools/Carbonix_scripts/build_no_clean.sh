@@ -10,9 +10,14 @@ BOARD=$1
 
 if [ "$BOARD" == "CubeOrange" ] || [ "$BOARD" == "CubeOrange-Volanti" ] || [ "$BOARD" == "CubeOrange-Ottano" ] || [ "$BOARD" == "sitl" ]
 then
+    echo "Configuring Plane for $BOARD..."
+    ./waf configure --board $BOARD
     echo "Compiling Plane for $BOARD..."
     ./waf plane
-else
+elif [ "$BOARD" == "CarbonixF405" ] || [ "$BOARD" == "CarbonixF405-no-crystal" ]
+then
+    echo "Configuring AP_Periph for $BOARD..."
+    ./waf configure --board $BOARD
     echo "Compiling AP_Periph for $BOARD..."
     ./waf AP_Periph
 fi
