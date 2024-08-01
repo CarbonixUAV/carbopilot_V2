@@ -240,7 +240,7 @@ void AP_EFI::log_status(void)
                                 "TimeUS,Inst,IgnT,InjT,CHT,EGT,Lambda,CHT2,EGT2,IDX",
                                 "s#dsOO-OO-",
                                 "F-0C000000",
-                                "QBfffffBff",
+                                "QBffffffff",
                                 AP_HAL::micros64(),
                                 0,
                                 state.cylinder_status.ignition_timing_deg,

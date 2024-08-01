@@ -300,7 +300,7 @@ void AP_EFI_Serial_Hirth::decode_data()
 
         // EFI2 log
         internal_state.engine_state = (Engine_State)record1->engine_status;
-        internal_state.crankshaft_sensor_status = (record1->sensor_ok & CRANK_SHAFT_SENSOR_OK) ? Crankshaft_Sensor_Status::OK : Crankshaft_Sensor_Status::ERROR;
+        internal_state.crankshaft_sensor_status = (record1->sensor_ok == CRANK_SHAFT_SENSOR_OK) ? Crankshaft_Sensor_Status::OK : Crankshaft_Sensor_Status::ERROR;
 
         // ECYL log
         internal_state.cylinder_status.injection_time_ms = record1->injection_time * INJECTION_TIME_RESOLUTION;
