@@ -90,6 +90,13 @@ public:
         k_param_can_terminate2,
         k_param_serial_options,
         k_param_relay,
+        k_param_temperature_msg_rate,
+        k_param_rangefinder_baud1,
+        k_param_rangefinder_port1,
+        k_param_options,
+        k_param_rpm_msg_rate,
+        k_param_esc_rate,
+        k_param_esc_extended_telem_rate,
     };
 
     AP_Int16 format_version;
@@ -176,6 +183,9 @@ public:
 #endif
 #if HAL_WITH_ESC_TELEM
     AP_Int32 esc_telem_rate;
+#if AP_EXTENDED_ESC_TELEM_ENABLED
+    AP_Int16 esc_extended_telem_rate;
+#endif
 #endif
 #endif
 
