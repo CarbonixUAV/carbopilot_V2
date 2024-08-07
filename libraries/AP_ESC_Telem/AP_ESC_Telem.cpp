@@ -330,42 +330,58 @@ bool AP_ESC_Telem::get_usage_seconds(uint8_t esc_index, uint32_t& usage_s) const
 }
 
 #if AP_EXTENDED_ESC_TELEM_ENABLED
-// get an individual ESC's input duty if available, returns true on success
+// get an individual ESC's input duty cycle if available, returns true on success
 bool AP_ESC_Telem::get_input_duty(uint8_t esc_index, uint8_t& input_duty) const
 {
+    const volatile AP_ESC_Telem_Backend::TelemetryData& telemdata = _telem_data[esc_index];
     if (esc_index >= ESC_TELEM_MAX_ESCS
-        || AP_HAL::millis() - _telem_data[esc_index].last_update_ms > ESC_TELEM_DATA_TIMEOUT_MS
-        || !(_telem_data[esc_index].types & AP_ESC_Telem_Backend::TelemetryType::INPUT_DUTY)) {
+        || telemdata.stale()
+        || !(telemdata.types & AP_ESC_Telem_Backend::TelemetryType::INPUT_DUTY)) {
         return false;
     }
-    input_duty = _telem_data[esc_index].input_duty;
+    input_duty = telemdata.input_duty;
     return true;
 }
 
-// get an individual ESC's output duty if available, returns true on success
+// get an individual ESC's output duty cycle if available, returns true on success
 bool AP_ESC_Telem::get_output_duty(uint8_t esc_index, uint8_t& output_duty) const
 {
+    const volatile AP_ESC_Telem_Backend::TelemetryData& telemdata = _telem_data[esc_index];
     if (esc_index >= ESC_TELEM_MAX_ESCS
-        || AP_HAL::millis() - _telem_data[esc_index].last_update_ms > ESC_TELEM_DATA_TIMEOUT_MS
-        || !(_telem_data[esc_index].types & AP_ESC_Telem_Backend::TelemetryType::OUTPUT_DUTY)) {
+        || telemdata.stale()
+        || !(telemdata.types & AP_ESC_Telem_Backend::TelemetryType::OUTPUT_DUTY)) {
         return false;
     }
-    output_duty = _telem_data[esc_index].output_duty;
+    output_duty = telemdata.output_duty;
     return true;
 }
 
 // get an individual ESC's status flags if available, returns true on success
 bool AP_ESC_Telem::get_flags(uint8_t esc_index, uint32_t& flags) const
 {
+    const volatile AP_ESC_Telem_Backend::TelemetryData& telemdata = _telem_data[esc_index];
     if (esc_index >= ESC_TELEM_MAX_ESCS
-        || AP_HAL::millis() - _telem_data[esc_index].last_update_ms > ESC_TELEM_DATA_TIMEOUT_MS
-        || !(_telem_data[esc_index].types & AP_ESC_Telem_Backend::TelemetryType::FLAGS)) {
+        || telemdata.stale()
+        || !(telemdata.types & AP_ESC_Telem_Backend::TelemetryType::FLAGS)) {
         return false;
     }
-    flags = _telem_data[esc_index].flags;
+    flags = telemdata.flags;
     return true;
 }
-#endif //AP_EXTENDED_ESC_TELEM_ENABLED
+
+// get an individual ESC's percentage of output power if available, returns true on success
+bool AP_ESC_Telem::get_power_percentage(uint8_t esc_index, uint8_t& power_percentage) const
+{
+    const volatile AP_ESC_Telem_Backend::TelemetryData& telemdata = _telem_data[esc_index];
+    if (esc_index >= ESC_TELEM_MAX_ESCS
+        || telemdata.stale()
+        || !(telemdata.types & AP_ESC_Telem_Backend::TelemetryType::POWER_PERCENTAGE)) {
+        return false;
+    }
+    power_percentage = telemdata.power_percentage;
+    return true;
+}
+#endif // AP_EXTENDED_ESC_TELEM_ENABLED
 
 // send ESC telemetry messages over MAVLink
 void AP_ESC_Telem::send_esc_telemetry_mavlink(uint8_t mav_chan)
