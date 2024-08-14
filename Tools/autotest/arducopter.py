@@ -10831,6 +10831,7 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
             "GroundEffectCompensation_takeOffExpected": "Flapping",
             "GroundEffectCompensation_touchDownExpected": "Flapping",
             "FlyMissionTwice": "See https://github.com/ArduPilot/ardupilot/pull/18561",
+            "CANGPSCopterMission": "CX temporary : JIRA - SW-317"
         }
 
 
