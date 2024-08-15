@@ -3,10 +3,8 @@
 local MOTOR_LED_FUNCTION = 94
 
 -- Ensure that the out2_function min = 200 and max = 10000
-local MOTOR_LED_PWM_VAL_TRIM  = 5000
 local MOTOR_LED_PWM_VAL_MIN  = 200
 local MOTOR_LED_PWM_VAL_MAX  = 10000
-local MOTOR_LED_PWM_VAL_OFF  = 0
 
 -- Arming check interval
 local LED_CYCLE_TIME = 2000
