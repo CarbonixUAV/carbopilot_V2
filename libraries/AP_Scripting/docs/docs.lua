@@ -293,6 +293,14 @@ efi = {}
 -- EFI handle scripting update
 ---@param efi_state EFI_State_ud
 function efi:handle_scripting(efi_state) end
+-- desc
+---@return EFI_State_ud
+function efi:get_state() end
+
+-- desc
+---@param instance integer
+---@return AP_EFI_Backend_ud
+function efi:get_backend(instance) end
 
 
 -- CAN bus interaction
