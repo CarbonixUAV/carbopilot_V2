@@ -19,6 +19,7 @@ local MAV_SEVERITY_INFO = 6
 
 -- Engine Types
 local HIRTH_EFI_TYPE = 8
+local HIRTH_ENGINE_CHT_THRESHOLD = 110
 
 local ESC_WARMUP_TIME = 3000
 local SERVO_OUT_THRESHOLD = 1010
@@ -193,11 +194,27 @@ local function esc_check_loop()
     end
 end
 
+local function efi_arming_checks()
+    -- Build up the EFI_State that is passed into the EFI Scripting backend
+    local efi_state = EFI_State()
+    local cylinder_state = Cylinder_Status()
+    cht1 = efi_state:cylinder_head_temperature() - 273.2
+    cht2 = efi_state:cylinder_head_temperature2() - 273.2
+    -- warmup temperature check
+    if cht1 < HIRTH_ENGINE_CHT_THRESHOLD and cht2 < HIRTH_ENGINE_CHT_THRESHOLD then
+        arming:set_aux_auth_failed(auth_id, "Cylinder Head Temp Low")
+        return false
+    end
+   return true
+end
+
 local function arming_checks()
     -- check for status in srv_telem_in_err_status and also CX_SERVO_ERROR bit status
     local pre_arm_status = false-- check for status in srv_telem_in_err_status and also CX_SERVO_ERROR bit status
     arming:set_aux_auth_passed(auth_id)
-
+    if efi_arming_checks() == false then
+        return false
+    end
     for i, status in ipairs(srv_telem_in_err_status) do
         if status == true then
             arming:set_aux_auth_failed(auth_id, "Actuator ".. i .. " Telemetry Error")
