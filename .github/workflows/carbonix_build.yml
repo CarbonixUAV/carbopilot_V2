@@ -138,7 +138,7 @@ jobs:
   build-sitl:
     runs-on: 'windows-latest'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
       - name: Prepare ccache timestamp
@@ -183,7 +183,7 @@ jobs:
         shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
         run: >-
           ln -sf /usr/bin/python3.7 /usr/bin/python && ln -sf /usr/bin/pip3.7 /usr/bin/pip &&
-          python -m pip install --progress-bar off empy pexpect &&
+          python -m pip install --progress-bar off empy==3.3.4 pexpect &&
           python -m pip install --progress-bar off dronecan --upgrade &&
           cp /usr/bin/ccache /usr/local/bin/ &&
           cd /usr/local/bin && ln -s ccache /usr/local/bin/gcc &&
@@ -216,8 +216,8 @@ jobs:
            retention-days: 90
 
   build-apj:
-    runs-on: ubuntu-20.04
-    container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.0.29
+    runs-on: ubuntu-22.04
+    container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
     strategy:
       fail-fast: false  # don't cancel if a job from the matrix fails
       matrix:
@@ -232,7 +232,7 @@ jobs:
 
     steps:
       # git checkout the PR
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
       # Put ccache into github cache for faster build
@@ -290,7 +290,7 @@ jobs:
           retention-days: 90
 
   upload:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [build-apj, build-sitl]
     steps:
       - name: Checkout code
