@@ -1075,7 +1075,7 @@ void AP_UAVCAN::handle_ESC_status(AP_UAVCAN* ap_uavcan, uint8_t node_id, const E
         .current = cb.msg->current,
     };
 
-    ap_uavcan->update_rpm(esc_index, cb.msg->rpm);
+    ap_uavcan->update_rpm(esc_index, cb.msg->rpm, cb.msg->error_count);
     ap_uavcan->update_telem_data(esc_index, t,
         AP_ESC_Telem_Backend::TelemetryType::CURRENT
             | AP_ESC_Telem_Backend::TelemetryType::VOLTAGE
