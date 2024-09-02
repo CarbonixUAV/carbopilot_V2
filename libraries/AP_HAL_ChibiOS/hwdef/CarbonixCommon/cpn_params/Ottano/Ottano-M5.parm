@@ -10,4 +10,4 @@ ESC_APD_SERIAL_1 1
 RNGFND_PORT 2
 RNGFND1_TYPE 8
 RNGFND1_MAX_CM 15800
-RNGFND1_GNDCLEAR 0
+RNGFND1_GNDCLEAR 0 # DISABLE_CHECKS: 0 means the CPN reports the raw reading and the autopilot uses its own GNDCLEAR parameter
