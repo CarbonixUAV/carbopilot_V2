@@ -2,6 +2,10 @@ name: test dds
 
 on:
   push:
+    branches:
+      - CxPilot
+      - CxPilot-*
+      - master
     paths-ignore:
       # remove not tests vehicles
       - 'AntennaTracker/**'
