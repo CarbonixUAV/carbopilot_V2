@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - CxPilot
+      - CxPilot-*
       - master
     paths: # only run for scripting changes
       - 'libraries/AP_Scripting/tests/docs_check.py'
