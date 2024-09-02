@@ -26,7 +26,6 @@ public:
         MPPT_Power_On_At_Boot               = (1U<<5),  // MPPT Enabled at startup (aka boot), if HW supports it. If Power_Off_at_Boot is also set, the behavior is Power_Off_at_Boot
         GCS_Resting_Voltage                 = (1U<<6),  // send resistance resting voltage to GCS
         AllowSplitAuxInfo                   = (1U<<7),  // allow different node to provide aux info for DroneCAN
-        // AllowSplitAuxInfo                = (1U<<7),  // allow different node to provide aux info for DroneCAN (Reserved for ArduPilot 4.5+)
         Minimum_Voltage                     = (1U<<8),  // aggregate monitors report minimum voltage rather than average
     };
 
