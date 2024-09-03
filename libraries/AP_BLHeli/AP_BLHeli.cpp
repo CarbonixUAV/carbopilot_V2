@@ -1496,6 +1496,7 @@ void AP_BLHeli::read_telemetry_packet(void)
             | AP_ESC_Telem_Backend::TelemetryType::CONSUMPTION
             | AP_ESC_Telem_Backend::TelemetryType::TEMPERATURE;
 
+#if AP_EXTENDED_ESC_TELEM_ENABLED
     if (extended_telemetry) {
         telemetryData.input_duty = buf[9];
         telemetryData.output_duty = buf[10];
@@ -1504,6 +1505,7 @@ void AP_BLHeli::read_telemetry_packet(void)
                 | AP_ESC_Telem_Backend::TelemetryType::OUTPUT_DUTY
                 | AP_ESC_Telem_Backend::TelemetryType::FLAGS;
     }
+#endif // AP_EXTENDED_ESC_TELEM_ENABLED
 
     update_telem_data(motor_idx - chan_offset, telemetryData, types);
 
