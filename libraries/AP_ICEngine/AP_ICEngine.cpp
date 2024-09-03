@@ -403,7 +403,7 @@ void AP_ICEngine::update(void)
     case ICE_STARTING:
         set_ignition(true);
 
-        if (allow_throttle_while_disarmed()) {
+        if (hal.util->get_soft_armed() || allow_throttle_while_disarmed()) {
             set_starter(true);
         } else {
             set_starter(false);
