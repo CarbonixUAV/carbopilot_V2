@@ -170,6 +170,13 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     // @Values: 0:Forward,1:Reverse
     AP_GROUPINFO("CRANK_DIR", 19, AP_ICEngine, crank_direction, 0),
 
+    // @Param: STRT_MX_RTRY
+    // @DisplayName: Maximum number of retries
+    // @Description: If set 0 then there is no limit to retrials. If set to a value greater than 0 then the engine will retry starting the engine this many times before giving up.
+    // @User: Standard
+    // @Range: 0 127
+    AP_GROUPINFO("STRT_MX_RTRY", 20, AP_ICEngine, max_crank_retry, 0),
+
     AP_GROUPEND
 };
 
@@ -260,6 +267,7 @@ void AP_ICEngine::update(void)
         if (should_run) {
             state = ICE_START_DELAY;
         }
+        crank_retry_ct = 0;
         break;
 
     case ICE_START_HEIGHT_DELAY: {
@@ -283,8 +291,14 @@ void AP_ICEngine::update(void)
         if (!should_run) {
             state = ICE_OFF;
         } else if (now - starter_last_run_ms >= starter_delay*1000) {
-            gcs().send_text(MAV_SEVERITY_INFO, "Starting engine");
-            state = ICE_STARTING;
+            // check if we should retry starting the engine
+            if (max_crank_retry <= 0 || crank_retry_ct < max_crank_retry) {
+                gcs().send_text(MAV_SEVERITY_INFO, "Starting engine");
+                state = ICE_STARTING;
+                crank_retry_ct++;
+            } else {                    
+                gcs().send_text(MAV_SEVERITY_INFO, "Engine max crank attempts reached");
+            }
         }
         break;
 
