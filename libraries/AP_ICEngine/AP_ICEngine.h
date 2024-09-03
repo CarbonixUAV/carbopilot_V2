@@ -103,7 +103,11 @@ private:
     AP_Int16 pwm_ignition_off;
     AP_Int16 pwm_starter_on;
     AP_Int16 pwm_starter_off;
-    
+
+    // max crank retry
+    AP_Int8 max_crank_retry;
+    int8_t crank_retry_ct;
+
     // RPM above which engine is considered to be running
     AP_Int32 rpm_threshold;
 
