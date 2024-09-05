@@ -1,3 +1,35 @@
+Release 5.2.2 9th September 2024
+------------------------------
+This release contains an urgent patch for the notch filter issue that caused the
+V53 mishap.
+
+The rest of the release Ottano-specific bug-fixes and parameter configs. This is
+the first functional release of CxPilot-5.2 for Ottano.
+
+ - Fleetwide changes:
+   - Protect against extremely low-frequency notch filters, which can cause
+     unstable hover and crash.
+
+ - Ottano-specific changes:
+   - Copied latest tune from O9
+   - Changed QLoiter to QHover on the Taranis
+   - Fixed logging bug that prevented CHT2 from being logged
+
+Technical:
+ - AP_UAVCAN: update_rpm pass error_count [SW-329](https://carbonix.atlassian.net/browse/SW-329)
+ - EFI : correct hirth EFI log messages [SW-310](https://carbonix.atlassian.net/browse/SW-310)
+ - Common Defaults: FLTMODE4 change to QHover [SW-263](https://carbonix.atlassian.net/browse/SW-263)
+ - Ottano Defaults: Safety Mask Add Engine (M5) [SW-263](https://carbonix.atlassian.net/browse/SW-263)
+ - Ottano Defaults: Default Enabling INS Logging [SW-263](https://carbonix.atlassian.net/browse/SW-263)
+ - Ottano Defaults: Tuning changes defaulted [SW-263](https://carbonix.atlassian.net/browse/SW-263)
+ - HWDEF : enable APD HVPro Telem for Ottano [SW-339](https://carbonix.atlassian.net/browse/SW-339)
+ - CarbonixF405: enable battery/fuel monitor [SW-344](https://carbonix.atlassian.net/browse/SW-344)
+ - Ottano-M5: configure fuel monitor [SW-344](https://carbonix.atlassian.net/browse/SW-344)
+ - Ottano-M1-M4: add ESC_NUMBER [SW-345](https://carbonix.atlassian.net/browse/SW-345)
+ - Ottano-M5: remove ESC params [SW-345](https://carbonix.atlassian.net/browse/SW-345)
+ - Ottano-M5: fix RNGFND_PORT [SW-345](https://carbonix.atlassian.net/browse/SW-345)
+ - Filter: protect against notch filter frequencies below 2Hz [#25352](https://github.com/ArduPilot/ardupilot/pull/25352)
+
 Release 5.2.1 25th July 2024
 ------------------------------
  - Volanti specific changes
