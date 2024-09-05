@@ -148,4 +148,9 @@ define HAL_PERIPH_ENABLE_RANGEFINDER 1
 define HAL_PERIPH_ENABLE_ESC_APD
 define APD_ESC_INSTANCES 1
 
+# enable battery monitor and fuel sensor
+define HAL_PERIPH_ENABLE_BATTERY
+define AP_BATTMON_FUELLEVEL_ANALOG_ENABLE 1
+define AP_BATT_MONITOR_MAX_INSTANCES 1
+
 define CAN_APP_NODE_NAME "org.ardupilot.CarbonixF405"
