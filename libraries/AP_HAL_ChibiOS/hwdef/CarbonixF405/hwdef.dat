@@ -144,4 +144,8 @@ BARO MS56XX I2C:0:0x76
 # enable rangefinder
 define HAL_PERIPH_ENABLE_RANGEFINDER 1
 
+# enable APD HVPro ESC 
+define HAL_PERIPH_ENABLE_ESC_APD
+define APD_ESC_INSTANCES 1
+
 define CAN_APP_NODE_NAME "org.ardupilot.CarbonixF405"
