@@ -148,4 +148,7 @@ define HAL_PERIPH_ENABLE_RANGEFINDER 1
 define HAL_PERIPH_ENABLE_ESC_APD
 define APD_ESC_INSTANCES 1
 
+# enable sending ESC ExtendedStatus
+define AP_EXTENDED_ESC_TELEM_ENABLED 1
+
 define CAN_APP_NODE_NAME "org.ardupilot.CarbonixF405"
