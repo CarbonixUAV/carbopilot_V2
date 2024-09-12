@@ -1,5 +1,5 @@
 # Carbonix Common Defaults
-AHRS_GPS_MINSATS,20
+AHRS_GPS_MINSATS,6 # AHRS will estimate synthetic airspeed if GPS has at least this many satellites
 AHRS_GPS_USE,2
 ARMING_MIS_ITEMS,22
 ARMING_RUDDER,0
