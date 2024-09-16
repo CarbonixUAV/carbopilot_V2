@@ -329,6 +329,7 @@ void AP_ICEngine::update(void)
                 crank_retry_ct++;
             } else {                    
                 GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Engine max crank attempts reached");
+                starter_last_run_ms = now;
             }
         }
         break;
