@@ -362,9 +362,7 @@ void AP_EFI_Serial_Hirth::log_status(void)
     // @Description: Electronic Fuel Injection data - Hirth specific Status information
     // @Field: TimeUS: Time since system startup
     // @Field: EET: Error Excess Temperature Bitfield
-    // @FieldBitmaskEnum: EET: AP_EFI_Serial_Hirth:::Error_Excess_Temp_Bitfield
     // @Field: FLAG: Sensor Status Bitfield
-    // @FieldBitmaskEnum: FLAG: AP_EFI_Serial_Hirth:::Sensor_Status_Bitfield
     // @Field: CRF: CRC failure count
     // @Field: AKF: ACK failure count
     // @Field: Up: Uptime between 2 messages
