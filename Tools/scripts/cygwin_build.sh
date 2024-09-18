@@ -8,6 +8,10 @@
 
 set -x
 
+# Get Carbonix version number
+FIRMWARE_VERSION=$(grep -oP 'define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/version.inc)
+COMMIT_ID=$(git rev-parse --short HEAD)
+
 # TOOLCHAIN=i686-pc-cygwin
 TOOLCHAIN=x86_64-pc-cygwin
 GPP_COMPILER="${TOOLCHAIN}-g++"
@@ -21,7 +25,7 @@ rm -rf artifacts
 mkdir artifacts
 
 (
-    python ./waf --color yes --toolchain $TOOLCHAIN --board sitl configure --define CARBOPILOT=1 2>&1
+    python ./waf --color yes --toolchain $TOOLCHAIN --board sitl configure --define AP_CUSTOM_FIRMWARE_STRING=\"$FIRMWARE_VERSION\" 2>&1
     python ./waf plane 2>&1
 ) | tee artifacts/build.txt
     # python ./waf copter 2>&1
@@ -29,12 +33,9 @@ mkdir artifacts
     # python ./waf rover 2>&1
     # python ./waf sub 2>&1
 
-# Get Carbonix version number to name the exe file
-FIRMWARE_VERSION=$(grep -oP '#define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_Common/CxVersion.h)-$(git rev-parse --short HEAD)
-
 # copy both with exe and without to cope with differences
 # between windows versions in CI
-cp -v build/sitl/bin/arduplane artifacts/${FIRMWARE_VERSION}.exe
+cp -v build/sitl/bin/arduplane artifacts/${FIRMWARE_VERSION}-${COMMIT_ID}.exe
 
 # cp -v build/sitl/bin/arduplane artifacts/ArduPlane.elf.exe
 # cp -v build/sitl/bin/arducopter artifacts/ArduCopter.elf.exe
@@ -60,7 +61,7 @@ done
 # Process Carbonix SITL parameters
 for file in libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/sitl_params/*.parm
 do
-    destfolder=artifacts/$(basename $file .parm)-${FIRMWARE_VERSION}
+    destfolder=artifacts/$(basename $file .parm)-${FIRMWARE_VERSION}-${COMMIT_ID}
     mkdir -p $destfolder
     outfile=$destfolder/defaults.parm
     echo "Processing $(basename $file)"
@@ -74,7 +75,7 @@ do
     else
         model="quadplane"
     fi
-    printf "rem Launch at Eli Field\r\n..\\${FIRMWARE_VERSION}.exe -O 40.0594626,-88.5513292,206.0,0 --serial0 tcp:0 -M ${model} --defaults defaults.parm\r\n" > $destfolder/launch.bat
+    printf "rem Launch at Eli Field\r\n..\\${FIRMWARE_VERSION}-${COMMIT_ID}.exe -O 40.0594626,-88.5513292,206.0,0 --serial0 tcp:0 -M ${model} --defaults defaults.parm\r\n" > $destfolder/launch.bat
 done
 
 git log -1 > artifacts/git.txt

@@ -1,3 +1,5 @@
+include ../CarbonixCommon/version.inc
+
 # hw definition file for processing by chibios_pins.py
 
 # MCU class and specific type

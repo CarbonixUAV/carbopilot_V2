@@ -310,7 +310,7 @@ jobs:
       - name: Extract firmware version, commit id, and branch name
         id: extract_info
         run: |
-          FIRMWARE_VERSION=$(grep -oP '#define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_Common/CxVersion.h)
+          FIRMWARE_VERSION=$(grep -oP 'define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/version.inc)
           COMMIT_ID=$(git rev-parse --short HEAD)
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
           echo "firmware_version=$FIRMWARE_VERSION" >> $GITHUB_ENV
