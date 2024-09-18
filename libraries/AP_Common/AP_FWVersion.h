@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <AP_Common/AP_Common.h>
 #include <AP_HAL/AP_HAL_Boards.h>
-#include <AP_Common/CxVersion.h>
 
 class PACKED AP_FWVersion {
 

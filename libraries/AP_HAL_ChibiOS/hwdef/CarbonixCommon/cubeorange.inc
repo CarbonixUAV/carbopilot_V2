@@ -2,6 +2,7 @@
 
 include ../CubeOrange/hwdef.dat
 include ./features.inc
+include ./version.inc
 
 # The Carbonix carrier board (CX13042008) uses uninverted logic for these pins,
 # as opposed to how the CubePilot carrier hardware is designed. We have to
