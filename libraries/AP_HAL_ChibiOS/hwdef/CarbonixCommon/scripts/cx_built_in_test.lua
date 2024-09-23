@@ -23,6 +23,10 @@ local HIRTH_EFI_TYPE = 8
 local ESC_WARMUP_TIME = 3000
 local SERVO_OUT_THRESHOLD = 1010
 local ESC_RPM_THRESHOLD = 10
+
+-- GPS constants
+local GPS_SAT_COUNT_MIN = 20
+
 -- ******************* Variables *******************
 
 local number_of_esc = 5 --default value for Volanti
@@ -47,6 +51,9 @@ local srv_number = {
 local srv_prv_telem_ms = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 local srv_telem_in_err_status  = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}
 local srv_rpm_in_err_status  = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}
+
+-- track GPS error status
+local gps_error_status = {}
 
 -- ******************* Objects *******************
 
@@ -193,6 +200,40 @@ local function esc_check_loop()
     end
 end
 
+local function check_min_gps_sats()
+    -- check for GPS and number of satellites
+    local sensor_count = gps:num_sensors()
+    if sensor_count == nil then
+        if not gps_error_status["sensor_count"] then
+            gcs_msg(MAV_SEVERITY_CRITICAL, "GPS Error: No sensors detected")
+            gps_error_status["sensor_count"] = true
+        end
+        return false
+    elseif sensor_count ~= 2 then
+        if not gps_error_status["sensor_count"] then
+            gcs_msg(MAV_SEVERITY_CRITICAL, "GPS Error: " .. sensor_count .. " sensor detected")
+            gps_error_status["sensor_count"] = true
+        end
+        return false
+    end
+
+    for i = 1, sensor_count do
+        local gps_num_sat = gps:num_sats(i)
+        if gps_num_sat == nil or gps_num_sat < GPS_SAT_COUNT_MIN then
+            if not gps_error_status[i] then
+                gcs_msg(MAV_SEVERITY_CRITICAL, "GPS" .. i .. ": " .. (gps_num_sat or 0) .. " sats")
+                gps_error_status[i] = true
+            end
+            return false
+        elseif gps_error_status[i] then
+            gcs_msg(MAV_SEVERITY_INFO, "GPS" .. i .. ": Error cleared")
+            gps_error_status[i] = nil
+        end
+    end
+
+    return true
+end
+
 local function arming_checks()
     -- check for status in srv_telem_in_err_status and also CX_SERVO_ERROR bit status
     local pre_arm_status = false-- check for status in srv_telem_in_err_status and also CX_SERVO_ERROR bit status
@@ -204,6 +245,11 @@ local function arming_checks()
             return false
         end
     end
+    if not check_min_gps_sats() then
+        arming:set_aux_auth_failed(auth_id, "GPS Error")
+        return false
+    end
+
     if pre_arm_status == false then
         arming:set_aux_auth_passed(auth_id)
     end
