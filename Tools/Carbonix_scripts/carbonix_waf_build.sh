@@ -9,7 +9,7 @@ echo "Running distclean..."
 main_boards=("CubeOrange" "CubeOrange-Volanti" "CubeOrange-Ottano")
 for board in "${main_boards[@]}"; do
   echo "Compiling ArduPlane for $board..."
-  ./waf configure --board "$board"
+  ./waf configure --board "$board" -g
   ./waf plane
 done
 
@@ -29,7 +29,7 @@ for board in "${periph_boards[@]}"; do
     
     # Compile AP_Periph for each board
     echo "Compiling AP_Periph for $board with $filename..."
-    ./waf configure --board "$board" --extra-hwdef=temp.hwdef --default-parameters="$file"
+    ./waf configure --board "$board" --extra-hwdef=temp.hwdef --default-parameters="$file" -g
     ./waf AP_Periph
     
     # Rename build outputs
@@ -47,7 +47,7 @@ done
 # Build all Default periph board
 for board in "${periph_boards[@]}"; do
   echo "Compiling AP_Periph for $board..."
-  ./waf configure --board "$board"
+  ./waf configure --board "$board" -g
   ./waf AP_Periph
 done
 
