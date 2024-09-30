@@ -101,10 +101,13 @@ PB9 CAN1_TX CAN1
 define HAL_USE_ADC TRUE
 define STM32_ADC_USE_ADC1 TRUE
 
-PA5 VSENSE1 ADC1 SCALE(1)
-PA6 VSENSE2 ADC1 SCALE(1)
-PB0 VSENSE3 ADC1 SCALE(1)
-PB1 VSENSE4 ADC1 SCALE(1)
+# The scaling for ADC_1 and ADC_2 is wrong below, but the resistor divider
+# values vary *wildly* between revisions. If these are ever used in the future,
+# the scaling will need to be parameter controlled.
+PA5 VSENSE1 ADC1 SCALE(1) # V_SERVO, ChibiOS ADC Pin 5, 
+PA6 VSENSE2 ADC1 SCALE(1) # 5V_SENSE, ChibiOS ADC Pin 6
+PB0 VSENSE3 ADC1 SCALE(1.556) # CN7 Pin 5 VSENSE, ChibiOS ADC Pin 8, 
+PB1 VSENSE4 ADC1 SCALE(1) # CN9 Output Power Current Sense, ChibiOS ADC Pin 9, 400mV/A
 
 define AP_STATS_ENABLED 1
 
