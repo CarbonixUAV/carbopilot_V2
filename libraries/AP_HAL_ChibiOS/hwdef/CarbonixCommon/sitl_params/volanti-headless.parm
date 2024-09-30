@@ -28,6 +28,7 @@ INS_ACCSCAL_X,1.001
 INS_ACCSCAL_Y,1.001
 INS_ACCSCAL_Z,1.001
 INS_GYR_CAL,0 # taken from quadplane autotest parameters, just in case
+LOG_REPLAY,0 # causes random crashes on the Cygwin SITL
 NAVL1_PERIOD,14
 @delete PTCH_RATE_*
 PTCH_RATE_FF,1.407055
