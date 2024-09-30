@@ -1,6 +1,3 @@
-# hw definition file for processing by chibios_hwdef.py
-
-include ../CubeOrange/hwdef.dat
 include ./features.inc
 include ./version.inc
 
@@ -18,5 +15,3 @@ define HAL_IMU_TEMP_DEFAULT 60
 
 # Set default airspeed type to DroneCAN
 define HAL_AIRSPEED_TYPE_DEFAULT TYPE_UAVCAN
-
-USE_BOOTLOADER_FROM_BOARD CubeOrange
