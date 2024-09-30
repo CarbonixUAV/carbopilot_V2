@@ -65,6 +65,7 @@ Q_A_THR_MIX_MAX,0.65
 Q_A_THR_MIX_MIN,0.25
 Q_ENABLE,1
 Q_LAND_FINAL_ALT,10
+Q_OPTIONS,147553 # 0:Level Transition, 5:USE QRTL instead of QLAND, 6:Use Governor in MANUAL, 14:Ignore forward flight angle limits in Qmodes, 17:Enable Land Resposition
 Q_PILOT_SPD_DN,1.8
 Q_PILOT_SPD_UP,2
 Q_RC_SPEED,400
