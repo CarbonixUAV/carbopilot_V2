@@ -151,7 +151,7 @@ const AP_Param::GroupInfo AP_BLHeli::var_info[] = {
     // @RebootRequired: True
     AP_GROUPINFO("RVMASK",  12, AP_BLHeli, channel_reversed_mask, 0),
 
-#if HAL_WITH_ESC_TELEM
+#if AP_EXTENDED_ESC_TELEM_ENABLED
     // @Param: EXTLM
     // @DisplayName: Enable extended BLHeli telemetry
     // @Description: When set to 1, this listens for 13-byte extended telemetry packets from BLHeli ESCs
