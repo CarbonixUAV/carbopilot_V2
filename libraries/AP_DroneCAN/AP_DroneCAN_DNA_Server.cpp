@@ -439,6 +439,13 @@ void AP_DroneCAN_DNA_Server::handleNodeInfo(const CanardRxTransfer& transfer, co
     if (transfer.source_node_id > MAX_NODE_ID) {
         return;
     }
+
+    // Temporary fix to address the missing nodes - 15 and 24
+    // Do not log until we are more than 30 seconds into boot
+    if (AP_HAL::millis() < 30000){
+        return;
+    }
+
     /*
       if we haven't logged this node then log it now
      */
