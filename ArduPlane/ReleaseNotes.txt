@@ -1,3 +1,37 @@
+Release 5.2.3 2nd October 2024
+------------------------------
+This release includes a major patch for handling the Ottano engine and the 
+addition of the cx_vtol_info.lua script.
+
+ - Fleetwide changes 
+   - New Lua Script: cx_vtol_info.lua.
+     This script enhances the VTOL system by providing updated information such
+     as VTOLState and VTOLTime, and the following pilot awareness messages:
+     - "QASSIST" is a Warning shown on HUD in Yellow. Triggered when VTOL motors
+       engage to assist fixed-wing operations.
+     - "LUA: Internal Error:" is a Error displayed on HUD in RED - Displayed if 
+       there is an issue loading the cx_vtol_info.lua script.
+     - "VTOL Info loaded" is a information displayed on message tab during boot
+       when cx_vtol_info.lua is successfully loaded.
+ 
+ - Ottano-specific changes:
+   - New Parameter: ICE_STRT_MX_RTRY
+     This parameter limits the maximum number of engine cranking retries.
+     The cranking counter resets on ARM, DISARM, or when re-enabling cranking.
+     The default value is set to 5.
+   - AP EFI Hirth Logging Fixes - Improvements made to logging for Hirth engine.
+
+Technical:
+ - AP_EFI: fix ECYL log message
+ - AP_EFI: Hirth: remove crankshaft sensor status
+ - AP_EFI: Adding EFIS log for Hirth
+ - AP_EFI: Hirth: fix sensor health bitmask
+ - AP_EFI: Hirth: remove FieldBitmaskEnum logger doc
+ - AP_ICEngine: add max retrial of cranking
+ - AP_ICEngine: rate-limit "max retry" error message
+ - Ottano defaults: added Max retry for cranking
+ - hwdef: CarbonixCommon: add cx_vtol_info.lua
+
 Release 5.2.2 9th September 2024
 ------------------------------
 This release contains an urgent patch for the notch filter issue that caused the
