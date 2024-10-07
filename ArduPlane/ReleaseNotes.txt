@@ -1,3 +1,18 @@
+Release 5.2.4 9th October 2024
+------------------------------
+This release includes a patch to fix Ottano default param CAN servo bitmask.
+ - Ottano-specific changes:
+   - CAN Servo Bitmask default fix to Servo 6,9,10 and 11.
+   - Ottano battery monitors configured to new scheme:
+      - 1:Combined VTOL battery monitor
+      - 2:Avionics/Crank battery
+      - 3:Fuel sensor
+      - 4-8: Additional monitors for logging [(more info)](https://carbonix.atlassian.net/wiki/spaces/OTTANO/pages/2651881473)
+
+Technical
+ - Ottano Defaults: set CAN servo bit mask correctly
+ - Ottano Defaults: Battery monitor configuration
+
 Release 5.2.3 2nd October 2024
 ------------------------------
 This release includes a major patch for handling the Ottano engine and the 
