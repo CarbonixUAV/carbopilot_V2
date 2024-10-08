@@ -307,7 +307,7 @@ jobs:
     needs: [build-apj, build-sitl]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Extract firmware version, commit id, and branch name
         id: extract_info
