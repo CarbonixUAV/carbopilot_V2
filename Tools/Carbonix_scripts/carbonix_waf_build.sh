@@ -3,16 +3,16 @@
 # Exit if any command fails
 set -e
 
-echo "Running distclean..."
-./waf distclean
-rm -Rf output
+# echo "Running distclean..."
+# ./waf distclean
+# rm -Rf output
 
-main_boards=("CubeOrange" "CubeOrangePlus" "CubeOrange-Volanti" "CubeOrangePlus-Volanti" "CubeOrange-Ottano" "CubeOrangePlus-Ottano")
-for board in "${main_boards[@]}"; do
-  echo "Compiling ArduPlane for $board..."
-  ./waf configure --board "$board" -g
-  ./waf plane
-done
+# main_boards=("CubeOrange" "CubeOrangePlus" "CubeOrange-Volanti" "CubeOrangePlus-Volanti" "CubeOrange-Ottano" "CubeOrangePlus-Ottano")
+# for board in "${main_boards[@]}"; do
+#   echo "Compiling ArduPlane for $board..."
+#   ./waf configure --board "$board" -g
+#   ./waf plane
+# done
 
 periph_boards=("CarbonixF405" "CarbonixF405-no-crystal")
 
