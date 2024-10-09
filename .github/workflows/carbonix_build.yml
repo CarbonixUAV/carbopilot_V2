@@ -201,6 +201,8 @@ jobs:
           source ~/ccache.conf &&
           Tools/scripts/cygwin_build.sh &&
           ccache -s
+          mkdir -p output/sitl
+          cp -r artifacts output/sitl
 
       - name: Check build files
         id: check_files
@@ -213,7 +215,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
            name: sitl
-           path: artifacts
+           path: output
            retention-days: 90
 
   build-apj:
@@ -222,6 +224,16 @@ jobs:
     strategy:
       fail-fast: false  # don't cancel if a job from the matrix fails
       matrix:
+        config: [
+          CubeOrange,
+          CubeOrange-Volanti,
+          CubeOrange-Ottano,
+          CubeOrangePlus,
+          CubeOrangePlus-Volanti,
+          CubeOrangePlus-Ottano,
+          CarbonixF405,
+          CarbonixF405-no-crystal,
+        ]
         toolchain: [
             chibios,
             #chibios-clang,
@@ -246,13 +258,18 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.ccache
-          key: ${{github.workflow}}-ccache-${{ matrix.toolchain }}-${{ matrix.gcc }}-${{steps.ccache_cache_timestamp.outputs.timestamp}}
-          restore-keys: ${{github.workflow}}-ccache-${{ matrix.toolchain }}-${{ matrix.gcc }}  # restore ccache from either previous build on this branch or on master
+          key: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+          restore-keys: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}  # restore ccache from either previous build on this branch or on master
       - name: setup ccache
         run: |
           . .github/workflows/ccache.env
 
-      - name: build
+      - name: Install bash tools
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install xxd
+
+      - name: build ${{matrix.config}} ${{ matrix.toolchain }} gcc-${{matrix.gcc}}
         shell: bash
         run: |
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
@@ -262,7 +279,7 @@ jobs:
           fi
           PATH="/usr/lib/ccache:/opt/gcc-arm-none-eabi-${{matrix.gcc}}/bin:$PATH"
           PATH="/github/home/.local/bin:$PATH"
-          Tools/Carbonix_scripts/carbonix_waf_build.sh
+          Tools/Carbonix_scripts/carbonix_waf_build.sh ${{ matrix.config }}
           ccache -s
           ccache -z
 
@@ -270,20 +287,19 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@v2
         with:
-          files: "build/CubeOrange/*, build/CubeOrangePlus/*, build/CubeOrange-Volanti/*, build/CubeOrangePlus-Volanti/*, build/CubeOrange-Ottano/*, build/CubeOrangePlus-Ottano/*, build/CarbonixF405/*, build/CarbonixF405-no-crystal/*"
+          files: "build/${{ matrix.config }}/*"
           fail: true
       - name: Gather build output
         run: |
-          mkdir -p temp/others
-          for dir in CubeOrange CubeOrangePlus CubeOrange-Volanti CubeOrangePlus-Volanti CubeOrange-Ottano CubeOrangePlus-Ottano CarbonixF405 CarbonixF405-no-crystal; do
-            mkdir -p temp/others/$dir/bin
-            cp -vr build/$dir/bin/* temp/others/$dir/bin/
+          mkdir -p temp/boards
+          mkdir -p temp/boards/${{ matrix.config }}/bin
+            cp -vr build/${{ matrix.config }}/bin/* temp/boards/$dir/bin/
           done
           cp -vr output/* temp/
-          mv temp/others/CubeOrange-Volanti temp/Volanti
-          mv temp/others/CubeOrangePlus-Volanti temp/Volanti
-          mv temp/others/CubeOrange-Ottano temp/Ottano
-          mv temp/others/CubeOrangePlus-Ottano temp/Ottano
+          mv temp/boards/CubeOrange-Volanti temp/Volanti
+          mv temp/boards/CubeOrangePlus-Volanti temp/Volanti
+          mv temp/boards/CubeOrange-Ottano temp/Ottano
+          mv temp/boards/CubeOrangePlus-Ottano temp/Ottano
           if [ -d "ArduPlane/ReleaseNotes.txt" ]; then
             cp -v ArduPlane/ReleaseNotes.txt temp/
           else
@@ -320,17 +336,10 @@ jobs:
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
         shell: sh -e {0}
   
-      - name: Download APJ build
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: apj
           path: temp
-
-      - name: Download SITL build
-        uses: actions/download-artifact@v4
-        with:
-          name: sitl
-          path: temp/sitl
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
