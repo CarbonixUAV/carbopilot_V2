@@ -1,0 +1,2 @@
+include ../CarbonixCommon/cubeorange.inc
+define NUM_SERVO_CHANNELS 32
