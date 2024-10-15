@@ -155,11 +155,11 @@ jobs:
         run: |
           DATE_HR=$(date +%Y%m%d_%H%M)
           PATH_TO_S3="NA"
-          if [[ "${{ github.event_name }}" == 'release' ]]; then
+          if [ "${{ github.event_name }}" = 'release' ]; then
             PATH_TO_S3="s3://carbonix-firmware-release-files/Carbopilot_V2/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}/"
-          elif [[ "${{ github.event_name }}" == 'push' && "${{ env.branch_name }}" == "CxPilot*" ]]; then
+          elif [ "${{ github.event_name }}" = 'push' ] && [ "${{ env.branch_name }}" = "CxPilot*" ]; then
             PATH_TO_S3="s3://carbonix-firmware-dev-files/Carbopilot_V2/${{ env.branch_name }}/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}/"
-          elif [[ "${{ github.event_name }}" == 'pull_request' ]]; then
+          elif [ "${{ github.event_name }}" = 'pull_request' ]; then
             PATH_TO_S3="s3://carbonix-firmware-dev-files/Carbopilot_V2/PR/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}_${{ github.event.pull_request.number }}/"
           fi
           echo "PATH_TO_S3=$PATH_TO_S3" >> $GITHUB_ENV
