@@ -48,10 +48,10 @@ class TestParamCheck(unittest.TestCase):
 
         # Bad parameter lines that should fail to parse and exit the program
         bad_lines = [
-            'PARAM4 1 2\n',
-            'PARAM4\n',
-            'P#ARAM4 1\n',
-            'PARAM4, 0x10.0\n',
+            'PARAM5 1 2\n',
+            'PARAM5\n',
+            'P#ARAM5 1\n',
+            'PARAM5, 0x10.0\n',
         ]
         for line in bad_lines:
             content = mock_file_content + line
@@ -168,6 +168,7 @@ class TestParamCheck(unittest.TestCase):
     def test_check_file(self, mock_check_param):
         mock_args = type('', (), {})()  # Creating a simple object to simulate args
         mock_args.no_missing = False
+        mock_args.no_redefinition = False
 
         # Case 1: All parameters pass their checks
         mock_file_content = "PARAM1, 10\nPARAM2, 20\n"
@@ -217,6 +218,20 @@ class TestParamCheck(unittest.TestCase):
         with patch('builtins.open', mock_open(read_data=mock_file_content)):
             msgs = check_file('fake_file.parm', mock_metadata, mock_args)
         # Check that no error messages are returned because DISABLE_CHECKS is valid
+        self.assertEqual(msgs, [])
+
+        # Case 6: Redefined parameter
+        mock_file_content = "PARAM1, 10\nPARAM1, 20\n"
+        with patch('builtins.open', mock_open(read_data=mock_file_content)):
+            msgs = check_file('fake_file.parm', mock_metadata, mock_args)
+        # Check that a redefined parameter error is reported
+        self.assertEqual(msgs, ['PARAM1 redefined'])
+
+        # Case 7: Redefined parameter but with no-redefinition flag
+        mock_args.no_redefinition = True
+        with patch('builtins.open', mock_open(read_data=mock_file_content)):
+            msgs = check_file('fake_file.parm', mock_metadata, mock_args)
+        # Check that no error messages are returned when no-redefinition is enabled
         self.assertEqual(msgs, [])
 
     @patch('param_check.parse_arguments')

@@ -33,6 +33,7 @@ import json
 import re
 import glob
 import subprocess
+from fnmatch import fnmatch
 from argparse import ArgumentParser
 
 
@@ -46,6 +47,7 @@ def parse_arguments():
 
     # Add flags for enabling/disabling checks
     parser.add_argument('--no-missing', action='store_true', help='Disable missing check')
+    parser.add_argument('--no-redefinition', action='store_true', help='Disable redefinition check')
     parser.add_argument('--no-readonly', action='store_true', help='Disable read-only check')
     parser.add_argument('--no-bitmask', action='store_true', help='Disable bitmask check')
     parser.add_argument('--no-range', action='store_true', help='Disable range check')
@@ -115,7 +117,7 @@ def check_file(file, metadata, args=None):
     Returns:
         list: A list of error messages if any parameters are invalid.
     """
-    params, msgs = load_params(file)
+    params, msgs = load_params(file, args)
 
     skip_missing = args.no_missing if args else False
 
@@ -279,16 +281,22 @@ def check_values(name, value, metadata):
     return None
 
 
-def load_params(file):
+def load_params(file, args=None, depth=0):
     """Loads a parameter file and returns parameters and errors.
 
-    Reads the specified parameter file, stripping out comments and skipping
-    over directives like @include or @delete. It checks the comments for a
-    DISABLE_CHECKS flag. It builds a dictionary of parameters and their
-    values/disabled checks, and returns it along with any errors encountered.
+    Reads the specified parameter file, stripping out comments. It checks the
+    comments for a DISABLE_CHECKS flag. It builds a dictionary of parameters
+    and their values/disabled checks, and returns it along with any errors
+    encountered.
+
+    It will also check for redefinition of parameters within a file, including
+    handling @include and @delete directives, and log an error unless
+    args.no_redefinition is set.
 
     Args:
         file (str): The path to the parameter file to be loaded.
+        args (Namespace): An optional namespace containing flags to skip checks.
+        depth (int): The depth of the recursive call to prevent infinite loops.
 
     Returns:
         tuple: (params, errors)
@@ -298,11 +306,30 @@ def load_params(file):
             - errors (list): A list of error messages encountered during
               parsing.
     """
+    if depth > 10:
+        raise ValueError("Too many levels of @include")
+
     params = {}
     errors = []
 
+    skip_redefinition = args.no_redefinition if args else False
+
     with open(file, 'r') as file_object:
         lines = file_object.readlines()
+
+    # Build up seen parameters to check for redefinition
+    seen_params = set()
+    for line in lines:
+        if line.startswith('@include'):
+            rel_path = line.split(maxsplit=1)[1].strip()
+            path = os.path.join(os.path.dirname(file), rel_path)
+            params2, _ = load_params(path, args, depth + 1)
+            seen_params.update(params2.keys())
+        elif line.startswith('@delete'):
+            pattern = line.split(maxsplit=1)[1].strip()
+            seen_params = {
+                p for p in seen_params if not fnmatch(p, pattern)
+            }
 
     for i, line in enumerate(lines):
         # Strip whitespace
@@ -342,6 +369,11 @@ def load_params(file):
 
         # Split on , or any whitespace
         parts = re.split(r'[,\s]+', processed_line, 1)
+
+        # Check for redefinition
+        if parts[0] in seen_params and not skip_redefinition:
+            errors.append(f'{parts[0]} redefined')
+        seen_params.add(parts[0])
 
         # Try to convert the value string to a float
         try:
