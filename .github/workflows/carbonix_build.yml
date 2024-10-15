@@ -165,6 +165,7 @@ jobs:
    
   build-sitl:
     runs-on: 'windows-latest'
+    needs: setup-s3-path
     steps:
       - uses: actions/checkout@v4
         with:
