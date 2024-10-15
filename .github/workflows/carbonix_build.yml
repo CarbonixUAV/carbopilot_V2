@@ -154,6 +154,7 @@ jobs:
       - name: Set S3 Path
         run: |
           DATE_HR=$(date +%Y%m%d_%H%M)
+          PATH_TO_S3 = "NA"
           if [[ "${{ github.event_name }}" == 'release' ]]; then
             PATH_TO_S3="s3://carbonix-firmware-release-files/Carbopilot_V2/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}/"
           elif [[ "${{ github.event_name }}" == 'push' && "${{ env.branch_name }}" == CxPilot* ]]; then
@@ -162,231 +163,17 @@ jobs:
             PATH_TO_S3="s3://carbonix-firmware-dev-files/Carbopilot_V2/PR/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}_${{ github.event.pull_request.number }}/"
           fi
           echo "PATH_TO_S3=$PATH_TO_S3" >> $GITHUB_ENV
-   
-  build-sitl:
-    runs-on: 'windows-latest'
-    needs: setup-s3-path
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-      - name: Prepare ccache timestamp
-        id: ccache_cache_timestamp
-        shell: bash
-        run: |
-          NOW=$(date -u +"%F-%T")
-          echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
-          WORKFLOWNAME="${{github.workflow}}"
-          NAME_DASHED=${WORKFLOWNAME//+( )/_}
-          echo "cache-key=${NAME_DASHED}" >> $GITHUB_OUTPUT
-
-      - uses: cygwin/cygwin-install-action@master
-        with:
-          packages: cygwin64 gcc-g++=10.2.0-1 ccache python37 python37-future python37-lxml python37-pip python37-setuptools python37-wheel git procps gettext
-          add-to-path: false
-      # Put ccache into github cache for faster build
-      - name: setup ccache
-        env:
-          PATH: /usr/bin:$(cygpath ${SYSTEMROOT})/system32
-        shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
-        run: >-
-          mkdir -p /cygdrive/d/a/ardupilot/ardupilot/ccache &&
-          mkdir -p /usr/local/etc &&
-          echo "export CCACHE_SLOPPINESS=file_stat_matches" >> ~/ccache.conf &&
-          echo "export CCACHE_DIR=/cygdrive/d/a/ardupilot/ardupilot/ccache" >> ~/ccache.conf &&
-          echo "export CCACHE_BASEDIR=/cygdrive/d/a/ardupilot/ardupilot" >> ~/ccache.conf &&
-          echo "export CCACHE_COMPRESS=1" >> ~/ccache.conf &&
-          echo "export CCACHE_COMPRESSLEVEL=6" >> ~/ccache.conf &&
-          echo "export CCACHE_MAXSIZE=400M" >> ~/ccache.conf &&
-          source ~/ccache.conf &&
-          ccache -s
-      - name: ccache cache files
-        uses: actions/cache@v3
-        with:
-          path: D:/a/ardupilot/ardupilot/ccache
-          key: ${{ steps.ccache_cache_timestamp.outputs.cache-key }}-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
-          restore-keys: ${{ steps.ccache_cache_timestamp.outputs.cache-key }}-ccache-  # restore ccache from either previous build on this branch or on base branch
-      - name: Prepare Python environment
-        env:
-          PATH: /usr/bin:$(cygpath ${SYSTEMROOT})/system32
-        shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
-        run: >-
-          ln -sf /usr/bin/python3.7 /usr/bin/python && ln -sf /usr/bin/pip3.7 /usr/bin/pip &&
-          python -m pip install --progress-bar off empy==3.3.4 pexpect &&
-          python -m pip install --progress-bar off dronecan --upgrade &&
-          cp /usr/bin/ccache /usr/local/bin/ &&
-          cd /usr/local/bin && ln -s ccache /usr/local/bin/gcc &&
-          ln -s ccache /usr/local/bin/g++ &&
-          ln -s ccache /usr/local/bin/x86_64-pc-cygwin-gcc &&
-          ln -s ccache /usr/local/bin/x86_64-pc-cygwin-g++
-
-      - name: Build SITL
-        env:
-          PATH: /usr/bin:$(cygpath ${SYSTEMROOT})/system32
-        shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
-        run: >-
-          git config --global --add safe.directory /cygdrive/d/a/${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}/${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/} &&
-          export PATH=/usr/local/bin:/usr/bin:$(cygpath ${SYSTEMROOT})/system32 &&
-          source ~/ccache.conf &&
-          Tools/scripts/cygwin_build.sh &&
-          ccache -s
-
-      - name: Check build files
-        id: check_files
-        uses: andstor/file-existence-action@v2
-        with:
-          files: "artifacts/*.exe"
-          fail: true
-
-      - name: Archive build
-        uses: actions/upload-artifact@v4
-        with:
-           name: sitl
-           path: artifacts
-           retention-days: 90
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: temp
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1 
-      - name: Upload artifacts to S3
-        run: |
-          echo "Uploading to: $PATH_TO_S3"
-          aws s3 cp temp/ $PATH_TO_S3 --recursive
-
-  build-apj:
-    runs-on: ubuntu-22.04
-    needs: setup-s3-path
-    container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
-    strategy:
-      fail-fast: false
-      matrix:
-        config: [
-          CubeOrange-Volanti,
-          CubeOrange-Ottano,
-          CarbonixF405,
-        ]
-        toolchain: [ chibios ]
-        gcc: [10]
-        exclude:
-          - gcc: 10
-            toolchain: chibios-clang
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-          
-      - name: Prepare ccache timestamp
-        id: ccache_cache_timestamp
-        run: |
-          NOW=$(date -u +"%F-%T")
-          echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
-          
-      - name: ccache cache files
-        uses: actions/cache@v3
-        with:
-          path: ~/.ccache
-          key: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}-${{steps.ccache_cache_timestamp.outputs.timestamp}}
-          restore-keys: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}
-          
-      - name: setup ccache
-        run: |
-          . .github/workflows/ccache.env
-
-      - name: Install bash tools
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install xxd
-
-      - name: build ${{matrix.config}} ${{ matrix.toolchain }} gcc-${{matrix.gcc}}
-        shell: bash
-        run: |
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          if [[ ${{ matrix.toolchain }} == "chibios-clang" ]]; then
-            export CC=clang
-            export CXX=clang++
-          fi
-          PATH="/usr/lib/ccache:/opt/gcc-arm-none-eabi-${{matrix.gcc}}/bin:$PATH"
-          PATH="/github/home/.local/bin:$PATH"
-          Tools/Carbonix_scripts/carbonix_waf_build.sh ${{ matrix.config }}
-          ccache -s
-          ccache -z
-
-      - name: Check build files
-        id: check_files
-        uses: andstor/file-existence-action@v2
-        with:
-          files: "build/${{ matrix.config }}/*"
-          fail: true
-
-      - name: Gather build output
-        run: |
-          mkdir -p temp/boards/${{ matrix.config }}/bin
-          cp -vr build/${{ matrix.config }}/bin/* temp/boards/${{ matrix.config }}/bin/
-          cp -vr output/* temp/
-          for board in CubeOrange-Volanti CubeOrangePlus-Volanti CubeOrange-Ottano CubeOrangePlus-Ottano; do
-            if [ -d "temp/boards/$board" ]; then
-              mv temp/boards/$board temp/${board#*-}
-            fi
-          done
         shell: sh -e {0}
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1 
-          
-      - name: Upload artifacts to S3
-        env:
-          PATH_TO_S3: ${{ env.PATH_TO_S3 }}
-        run: |
-          echo "Uploading ${matrix.config} to: $PATH_TO_S3"
-          aws s3 cp temp/ $PATH_TO_S3/${{ matrix.config }}/ --recursive
-
-  upload_other_files:
+  check_env_variable:
     runs-on: ubuntu-latest
     needs: setup-s3-path
-    env:
-      PATH_TO_S3: ${{ env.PATH_TO_S3 }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        
-      - name: Prepare Upload Directory
-        run: mkdir -p temp
-        
-      - name: Upload Release Notes and Payloads
+      - name: Check and Print PATH_TO_S3
         run: |
-          if [ -f "ArduPlane/ReleaseNotes.txt" ]; then
-            cp -v ArduPlane/ReleaseNotes.txt temp/
+          if [ -z "$PATH_TO_S3" ]; then
+            echo "PATH_TO_S3 is not set"
+            exit 1
           else
-            echo "ReleaseNotes.txt File does not exist"
+            echo "PATH_TO_S3 is set to $PATH_TO_S3"
           fi
-          
-          if [ -d "libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/payloads" ]; then
-            cp -vr libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/payloads temp/
-          else
-            echo "Payloads Folder does not exist"
-          fi
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1 
-
-      - name: Upload to S3
-        run: |
-          echo "Uploading Release Notes and Payloads to: $PATH_TO_S3"
-          aws s3 cp temp/ $PATH_TO_S3 --recursive
+        shell: sh -e {0}
