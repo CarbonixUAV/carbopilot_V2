@@ -66,7 +66,13 @@ public:
     // get an individual ESC's consumption in milli-Ampere.hour if available, returns true on success
     bool get_consumption_mah(uint8_t esc_index, float& consumption_mah) const;
 
-    // get an individual ESC's input duty if available, returns true on success
+    // get an individual ESC's packet count if available, returns true on success
+    bool get_count(uint8_t esc_index, uint16_t& count) const;
+
+    // get an individual ESC's error count if available, returns true on success
+    bool get_error_count(uint8_t esc_index, uint32_t& error_count) const;
+
+    // get an individual ESC's input duty cycle if available, returns true on success
     bool get_input_duty(uint8_t esc_index, uint8_t& input_duty) const;
 
     // get an individual ESC's output duty if available, returns true on success
@@ -109,6 +115,9 @@ public:
     // callback to update the rpm in the frontend, should be called by the driver when new data is available
     // can also be called from scripting
     void update_rpm(const uint8_t esc_index, const float new_rpm, const float error_rate);
+
+    // callback to increment the error count in the frontend, should be called by the driver when an error occurs
+    void increment_error_count(const uint8_t esc_index, const uint32_t amount);
 
 #if AP_SCRIPTING_ENABLED
     /*

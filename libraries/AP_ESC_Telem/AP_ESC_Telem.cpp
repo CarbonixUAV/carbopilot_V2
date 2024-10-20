@@ -278,6 +278,26 @@ bool AP_ESC_Telem::get_consumption_mah(uint8_t esc_index, float& consumption_mah
     return true;
 }
 
+// get an individual ESC's packet count if available, returns true on success
+bool AP_ESC_Telem::get_count(uint8_t esc_index, uint16_t& count) const
+{
+    if (esc_index >= ESC_TELEM_MAX_ESCS) {
+        return false;
+    }
+    count = _telem_data[esc_index].count;
+    return true;
+}
+
+// get an individual ESC's error count if available, returns true on success
+bool AP_ESC_Telem::get_error_count(uint8_t esc_index, uint32_t& error_count) const
+{
+    if (esc_index >= ESC_TELEM_MAX_ESCS) {
+        return false;
+    }
+    error_count = _telem_data[esc_index].error_count;
+    return true;
+}
+
 // get an individual ESC's usage time in seconds if available, returns true on success
 bool AP_ESC_Telem::get_usage_seconds(uint8_t esc_index, uint32_t& usage_s) const
 {
@@ -471,6 +491,10 @@ void AP_ESC_Telem::update_telem_data(const uint8_t esc_index, const AP_ESC_Telem
     if (data_mask & AP_ESC_Telem_Backend::TelemetryType::USAGE) {
         _telem_data[esc_index].usage_s = new_data.usage_s;
     }
+    if (data_mask & AP_ESC_Telem_Backend::TelemetryType::ERROR_COUNT) {
+        _telem_data[esc_index].error_count = new_data.error_count;
+    }
+
     if (data_mask & AP_ESC_Telem_Backend::TelemetryType::INPUT_DUTY) {
         _telem_data[esc_index].input_duty = new_data.input_duty;
     }
@@ -484,6 +508,15 @@ void AP_ESC_Telem::update_telem_data(const uint8_t esc_index, const AP_ESC_Telem
     _telem_data[esc_index].count++;
     _telem_data[esc_index].types |= data_mask;
     _telem_data[esc_index].last_update_ms = AP_HAL::millis();
+}
+
+// callback to increment the error count in the frontend, should be called by the driver when an error occurs
+void AP_ESC_Telem::increment_error_count(const uint8_t esc_index, const uint32_t amount)
+{
+    if (esc_index >= ESC_TELEM_MAX_ESCS) {
+        return;
+    }
+    _telem_data[esc_index].error_count += amount;
 }
 
 // record an update to the RPM together with timestamp, this allows the notch values to be slewed
