@@ -25,6 +25,7 @@ public:
         uint32_t last_update_ms;    // last update time in milliseconds, determines whether active
         uint16_t types;             // telemetry types present
         uint16_t count;             // number of times updated
+        uint32_t error_count;       // number of errors
         uint8_t input_duty;         // input duty cycle
         uint8_t output_duty;        // output duty cycle
         uint32_t flags;              // Status flags
@@ -48,6 +49,7 @@ public:
         // 6 reserved for temperature external
         // 7 reserved for motor temperature external
         // 8 and 9 are reserved for recent dshot extensions
+        ERROR_COUNT = 1 << 8, // XXX: forgot this was reserved, but we'll fix it if we ever upstream
         INPUT_DUTY  = 1 << 10,
         OUTPUT_DUTY = 1 << 11,
         FLAGS       = 1 << 12
@@ -66,6 +68,10 @@ protected:
 
     // callback to update the data in the frontend, should be called by the driver when new data is available
     void update_telem_data(const uint8_t esc_index, const TelemetryData& new_data, const uint16_t data_present_mask);
+
+    // callback to increment the error count in the frontend, should be called by the driver when an error occurs
+    // XXX: we also supply the amount to increment by, which we are using as a hack to encode different error types
+    void increment_error_count(const uint8_t esc_index, const uint32_t amount);
 
 private:
     AP_ESC_Telem* _frontend;
