@@ -684,7 +684,8 @@ void AP_ESC_Telem::update()
                     esc_temp    : telemdata.temperature_cdeg,
                     current_tot : telemdata.consumption_mah,
                     motor_temp  : telemdata.motor_temp_cdeg,
-                    error_rate  : rpmdata.error_rate
+                    error_rate  : rpmdata.error_rate,
+                    error_count : telemdata.error_count,
                 };
                 AP::logger().WriteBlock(&pkt, sizeof(pkt));
 
