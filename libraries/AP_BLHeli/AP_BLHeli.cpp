@@ -1454,8 +1454,10 @@ void AP_BLHeli::read_telemetry_packet(void)
 {
 #if HAL_WITH_ESC_TELEM
     uint8_t buf[13];
+    const uint8_t motor_idx = motor_map[last_telem_esc];
     if (telem_uart->read(buf, telem_packet_size) < telem_packet_size) {
         // short read, we should have all bytes ready when this function is called
+        increment_error_count(motor_idx - chan_offset);
         return;
     }
 
@@ -1468,11 +1470,11 @@ void AP_BLHeli::read_telemetry_packet(void)
     if (buf[telem_packet_size-1] != crc) {
         // bad crc
         debug("Bad CRC on %u", last_telem_esc);
+        increment_error_count(motor_idx - chan_offset);
         return;
     }
     // record the previous rpm so that we can slew to the new one
     uint16_t new_rpm = ((buf[7]<<8) | buf[8]) * 200 / motor_poles;
-    const uint8_t motor_idx = motor_map[last_telem_esc];
     // we have received valid data, mark the ESC as now active
     hal.rcout->set_active_escs_mask(1<<motor_idx);
 
@@ -1600,6 +1602,7 @@ void AP_BLHeli::update_telemetry(void)
         // if we have more than 10 bytes then we don't know which ESC
         // they are from. Throw them all away
         telem_uart->discard_input();
+        increment_error_count(motor_map[last_telem_esc] - chan_offset);
         return;
     }
     if (nbytes > 0 &&
@@ -1615,6 +1618,7 @@ void AP_BLHeli::update_telemetry(void)
     if (nbytes > 0 && nbytes < telem_packet_size) {
         // we've waited long enough, discard bytes if we don't have 10 yet
         telem_uart->discard_input();
+        increment_error_count(motor_map[last_telem_esc] - chan_offset);
         return;
     }
     if (nbytes == telem_packet_size) {
