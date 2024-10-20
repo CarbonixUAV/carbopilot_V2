@@ -19,6 +19,7 @@ public:
         uint32_t last_update_ms;    // last update time in milliseconds, determines whether active
         uint16_t types;             // telemetry types present
         uint16_t count;             // number of times updated
+        uint32_t error_count;       // number of errors
 #if AP_EXTENDED_ESC_TELEM_ENABLED
         uint8_t input_duty;         // input duty cycle
         uint8_t output_duty;        // output duty cycle
@@ -51,6 +52,7 @@ public:
         USAGE       = 1 << 5,
         TEMPERATURE_EXTERNAL = 1 << 6,
         MOTOR_TEMPERATURE_EXTERNAL  = 1 << 7,
+        ERROR_COUNT = 1 << 8,
 #if AP_EXTENDED_ESC_TELEM_ENABLED
         INPUT_DUTY  = 1 << 10,
         OUTPUT_DUTY = 1 << 11,
@@ -71,6 +73,9 @@ protected:
 
     // callback to update the data in the frontend, should be called by the driver when new data is available
     void update_telem_data(const uint8_t esc_index, const TelemetryData& new_data, const uint16_t data_present_mask);
+
+    // callback to increment the error count in the frontend, should be called by the driver when an error occurs
+    void increment_error_count(const uint8_t esc_index);
 
 private:
     AP_ESC_Telem* _frontend;

@@ -45,6 +45,11 @@ void AP_ESC_Telem_Backend::update_telem_data(const uint8_t esc_index, const Tele
     _frontend->update_telem_data(esc_index, new_data, data_present_mask);
 }
 
+// callback to increment the error count in the frontend, should be called by the driver when an error occurs
+void AP_ESC_Telem_Backend::increment_error_count(const uint8_t esc_index) {
+    _frontend->increment_error_count(esc_index);
+}
+
 /*
   return true if the data is stale
  */
