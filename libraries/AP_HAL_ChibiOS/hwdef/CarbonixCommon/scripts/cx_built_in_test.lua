@@ -27,6 +27,25 @@ local HIRTH_EFI_TYPE = 8
 local ESC_WARMUP_TIME = 3000
 local SERVO_OUT_THRESHOLD = 1010
 local ESC_RPM_THRESHOLD = 10
+
+
+-- ************* Config Parameters  *************
+
+-- Create Param table which has parameters beginning with CX_.
+local PARAM_TABLE_KEY = 99
+assert(param:add_table(PARAM_TABLE_KEY, "CX_", 5), 'could not add param table: CX_')
+-- Add following parameters into the table
+assert(param:add_param(PARAM_TABLE_KEY, 1,  'EFI_CHTMIN', 20), 'could not add param: EFI_CHTMIN')
+assert(param:add_param(PARAM_TABLE_KEY, 2,  'EFI_CHTMAX', 20), 'could not add param: EFI_CHTMAX')
+
+-- parameter array
+local params = {
+    EFI_TYPE = Parameter("EFI_TYPE"),
+    CX_EFI_CHTMIN = Parameter("CX_EFI_CHTMIN"),
+    CX_EFI_CHTMAX = Parameter("CX_EFI_CHTMAX")
+}
+
+
 -- ******************* Variables *******************
 
 local number_of_esc = 5 --default value for Volanti
@@ -299,6 +318,40 @@ local function esc_check_loop()
     end
 end
 
+-- checks Engine CHT range
+local function check_efi(cht, index)
+    local param_efi_chtmin = params.CX_EFI_CHTMIN:get()
+    local param_efi_chtmax = params.CX_EFI_CHTMAX:get()
+
+    -- checks for error with CHT
+    if not cht then
+        set_error(ERR_TYPE.ENG_CHT_NIL, index)
+    else
+        clear_error(ERR_TYPE.ENG_CHT_NIL, index)
+
+        if cht < param_efi_chtmin then
+            set_error(ERR_TYPE.ENG_CHT_LOW, index)
+        else
+            clear_error(ERR_TYPE.ENG_CHT_LOW, index)
+        end
+
+        if cht > param_efi_chtmax then
+            set_error(ERR_TYPE.ENG_CHT_HIGH, index)
+        else
+            clear_error(ERR_TYPE.ENG_CHT_HIGH, index)
+    end
+    end
+end
+
+-- named as loop to be consistent with other functions
+local function efi_check_loop()
+    local efi_state = efi:get_state()
+    local cylinder_status = efi_state:cylinder_status()
+
+    check_efi(cylinder_status:cylinder_head_temperature(), 1)
+    check_efi(cylinder_status:cylinder_head_temperature2(), 2)
+    end
+    
 
 -- main function to check status and gcs_send() if any error
 local function update()
