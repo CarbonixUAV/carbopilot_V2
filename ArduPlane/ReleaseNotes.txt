@@ -1,3 +1,36 @@
+
+Release 7.0.0beta1 1st November 2024
+------------------------------
+This release includes moving all CxPilot changes on top of ardupilot 4.5.6 release.
+
+Fleetwide Changes
+ - FBWB/CRUISE fix massive undershoot issue when switching from max descent to max climb
+ - Prearm check to ensure all LUA scripts are loaded and running
+ - Improved back transition 
+ - JUMP_TAG mission item support
+ - A whole bunch of bug fixes 
+
+Technical
+ - Improved support for new camera payloads and gimbals
+ - GPS raw logging improvements for PPK
+ - added support for precision landing of quadplanes
+ - added TECS option for rapid descent in fixed wing aircraft
+ - AHRS_OPTIONS supports disabling fallback to DCM
+ - Quadplane use of forward throttle in VTOL modes improved
+ - VTOL angle controller gets feed-forward scaling (see Q_OPTIONS)
+ - Arming check of compass vs world magnetic model to detect metal in ground (see ARMING_MAGTHRESH)
+ - FLTMODE_GCSBLOCK blocks GCS from changing vehicle to specified modes
+ - CAN port can support a second CAN protocol on the same bus (2nd protocol must be 11 bit, see CAN_Dn_PROTOCOL2)
+ - Ethernet/Networking support for UDP and TCP server and client (see NET_ENABLED) and PPP (see SERIALx_PROTOCOL)
+ - Firmware flashing from SD card
+ - Rockblock satellite modem support
+ - Missions can be stored on SD card (see BRD_SD_MISSION)
+ - New Notch filter features
+ - CubeOrangePlus supports IMU high resolution sampling (works with ICM42688, ICM42652, ICM42670, ICM45686 IMUs)
+ - Bunch of Logging enhancements
+ - Scripting enhancements
+
+
 ArduPilot Plane Release Notes:
 ------------------------------------------------------------------
 Release 4.5.6 03 Sep 2024
