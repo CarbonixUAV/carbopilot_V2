@@ -1,0 +1,1 @@
+/home/pradeep/work/github/carbopilot_V2/libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/cx_vtol_info.lua
