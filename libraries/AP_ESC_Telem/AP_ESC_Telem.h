@@ -67,6 +67,12 @@ public:
     // get an individual ESC's consumption in milli-Ampere.hour if available, returns true on success
     bool get_consumption_mah(uint8_t esc_index, float& consumption_mah) const;
 
+    // get an individual ESC's packet count if available, returns true on success
+    bool get_count(uint8_t esc_index, uint16_t& count) const;
+
+    // get an individual ESC's error count if available, returns true on success
+    bool get_error_count(uint8_t esc_index, uint16_t& error_count) const;
+
 #if AP_EXTENDED_ESC_TELEM_ENABLED
     // get an individual ESC's input duty cycle if available, returns true on success
     bool get_input_duty(uint8_t esc_index, uint8_t& input_duty) const;
@@ -121,6 +127,9 @@ public:
 
     // callback to update the data in the frontend, should be called by the driver when new data is available
     void update_telem_data(const uint8_t esc_index, const AP_ESC_Telem_Backend::TelemetryData& new_data, const uint16_t data_mask);
+
+    // callback to increment the error count in the frontend, should be called by the driver when an error occurs
+    void increment_error_count(const uint8_t esc_index);
 
 #if AP_SCRIPTING_ENABLED
     /*

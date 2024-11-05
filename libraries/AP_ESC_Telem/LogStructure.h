@@ -17,6 +17,7 @@
 // @Field: CTot: current consumed total mAh
 // @Field: MotTemp: measured motor temperature in centi-degrees C
 // @Field: Err: error rate
+// @Field: Errc: error count
 struct PACKED log_Esc {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -29,8 +30,9 @@ struct PACKED log_Esc {
     float current_tot;
     int16_t motor_temp;
     float error_rate;
+    uint32_t error_count;
 };
 
 #define LOG_STRUCTURE_FROM_ESC_TELEM \
     { LOG_ESC_MSG, sizeof(log_Esc), \
-      "ESC",  "QBffffcfcf", "TimeUS,Instance,RPM,RawRPM,Volt,Curr,Temp,CTot,MotTemp,Err", "s#qqvAOaO%", "F-00--BCB-" , true },
+      "ESC",  "QBffffcfcfI", "TimeUS,Instance,RPM,RawRPM,Volt,Curr,Temp,CTot,MotTemp,Err,ErrC", "s#qqvAOaO%-", "F-00--BCB-0" , true },
