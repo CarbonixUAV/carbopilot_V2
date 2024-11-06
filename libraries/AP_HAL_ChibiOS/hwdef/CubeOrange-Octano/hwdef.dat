@@ -1,2 +1,4 @@
-include ../CarbonixCommon/cubeorange.inc
+include ../CubeOrange/hwdef.dat
+include ../CarbonixCommon/cx_cubecarrier.inc
+USE_BOOTLOADER_FROM_BOARD CubeOrange
 define NUM_SERVO_CHANNELS 32
