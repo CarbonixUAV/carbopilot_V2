@@ -55,7 +55,7 @@ const AP_Param::GroupInfo AP_BattMonitor_FuelLevel_Analog::var_info[] = {
     // @Param: FL_PIN
     // @DisplayName: Fuel level analog pin number
     // @Description: Analog input pin that fuel level sensor is connected to. Airspeed ports can be used for Analog input. When using analog pin 103, the maximum value of the input in 3.3V.
-    // @Values: -1:Not Used,11:Pixracer,13:Pixhawk ADC4,14:Pixhawk ADC3,15:Pixhawk ADC6/Pixhawk2 ADC,103:Pixhawk SBUS
+    // @Values: -1:Not Used,8:CPN ADC,11:Pixracer,13:Pixhawk ADC4,14:Pixhawk ADC3,15:Pixhawk ADC6/Pixhawk2 ADC,103:Pixhawk SBUS
     AP_GROUPINFO("FL_PIN", 43, AP_BattMonitor_FuelLevel_Analog, _pin, -1),
 
  // index 44 unused and available
@@ -63,28 +63,28 @@ const AP_Param::GroupInfo AP_BattMonitor_FuelLevel_Analog::var_info[] = {
     // @Param: FL_FF
     // @DisplayName: First order term
     // @Description: First order polynomial fit term
-    // @Range: 0 10
+    // @Range: -10 10
     // @User: Advanced
     AP_GROUPINFO("FL_FF", 45, AP_BattMonitor_FuelLevel_Analog, _fuel_fit_first_order_coeff, 1),
 
     // @Param: FL_FS
     // @DisplayName: Second order term
     // @Description: Second order polynomial fit term
-    // @Range: 0 10
+    // @Range: -10 10
     // @User: Advanced
     AP_GROUPINFO("FL_FS", 46, AP_BattMonitor_FuelLevel_Analog, _fuel_fit_second_order_coeff, 0),
 
     // @Param: FL_FT
     // @DisplayName: Third order term
     // @Description: Third order polynomial fit term
-    // @Range: 0 10
+    // @Range: -10 10
     // @User: Advanced
     AP_GROUPINFO("FL_FT", 47, AP_BattMonitor_FuelLevel_Analog, _fuel_fit_third_order_coeff, 0),
 
     // @Param: FL_OFF
     // @DisplayName: Offset term
     // @Description: Offset polynomial fit term
-    // @Range: 0 10
+    // @Range: -10 10
     // @User: Advanced
     AP_GROUPINFO("FL_OFF", 48, AP_BattMonitor_FuelLevel_Analog, _fuel_fit_offset, 0),    
 
