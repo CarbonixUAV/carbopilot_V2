@@ -1,4 +1,8 @@
 
+Release 7.0.0beta1- 8th November 2024
+------------------------------
+- Testeing CI after changing the repo to public.
+
 Release 7.0.0beta1 1st November 2024
 ------------------------------
 This release includes moving all CxPilot changes on top of ardupilot 4.5.6 release.
