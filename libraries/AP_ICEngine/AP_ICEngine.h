@@ -113,6 +113,10 @@ private:
     AP_Int16 pwm_starter_on;
     AP_Int16 pwm_starter_off;
     
+    // max crank retry
+    AP_Int8 max_crank_retry;
+    int8_t crank_retry_ct;
+    
 #if AP_RPM_ENABLED
     // RPM above which engine is considered to be running
     AP_Int32 rpm_threshold;
@@ -123,6 +127,9 @@ private:
 
     // time when we last ran the starter
     uint32_t starter_last_run_ms;
+
+    // time when we last had an uncommanded engine stop
+    uint32_t last_uncommanded_stop_ms;
 
     // throttle percentage for engine start
     AP_Int8 start_percent;
