@@ -337,7 +337,7 @@ bool AP_ESC_Telem::get_count(uint8_t esc_index, uint16_t& count) const
 }
 
 // get an individual ESC's error count if available, returns true on success
-bool AP_ESC_Telem::get_error_count(uint8_t esc_index, uint16_t& error_count) const
+bool AP_ESC_Telem::get_error_count(uint8_t esc_index, uint32_t& error_count) const
 {
     if (esc_index >= ESC_TELEM_MAX_ESCS) {
         return false;
@@ -607,12 +607,12 @@ void AP_ESC_Telem::update_telem_data(const uint8_t esc_index, const AP_ESC_Telem
 }
 
 // callback to increment the error count in the frontend, should be called by the driver when an error occurs
-void AP_ESC_Telem::increment_error_count(const uint8_t esc_index)
+void AP_ESC_Telem::increment_error_count(const uint8_t esc_index, const uint32_t amount)
 {
     if (esc_index >= ESC_TELEM_MAX_ESCS) {
         return;
     }
-    _telem_data[esc_index].error_count++;
+    _telem_data[esc_index].error_count += amount;
 }
 
 // record an update to the RPM together with timestamp, this allows the notch values to be slewed

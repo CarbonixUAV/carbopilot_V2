@@ -75,7 +75,7 @@ protected:
     void update_telem_data(const uint8_t esc_index, const TelemetryData& new_data, const uint16_t data_present_mask);
 
     // callback to increment the error count in the frontend, should be called by the driver when an error occurs
-    void increment_error_count(const uint8_t esc_index);
+    void increment_error_count(const uint8_t esc_index, const uint32_t amount);
 
 private:
     AP_ESC_Telem* _frontend;

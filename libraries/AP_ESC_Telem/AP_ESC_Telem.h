@@ -71,7 +71,7 @@ public:
     bool get_count(uint8_t esc_index, uint16_t& count) const;
 
     // get an individual ESC's error count if available, returns true on success
-    bool get_error_count(uint8_t esc_index, uint16_t& error_count) const;
+    bool get_error_count(uint8_t esc_index, uint32_t& error_count) const;
 
 #if AP_EXTENDED_ESC_TELEM_ENABLED
     // get an individual ESC's input duty cycle if available, returns true on success
@@ -129,7 +129,7 @@ public:
     void update_telem_data(const uint8_t esc_index, const AP_ESC_Telem_Backend::TelemetryData& new_data, const uint16_t data_mask);
 
     // callback to increment the error count in the frontend, should be called by the driver when an error occurs
-    void increment_error_count(const uint8_t esc_index);
+    void increment_error_count(const uint8_t esc_index, const uint32_t amount);
 
 #if AP_SCRIPTING_ENABLED
     /*

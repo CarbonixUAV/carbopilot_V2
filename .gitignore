@@ -93,6 +93,7 @@ mav.log
 mav.log.raw
 mav.parm
 mission.stg
+output/
 /defaults.parm
 /ArduCopter/defaults.parm
 /ArduPlane/defaults.parm

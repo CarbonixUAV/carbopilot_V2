@@ -1457,7 +1457,7 @@ void AP_BLHeli::read_telemetry_packet(void)
     const uint8_t motor_idx = motor_map[last_telem_esc];
     if (telem_uart->read(buf, telem_packet_size) < telem_packet_size) {
         // short read, we should have all bytes ready when this function is called
-        increment_error_count(motor_idx - chan_offset);
+        // THIS LINE IS NOT ACTUALLY REACHABLE, SO WE DON'T LOG THIS (the caller already checks)
         return;
     }
 
@@ -1470,7 +1470,7 @@ void AP_BLHeli::read_telemetry_packet(void)
     if (buf[telem_packet_size-1] != crc) {
         // bad crc
         debug("Bad CRC on %u", last_telem_esc);
-        increment_error_count(motor_idx - chan_offset);
+        increment_error_count(motor_idx - chan_offset, 1 << 16);
         return;
     }
     // record the previous rpm so that we can slew to the new one
@@ -1602,7 +1602,7 @@ void AP_BLHeli::update_telemetry(void)
         // if we have more than 10 bytes then we don't know which ESC
         // they are from. Throw them all away
         telem_uart->discard_input();
-        increment_error_count(motor_map[last_telem_esc] - chan_offset);
+        increment_error_count(motor_map[last_telem_esc] - chan_offset, 1);
         return;
     }
     if (nbytes > 0 &&
@@ -1618,7 +1618,7 @@ void AP_BLHeli::update_telemetry(void)
     if (nbytes > 0 && nbytes < telem_packet_size) {
         // we've waited long enough, discard bytes if we don't have 10 yet
         telem_uart->discard_input();
-        increment_error_count(motor_map[last_telem_esc] - chan_offset);
+        increment_error_count(motor_map[last_telem_esc] - chan_offset, 1 << 8);
         return;
     }
     if (nbytes == telem_packet_size) {

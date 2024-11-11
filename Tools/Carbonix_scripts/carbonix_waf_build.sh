@@ -6,18 +6,18 @@ set -e
 echo "Running distclean..."
 ./waf distclean
 
-main_boards=("CubeOrange" "CubeOrangePlus" "CubeOrange-Volanti" "CubeOrangePlus-Volanti" "CubeOrange-Ottano" "CubeOrangePlus-Ottano")
-for board in "${main_boards[@]}"; do
-  echo "Compiling ArduPlane for $board..."
-  ./waf configure --board "$board" -g
-  ./waf plane
-done
+# main_boards=("CubeOrange" "CubeOrangePlus" "CubeOrange-Volanti" "CubeOrangePlus-Volanti" "CubeOrange-Ottano" "CubeOrangePlus-Ottano")
+# for board in "${main_boards[@]}"; do
+#   echo "Compiling ArduPlane for $board..."
+#   ./waf configure --board "$board" -g
+#   ./waf plane
+# done
 
-periph_boards=("CarbonixF405" "CarbonixF405-no-crystal")
+periph_boards=("CarbonixF405") # "CarbonixF405-no-crystal")
 
 # Build all periph board with custom parameters
 for board in "${periph_boards[@]}"; do
-  for file in $(find libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/cpn_params/ -name "*.parm"); do
+  for file in $(find libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/cpn_params/Volanti/*-M* -name "*.parm"); do
     # Extract the filename without the extension 
     filename=$(basename -- "$file")
     filename="${filename%.*}"
@@ -45,10 +45,10 @@ for board in "${periph_boards[@]}"; do
 done
 
 # Build all Default periph board
-for board in "${periph_boards[@]}"; do
-  echo "Compiling AP_Periph for $board..."
-  ./waf configure --board "$board" -g
-  ./waf AP_Periph
-done
+# for board in "${periph_boards[@]}"; do
+#   echo "Compiling AP_Periph for $board..."
+#   ./waf configure --board "$board" -g
+#   ./waf AP_Periph
+# done
 
 echo "Script completed successfully."
