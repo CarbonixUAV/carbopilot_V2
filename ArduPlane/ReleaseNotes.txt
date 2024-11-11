@@ -1,6 +1,18 @@
+Release 7.0.0beta2 11th November 2024
+------------------------------------------------------------------
+This release fixes issues identified during PIQC and also other minor config changes as listed below :
+
+Fleetwide Changes
+ - STALL_PREVENTION is disabled
+	
+Technical
+ - Default param for serial protocol for 4G
+ - Fixed missing features that didn't carry over from Cx5
+   - Max retrials for engine
+   - cx_vtol_info.lua script was missing for CubeOrangePlus
 
 Release 7.0.0beta1 1st November 2024
-------------------------------
+------------------------------------------------------------------
 This release includes moving all CxPilot changes on top of ardupilot 4.5.6 release.
 
 Fleetwide Changes
