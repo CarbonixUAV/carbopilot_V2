@@ -1605,7 +1605,7 @@ void AP_BLHeli::update_telemetry(void)
     if (nbytes > 0 &&
         nbytes < telem_packet_size &&
         (last_telem_byte_read_us == 0 ||
-         now - last_telem_byte_read_us < 1000)) {
+         now - last_telem_byte_read_us < 5000)) {
         // wait a bit longer, we don't have enough bytes yet
         if (last_telem_byte_read_us == 0) {
             last_telem_byte_read_us = now;
