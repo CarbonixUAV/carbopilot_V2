@@ -1706,8 +1706,12 @@ void AP_Periph_FW::esc_telem_update()
 
         pkt.error_count = 0;
         uint32_t error_count;
+        uint16_t count;
+        if (esc_telem.get_count(i, count)) {
+            pkt.error_count = count & 0xFF;
+        }
         if (esc_telem.get_error_count(i, error_count)) {
-            pkt.error_count = error_count;
+            pkt.error_count += (error_count & 0xFFFFFF) << 8;
         }
 
         uint8_t buffer[UAVCAN_EQUIPMENT_ESC_STATUS_MAX_SIZE] {};
