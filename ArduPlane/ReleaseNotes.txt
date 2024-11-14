@@ -1,3 +1,12 @@
+Release 7.0.0beta3 14th November 2024
+------------------------------------------------------------------
+This release adds a minor ESC telemetry fix and debugging information
+
+Technical
+ - Increase timeout for BLHeli telemetry
+ - Add error counting in BLHeli driver
+ - A7R payload no longer sets GPS altitude to ellipsoid
+
 Release 7.0.0beta2 11th November 2024
 ------------------------------------------------------------------
 This release mainly fixes technical issues identified during PIQC
