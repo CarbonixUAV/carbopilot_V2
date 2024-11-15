@@ -19,7 +19,7 @@
 #include <AP_Param/AP_Param.h>
 #include "NotchFilter.h"
 
-#define HNF_MAX_HARMONICS 16
+#define HNF_MAX_HARMONICS 2
 
 /*
   a filter that manages a set of notch filters targetted at a fundamental center frequency
