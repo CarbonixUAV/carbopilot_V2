@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
+#include "AP_Filesystem/AP_Filesystem.h"
 
 #define HNF_MAX_FILTERS HAL_HNF_MAX_FILTERS // must be even for double-notch filters
 #define HNF_MAX_HARMONICS 8
@@ -41,13 +42,13 @@ int dprintf(int fd, const char *format, ...);
 int dprintf(int fd, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    char buf[128];
+    char buf[256];
     int len = hal.util->vsnprintf(buf, sizeof(buf), format, args);
     va_end(args);
     if (len < 0) {
         return len;
     }
-    return write(fd, buf, len);
+    return AP::FS().write(fd, buf, len);
 };
 #endif
 
@@ -328,7 +329,7 @@ T HarmonicNotchFilter<T>::apply(const T &sample)
 #if NOTCH_DEBUG_LOGGING
     static int dfd = -1;
     if (dfd == -1) {
-        dfd = ::open("notch.txt", O_WRONLY|O_CREAT|O_TRUNC, 0644);
+        dfd = AP::FS().open("notch.txt", O_WRONLY|O_CREAT|O_TRUNC);
     }
 #endif
 
@@ -346,6 +347,7 @@ T HarmonicNotchFilter<T>::apply(const T &sample)
 #if NOTCH_DEBUG_LOGGING
     if (_num_enabled_filters > 0) {
         ::dprintf(dfd, "\n");
+        AP::FS().fsync(dfd);
     }
 #endif
     return output;
