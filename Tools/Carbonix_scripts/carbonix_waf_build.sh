@@ -6,7 +6,7 @@ set -e
 echo "Running distclean..."
 ./waf distclean
 
-main_boards=("CubeOrange" "CubeOrangePlus" "CubeOrange-Volanti" "CubeOrangePlus-Volanti" "CubeOrange-Ottano" "CubeOrangePlus-Ottano")
+main_boards=("CubeOrange" "CubeOrangePlus" "CubeOrange-Volanti" "CubeOrangePlus-Volanti" "CubeOrange-Ottano" "CubeOrangePlus-Ottano" "CubeOrange-Octano")
 for board in "${main_boards[@]}"; do
   echo "Compiling ArduPlane for $board..."
   ./waf configure --board "$board" -g
