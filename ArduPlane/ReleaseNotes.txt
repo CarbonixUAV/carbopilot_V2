@@ -1,3 +1,10 @@
+Release 7.0.0beta4 21st November 2024
+------------------------------------------------------------------
+This release updates from the base from ArduPilot 4.5.6 to 4.5.7
+
+Technical
+ - See 4.5.7 release notes for more details
+
 Release 7.0.0beta3 14th November 2024
 ------------------------------------------------------------------
 This release adds a minor ESC telemetry fix and debugging information
