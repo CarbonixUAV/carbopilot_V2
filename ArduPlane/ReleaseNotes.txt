@@ -1,3 +1,20 @@
+Release 5.2.5 26th November 2024
+--------------------------------
+This release is a safety critical tuning patch for Volanti to address recent
+filter lag issues.
+
+ - Volanti-specific changes:
+   - Changes to filters and tune.
+     - Pilots may notice a small visible vibration in the tail in hover flight.
+       This is normal and expected.
+     - Position hold in gusty conditions should be significantly improved.
+   - Aircraft can now achieve its bank limit of 40 degrees. Previously, an
+     unnecessary stall prevention feature was silently reducing the bank limit.
+
+Technical:
+ - Increase timeout for BLHeli telemetry
+ - Add error counting in BLHeli driver
+
 Release 5.2.4 9th October 2024
 ------------------------------
 This release includes a patch to fix Ottano default param CAN servo bitmask.
