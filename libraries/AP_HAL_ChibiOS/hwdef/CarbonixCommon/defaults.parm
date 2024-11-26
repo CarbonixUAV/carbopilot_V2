@@ -164,4 +164,5 @@ SERVO8_MIN,1000
 SERVO9_FUNCTION,94 # Scripting function for LEDs
 SERVO9_MAX,2000
 SERVO9_MIN,1000
+STALL_PREVENTION,0 # Our high airspeed-min setting and QAssist should prevent bank-accelerated stalls
 TERRAIN_FOLLOW,72 # Enabled Auto and Guided (the command being executed must have the terrain frame though)
