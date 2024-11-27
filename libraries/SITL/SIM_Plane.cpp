@@ -362,8 +362,8 @@ void Plane::calculate_forces(const struct sitl_input &input, Vector3f &rot_accel
     }
     
     // simulate engine RPM
-    motor_mask |= (1U<<2);
-    rpm[2] = thrust * 7000;
+    motor_mask |= (1U<<4);
+    rpm[4] = thrust * 7000;
     
     // scale thrust to newtons
     thrust *= thrust_scale;
