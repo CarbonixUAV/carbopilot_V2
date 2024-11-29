@@ -30,6 +30,11 @@
 #endif
 #include <stdio.h>
 
+// #include "V49-00000012-Carra.h"
+// #include "V52-00000066-Toll.h"
+// #include "V53-00000083.h"
+#include "V94-00000029-Anduril.h"
+
 extern const AP_HAL::HAL& hal;
 
 #ifndef FFT_DEFAULT_WINDOW_SIZE
@@ -813,6 +818,15 @@ float AP_GyroFFT::get_weighted_noise_center_freq_hz() const
 // called from main thread
 uint8_t AP_GyroFFT::get_weighted_noise_center_frequencies_hz(uint8_t num_freqs, float* freqs) const
 {
+    int peaks;
+    const size_t index = constrain_uint64(AP_HAL::millis() / SAMPLE_PERIOD_MS + 1, 0, FFT_SAMPLES-1);
+    peaks = FTN_NDn[index];
+    for (int i = 0; i < 3; i++) {
+        freqs[i] = FTN_NF[index][i];
+    }
+
+    return peaks;
+
     if (!analysis_enabled()) {
         freqs[0] = _fft_min_hz;
         return 1;
