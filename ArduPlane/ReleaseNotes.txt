@@ -1,3 +1,74 @@
+Release 7.0.0 29th November 2024
+------------------------------------------------------------------
+This release includes moving all CxPilot changes on top of ardupilot 4.5.
+
+Differences since CxPilot-5.2.5:
+Fleetwide Changes
+ - Prearm check to ensure all LUA scripts are loaded and running
+ - Improved back transition
+ - JUMP_TAG mission item support
+ - Switching to auto takeoff after manual takeoff no longer adds extra altitude
+ - Wind speed warning reduced to 10m/s (from 12m/s)
+ - Roll limit no longer confined to 7 degrees during transition
+ - FBWB/CRUISE fix massive undershoot issue when switching from max descent to max climb
+ - A whole bunch of bug fixes
+
+Ottano Changes:
+ - Fixed-wing tune improvements. Altitude should be more stable.
+ - Battery assignments standardized
+   1. VTOL batteries combined (reports lowest voltage)
+   2. Avionics battery
+   3. Fuel level sensor
+ - VTOL battery failsafe removed. Until battery failsafes can take more
+   intelligent automatic action between fixed-wing and VTOL modes, the failsafe
+   is dangerous. This is slated for CxPilot-7.1 (SW-466).
+
+Known Issues:
+ - Unnecessary alerts from CX_BIT:
+   - Before disengaging safety switch, nuisance alerts about missing ESC telemetry
+   - Flying twice without rebooting causes an false positive alert about RPM
+     drop on the second takeoff. Aircraft should be power cycled between flights.
+   - Low-priority message on the messages tab "RPM nil", will be removed in the
+     next release and can still be safely ignored unless it comes up on the HUD.
+
+Technical
+ - Improved support for new camera payloads and gimbals
+ - GPS raw logging improvements for PPK
+ - Added support for precision landing of quadplanes
+ - Added TECS option for rapid descent in fixed wing aircraft
+ - AHRS_OPTIONS supports disabling fallback to DCM
+ - Quadplane use of forward throttle in VTOL modes improved
+ - VTOL angle controller gets feed-forward scaling (see Q_OPTIONS)
+ - Arming check of compass vs world magnetic model to detect metal in ground (see ARMING_MAGTHRESH)
+ - FLTMODE_GCSBLOCK blocks GCS from changing vehicle to specified modes
+ - CAN port can support a second CAN protocol on the same bus (2nd protocol must be 11 bit, see CAN_Dn_PROTOCOL2)
+ - Ethernet/Networking support for UDP and TCP server and client (see NET_ENABLED) and PPP (see SERIALx_PROTOCOL)
+ - Firmware flashing from SD card
+ - Rockblock satellite modem support
+ - Missions can be stored on SD card (see BRD_SD_MISSION)
+ - New Notch filter features
+ - CubeOrangePlus supports IMU high resolution sampling (works with ICM42688, ICM42652, ICM42670, ICM45686 IMUs)
+ - Bunch of Logging enhancements
+ - Scripting enhancements
+ - CI Enhancements
+   - Parameter defaults are sanity checked for simple errors like naming or 
+     invalid values.
+ - ELF file artifacts now contain debug symbols
+ - Removed the ability to send kill commands (for testing) to the autopilot
+ - Added CubeOrangePlus to Carbonix-supported autopilot
+ - Battery sum monitors can report minimum voltage instead of average
+ - A7R parameter patch no longer reconfigures GPS to ellipsoid altitude
+ - Fixed bug which prevented full crash dump from being saved  
+
+Known Technical Issues:
+ - Rare crash dumps still occuring during PIQC (has been happening since CxPilot-4)
+ - Arming again after disarming does not create a new log file
+ - Log messages early in boot get dropped
+
+Parameter changes since beta4:
+ - Ottano fixed-wing tuning improvements
+ - Ottano set max engine retry parameter to 5
+
 Release 7.0.0beta4 21st November 2024
 ------------------------------------------------------------------
 This release updates from the base from ArduPilot 4.5.6 to 4.5.7
