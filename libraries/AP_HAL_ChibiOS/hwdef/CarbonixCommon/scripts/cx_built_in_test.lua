@@ -184,6 +184,8 @@ local function esc_check_loop()
                         end
                     end
                 end
+            else
+                esc_is_stopped(i)
             end
         end
         -- Update srv_prv_telem_ms[i] if it had valid data this loop
