@@ -2856,7 +2856,7 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
             # flying on DroneCAN ESCs
             "SIM_CAN_SRV_MSK" : 0xFF,
             # we can do the flight faster
-            "SIM_SPEEDUP" : 5,
+            "SIM_SPEEDUP" : 3,
         })
 
         self.CopterMission()
