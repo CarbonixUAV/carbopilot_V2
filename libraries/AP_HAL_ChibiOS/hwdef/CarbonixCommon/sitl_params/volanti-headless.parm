@@ -59,6 +59,7 @@ RLL_RATE_P,0.141009
 RNGFND1_PIN,0
 RNGFND1_SCALING,40
 RNGFND1_TYPE,1
+@delete SERIAL* # SITL does not need to replicate serial assignments
 @delete SERVO*
 SERVO3_MAX,2000
 SERVO3_MIN,1000

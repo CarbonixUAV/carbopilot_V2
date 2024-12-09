@@ -27,6 +27,7 @@ LOG_REPLAY,0 # causes random crashes on the Cygwin SITL
 RNGFND1_PIN,0
 RNGFND1_SCALING,40
 RNGFND1_TYPE,1
+@delete SERIAL* # SITL does not need to replicate serial assignments
 SERVO7_FUNCTION,21 # RealFlight model uses old servo numbering
 SIM_ARSPD_RATIO,1.6
 SIM_ARSPD2_RATIO,1.6
