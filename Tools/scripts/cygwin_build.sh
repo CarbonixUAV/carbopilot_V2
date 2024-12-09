@@ -58,7 +58,7 @@ for exe in artifacts/*.exe; do
     done
 done
 
-# Process Carbonix SITL parameters
+# Process Carbonix SITL parameters and scripts
 for file in libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/sitl_params/*.parm
 do
     destfolder=artifacts/$(basename $file .parm)-${FIRMWARE_VERSION}-${COMMIT_ID}
@@ -76,6 +76,9 @@ do
         model="quadplane"
     fi
     printf "rem Launch at Eli Field\r\n..\\${FIRMWARE_VERSION}-${COMMIT_ID}.exe -O 40.0594626,-88.5513292,206.0,0 --serial0 tcp:0 -M ${model} --defaults defaults.parm\r\n" > $destfolder/launch.bat
+
+    # Copy lua scripts
+    cp -vR libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts $destfolder
 done
 
 git log -1 > artifacts/git.txt
