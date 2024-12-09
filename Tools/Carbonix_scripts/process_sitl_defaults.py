@@ -39,11 +39,21 @@ def process_defaults(file, depth=0):
             continue
 
         if line.startswith("@delete"):
-            pattern = line.split(maxsplit=1)[1]
-            for i in range(len(param_list)):
-                param_name = re.split(r"[\s,]+", param_list[i])[0]
+            # Strip trailing comments
+            line = re.sub(r"\s*#.*$", "", line)
+            # Split into the required two parts
+            line_split = line.split()
+            if len(line_split) != 2:
+                raise SyntaxError(f"Invalid @delete line in {file}: '{line}'")
+            pattern = line_split[1]
+
+            # Loop through the previously extracted parameters and comment out
+            # the ones that match the pattern
+            for i, param_line in enumerate(param_list):
+                param_name = re.split(r"[\s,]+", param_line)[0]
                 if fnmatch.fnmatch(param_name, pattern):
-                    param_list[i] = "#deleted " + param_list[i]
+                    param_list[i] = "#deleted " + param_line
+            # Now comment out this @delete directive
             line = "#" + line
 
         param_list.append(line)
