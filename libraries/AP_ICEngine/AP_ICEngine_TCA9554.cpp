@@ -103,6 +103,9 @@ void AP_ICEngine_TCA9554::set_starter(bool on, AP_Int8 crank_direction)
     if (crank_direction) {
         value |= REVERSE;
     }
+    if (ignition_on) {
+        value |= FUEL_PUMP;
+    }
     TCA9554_set(value);
 }
 

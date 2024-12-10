@@ -9,6 +9,7 @@
 
 class AP_ICEngine_TCA9554 {
 public:
+    void set_ignition(bool on) { ignition_on = on; }
     void set_starter(bool on, AP_Int8 crank_direction);
 
 private:
@@ -17,6 +18,7 @@ private:
     uint8_t last_state;
 
     bool initialised;
+    bool ignition_on;
 
     bool TCA9554_init();
     void TCA9554_set(uint8_t value);

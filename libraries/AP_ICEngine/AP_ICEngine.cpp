@@ -643,6 +643,10 @@ void AP_ICEngine::set_ignition(bool on)
     }
 #endif // AP_RELAY_ENABLED
 
+#if AP_ICENGINE_TCA9554_STARTER_ENABLED
+    tca9554_starter.set_ignition(on);
+#endif
+
 }
 
 /*
