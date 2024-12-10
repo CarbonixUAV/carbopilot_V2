@@ -1,0 +1,94 @@
+# Carbonix Ottano Headless Parameters
+@include ../../CubeOrange-Ottano/defaults.parm
+ARSPD_OFFSET,2013
+ARSPD_TYPE,2
+ARSPD2_OFFSET,2013
+ARSPD2_PIN,2
+ARSPD2_TYPE,2
+# Delete all the monitors except for batteries 1, 4 and 5
+@delete BATT2_*
+@delete BATT3_*
+@delete BATT6_*
+@delete BATT7_*
+@delete BATT8_*
+@delete BATT9_*
+# Batt9 serves to pass the SITL battery info into the ESC lua script
+BATT9_MONITOR,4
+@delete CAN_*
+@delete EFI_*
+EFI_TYPE,7
+GPS_TYPE,1
+GPS_TYPE2,1
+@delete INS_*
+INS_ACC2OFFS_X,0.001
+INS_ACC2OFFS_Y,0.001
+INS_ACC2OFFS_Z,0.001
+INS_ACC2SCAL_X,1.001
+INS_ACC2SCAL_Y,1.001
+INS_ACC2SCAL_Z,1.001
+INS_ACCOFFS_X,0.001
+INS_ACCOFFS_Y,0.001
+INS_ACCOFFS_Z,0.001
+INS_ACCSCAL_X,1.001
+INS_ACCSCAL_Y,1.001
+INS_ACCSCAL_Z,1.001
+INS_GYR_CAL,0 # taken from quadplane autotest parameters, just in case
+LOG_REPLAY,0 # causes random crashes on the Cygwin SITL
+@delete PTCH_RATE_*
+PTCH_RATE_FF,1.407055
+PTCH_RATE_I,0.2125
+PTCH_RATE_IMAX,0.888889
+PTCH_RATE_P,0.309954
+@delete PTCH2SRV_*
+Q_ANGLE_MAX,2000 # Headless sim needs this much to get it to come to a stop
+@delete Q_A_*
+Q_A_ACCEL_P_MAX,30000
+Q_A_ACCEL_R_MAX,30000
+Q_A_ACCEL_Y_MAX,4500
+Q_A_RAT_PIT_D,0.002
+Q_A_RAT_PIT_P,0.15
+Q_A_RAT_RLL_D,0.002
+Q_A_RAT_RLL_P,0.15
+Q_A_RATE_P_MAX,60
+Q_A_RATE_R_MAX,60
+Q_A_RATE_Y_MAX,12
+Q_A_SLEW_YAW,1500
+@delete Q_WP_SPEED_DN # Headless sim hates our descent rate
+@delete Q_M_*
+@delete Q_P_*
+@delete RELAY*
+RELAY1_FUNCTION,2 # Ignition
+RELAY1_PIN,0 # Virtual pin 0
+RELAY2_FUNCTION,9 # Starter
+RELAY2_PIN,1 # Virtual pin 1
+@delete RLL_RATE_*
+RLL_RATE_FF,0.552741
+RLL_RATE_I,0.2125
+RLL_RATE_IMAX,0.888889
+RLL_RATE_P,0.141009
+RNGFND1_PIN,0
+RNGFND1_SCALING,40
+RNGFND1_TYPE,1
+# RPM1_SCALING,1.025 # Scaled up to match what we usually see on the Hirth
+# RPM1_TYPE,10 # SITL backend, our EFI lua script grabs its RPM from this sensor
+@delete SCR_*_CHECKSUM
+@delete SERIAL* # SITL does not need to replicate serial assignments
+@delete SERVO*
+SERVO3_MAX,2000
+SERVO3_MIN,1000
+SERVO3_TRIM,1000
+SIM_ARSPD_RATIO,1.6
+SIM_ARSPD2_RATIO,1.6
+SIM_ESC_TELEM,0 # Disable the built-in ESC telemetry simulation (we have lua do this instead)
+SIM_GPS_POS_X,-0.135
+SIM_GPS_POS_Y,-1.05
+SIM_GPS2_DISABLE,0
+SIM_GPS2_POS_X,-0.135
+SIM_GPS2_POS_Y,1.05
+SIM_IMU_POS_X,0.82
+SIM_MAG1_DEVID,70411
+SIM_MAG2_DEVID,72963
+SIM_SONAR_POS_X,0.93
+SIM_SONAR_SCALE,40
+SIM_VIB_MOT_MAX,95 # about 5700 RPM at full throttle
+@delete YAW2SRV_*
