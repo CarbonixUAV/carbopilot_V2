@@ -35,6 +35,8 @@ enum PIN_MASK {
 #define TCA9554_CONF         0x03  // Configuration Port register address [0 = Output]
 #define TCA9554_PINS         (~(FUEL_PUMP | LED_OFF | REVERSE | STOP_CRANKING))  // Set all used ports to outputs
 
+#define FUEL_PUMP_PRIMING_TIME_MS 30000
+
 /*
   initialise TCA9554
  */
@@ -103,7 +105,7 @@ void AP_ICEngine_TCA9554::set_starter(bool on, AP_Int8 crank_direction)
     if (crank_direction) {
         value |= REVERSE;
     }
-    if (ignition_on) {
+    if (ignition_on || AP_HAL::millis64() < FUEL_PUMP_PRIMING_TIME_MS) {
         value |= FUEL_PUMP;
     }
     TCA9554_set(value);
