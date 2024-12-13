@@ -9,11 +9,14 @@ local MOTOR_LED_PWM_VAL_MAX  = 10000
 -- Arming check interval
 local LED_CYCLE_TIME = 2000
 
+--------  MAVLINK/AUTOPILOT 'CONSTANTS'  --------
+-- MAVLink Severity Levels
+local MAV_SEVERITY_INFO = 6
 
 local LED_servo = SRV_Channels:find_channel(MOTOR_LED_FUNCTION)
 
 
-gcs:send_text(0, "LED -- BEGIN")
+gcs:send_text(MAV_SEVERITY_INFO, "LED -- BEGIN")
 
 
 -- LED is switched ON using a PWM signal configured as MOTOR_LED_FUNCTION
