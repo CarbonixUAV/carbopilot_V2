@@ -174,6 +174,10 @@ const AP_Param::GroupInfo SIM::var_info[] = {
     // @Units: m
     // @Vector3Parameter: 1
     AP_GROUPINFO("FLOW_POS",      56, SIM,  optflow_pos_offset, 0),
+    // @Param: ENGINE_FAIL
+    // @DisplayName: Engine Fail Mask
+    // @Description: mask of motors which SIM_ENGINE_MUL will be applied to
+    // @Bitmask: 0: Servo 1, 1: Servo 2, 2: Servo 3, 3: Servo 4, 4: Servo 5, 5: Servo 6, 6: Servo 7, 7: Servo 8, 8: Servo 9, 9: Servo 10, 10: Servo 11, 11: Servo 12, 12: Servo 13, 13: Servo 14, 14: Servo 15, 15: Servo 16, 16: Servo 17, 17: Servo 18, 18: Servo 19, 19: Servo 20, 20: Servo 21, 21: Servo 22, 22: Servo 23, 23: Servo 24, 24: Servo 25, 25: Servo 26, 26: Servo 27, 27: Servo 28, 28: Servo 29, 29: Servo 30, 30: Servo 31, 31: Servo 32
     AP_GROUPINFO("ENGINE_FAIL",   58, SIM,  engine_fail,  0),
 #if AP_SIM_SHIP_ENABLED
     AP_SUBGROUPINFO(shipsim, "SHIP_", 59, SIM, ShipSim),
