@@ -65,7 +65,11 @@ const AP_Param::GroupInfo SIM::var_info[] = {
     
     AP_GROUPINFO("DRIFT_SPEED",    5, SIM,  drift_speed, 0.05f),
     AP_GROUPINFO("DRIFT_TIME",     6, SIM,  drift_time,  5),
-    AP_GROUPINFO("ENGINE_MUL",     8, SIM,  engine_mul,  1),
+    // @Param: ENGINE_MUL
+    // @DisplayName: Engine failure thrust scaler
+    // @Description: Thrust from Motors in SIM_ENGINE_FAIL will be multiplied by this factor
+    // @Range: 0 1
+    AP_GROUPINFO("ENGINE_MUL",     8, SIM,  engine_mul,  0),
     // @Param: WIND_SPD
     // @DisplayName: Simulated Wind speed
     // @Description: Allows you to emulate wind in sim
