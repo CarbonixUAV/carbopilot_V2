@@ -211,7 +211,11 @@ public:
 #if AP_SCRIPTING_ENABLED
     // set limit flag for pitch, roll and yaw
     void set_external_limits(bool roll, bool pitch, bool yaw, bool throttle_lower, bool throttle_upper);
-#endif
+
+#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
+    virtual float actuator_to_thrust(float actuator) const { return actuator; }
+#endif // CONFIG_HAL_BOARD == HAL_BOARD_SITL
+#endif // AP_SCRIPTING_ENABLED
 
     //
     // virtual functions that should be implemented by child classes

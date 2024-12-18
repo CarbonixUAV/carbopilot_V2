@@ -1430,6 +1430,11 @@ function motors:get_roll_ff() end
 ---@return number
 function motors:get_roll() end
 
+-- Converts actuator output to desired thrust in a range of 0~1
+---@param actuator number
+---@return number -- thrust
+function motors:actuator_to_thrust(actuator) end
+
 -- desc
 ---@class FWVersion
 FWVersion = {}
