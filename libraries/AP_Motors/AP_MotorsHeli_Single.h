@@ -77,6 +77,12 @@ public:
     // Thrust Linearization handling
     Thrust_Linearization thr_lin {*this};
 
+#if AP_SCRIPTING_ENABLED && (CONFIG_HAL_BOARD == HAL_BOARD_SITL)
+    float actuator_to_thrust(float actuator) const override {
+        return thr_lin.actuator_to_thrust(actuator);
+    }
+#endif
+
     // var_info
     static const struct AP_Param::GroupInfo var_info[];
 

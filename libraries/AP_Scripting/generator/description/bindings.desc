@@ -687,6 +687,8 @@ singleton AP::motors() method get_forward float
 singleton AP::motors() method get_lateral float
 singleton AP::motors() method get_spool_state uint8_t
 singleton AP::motors() method set_external_limits void boolean boolean boolean boolean boolean
+singleton AP::motors() method actuator_to_thrust float float 0 1
+singleton AP::motors() method actuator_to_thrust depends CONFIG_HAL_BOARD == HAL_BOARD_SITL
 
 include AP_Common/AP_FWVersion.h
 singleton AP::fwversion() literal
