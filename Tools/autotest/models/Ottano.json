@@ -1,0 +1,8 @@
+{    
+    "maxVoltage" : 50.4,
+    "battCapacityAh" : 0, # unlimited battery, use parameter if you want to simulate a battery
+    "refVoltage" : 48.36, # scaled up the default value to match the 50.4 nominal
+    "refCurrent" : 272, # Scaled to get 440A hover current
+    "refBatRes" : 0.006, # BAT.Res from log
+    "num_motors" : 4
+}
