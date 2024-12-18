@@ -17,9 +17,6 @@ local MAV_SEVERITY_ERROR = 3
 local MAV_SEVERITY_WARNING = 4
 local MAV_SEVERITY_INFO = 6
 
--- Engine Types
-local HIRTH_EFI_TYPE = 8
-
 local ESC_WARMUP_TIME = 3000
 local SERVO_OUT_THRESHOLD = 1010
 local ESC_RPM_THRESHOLD = 10
@@ -71,7 +68,7 @@ local function gcs_msg(severity, txt)
 end
 
 local function check_aircraft_type()
-    if params.EFI_TYPE:get() == HIRTH_EFI_TYPE then
+    if params.EFI_TYPE:get() ~= 0 then
         number_of_esc = 4
     else
         number_of_esc = 5
