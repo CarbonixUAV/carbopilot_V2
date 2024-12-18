@@ -74,6 +74,9 @@ do
         model="flightaxis"
     else
         model="quadplane"
+        if [[ $file == *"ottano"* ]]; then
+            model="quadplane:@ROMFS/models/Ottano.json"
+        fi
     fi
     printf "rem Launch at Eli Field\r\n..\\${FIRMWARE_VERSION}-${COMMIT_ID}.exe -O 40.0594626,-88.5513292,206.0,0 --serial0 tcp:0 -M ${model} --defaults defaults.parm\r\n" > $destfolder/launch.bat
 
