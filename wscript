@@ -472,14 +472,12 @@ def configure(cfg):
             if not file.endswith('.parm'):
                 continue
 
-            # make build/sitl directory if it doesn't exist
+            # make build directory if it doesn't exist
             if not os.path.exists('build'):
                 os.makedirs('build')
-            if not os.path.exists('build/sitl'):
-                os.makedirs('build/sitl')
 
             in_file = os.path.join(param_folder, file)
-            out_file = os.path.join('build/sitl', file)
+            out_file = os.path.join('build', file)
 
             # Call Tools/Carbonix_scripts/process_sitl_defaults.py $in_file $out_file
             cfg.msg('Processing default parameters', file)
