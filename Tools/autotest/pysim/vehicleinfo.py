@@ -433,6 +433,30 @@ class VehicleInfo(object):
                 },
             }
     },
+    "Carbonix": {
+        "default_frame": "ottano-headless",
+        "frames": {
+            "ottano-headless": {
+                "waf_target": "bin/arduplane",
+                "model": "quadplane:@ROMFS/models/Ottano.json",
+                "default_params_filename": "../../build/ottano-headless.parm",
+                "scripts": ["../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/*.lua"],
+            },
+            "volanti-headless": {
+                "waf_target": "bin/arduplane",
+                "model": "quadplane:@ROMFS/models/Volanti.json",
+                "default_params_filename": "../../build/volanti-headless.parm",
+                "scripts": ["../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/*.lua"],
+            },
+            "volanti-realflight": {
+                "waf_target": "bin/arduplane",
+                "model": "flightaxis",
+                "default_params_filename": "../../build/volanti-realflight.parm",
+                "scripts": ["../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/*.lua"],
+                "external": True,
+            }
+        },
+    }
 }
 
 
