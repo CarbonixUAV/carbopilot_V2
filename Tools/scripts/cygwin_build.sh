@@ -73,9 +73,13 @@ do
     if [[ $file == *"realflight"* ]]; then
         model="flightaxis"
     else
-        model="quadplane"
         if [[ $file == *"ottano"* ]]; then
             model="quadplane:@ROMFS/models/Ottano.json"
+        elif [[ $file == *"volanti"* ]]; then
+            model="quadplane:@ROMFS/models/Volanti.json"
+        else
+            echo "Unknown model in $file"
+            exit 1
         fi
     fi
     printf "rem Launch at Eli Field\r\n..\\${FIRMWARE_VERSION}-${COMMIT_ID}.exe -O 40.0594626,-88.5513292,206.0,0 --serial0 tcp:0 -M ${model} --defaults defaults.parm\r\n" > $destfolder/launch.bat
