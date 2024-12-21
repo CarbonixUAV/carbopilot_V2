@@ -28,6 +28,7 @@ import arduplane
 import ardusub
 import antennatracker
 import quadplane
+import carbonix
 import balancebot
 import sailboat
 import helicopter
@@ -282,6 +283,7 @@ __bin_names = {
     "Tracker": "antennatracker",
     "Helicopter": "arducopter-heli",
     "QuadPlane": "arduplane",
+    "Carbonix": "arduplane",
     "Sub": "ardusub",
     "Blimp": "blimp",
     "BalanceBot": "ardurover",
@@ -352,6 +354,7 @@ tester_class_map = {
     "test.CopterTests2b": arducopter.AutoTestCopterTests2b, # 8m18s
     "test.Plane": arduplane.AutoTestPlane,
     "test.QuadPlane": quadplane.AutoTestQuadPlane,
+    "test.Carbonix": carbonix.AutoTestCarbonix,
     "test.Rover": rover.AutoTestRover,
     "test.BalanceBot": balancebot.AutoTestBalanceBot,
     "test.Sailboat": sailboat.AutoTestSailboat,
@@ -772,7 +775,7 @@ def run_tests(steps):
     return passed
 
 
-vehicle_list = ['Sub', 'Copter', 'Plane', 'Tracker', 'Rover', 'QuadPlane', 'BalanceBot', 'Helicopter', 'Sailboat', 'Blimp']
+vehicle_list = ['Sub', 'Copter', 'Plane', 'Tracker', 'Rover', 'QuadPlane', 'Carbonix', 'BalanceBot', 'Helicopter', 'Sailboat', 'Blimp'] # noqa: E501
 
 
 def list_subtests():
@@ -1064,6 +1067,7 @@ if __name__ == "__main__":
         'build.Plane',
         'test.Plane',
         'test.QuadPlane',
+        'test.Carbonix',
 
         'build.Rover',
         'test.Rover',
