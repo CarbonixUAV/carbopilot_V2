@@ -8502,7 +8502,7 @@ Also, ignores heartbeats not from our target system'''
             start_sitl_args["defaults_filepath"] = self.defaults_filepath()
 
         if "model" not in start_sitl_args or start_sitl_args["model"] is None:
-            start_sitl_args["model"] = self.frame
+            start_sitl_args["model"] = self.get_model(self.frame)
         self.progress("Starting SITL", send_statustext=False)
         if binary is None:
             binary = self.binary
@@ -14045,6 +14045,15 @@ SERIAL5_BAUD 128
         for d in defaults_filepath:
             defaults_list.append(util.reltopdir(os.path.join(testdir, d)))
         return defaults_list
+
+    def get_model(self, frame):
+        vehicle = self.vehicleinfo_key()
+        vinfo = vehicleinfo.VehicleInfo()
+        try:
+            model = vinfo.options[vehicle]["frames"][frame]["model"]
+            return model if model is not None else frame
+        except KeyError:
+            return frame
 
     def load_default_params_file(self, filename):
         '''load a file from Tools/autotest/default_params'''
