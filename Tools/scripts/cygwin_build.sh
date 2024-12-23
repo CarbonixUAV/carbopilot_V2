@@ -33,10 +33,12 @@ mkdir artifacts
     # python ./waf rover 2>&1
     # python ./waf sub 2>&1
 
+# Carbonix: copy executable and vehicle bundles to the artifacts directory
+cp -v build/sitl/bin/arduplane artifacts/${FIRMWARE_VERSION}-${COMMIT_ID}.exe
+python Tools/autotest/cx_vehicle_bundle.py ${FIRMWARE_VERSION}-${COMMIT_ID}
+
 # copy both with exe and without to cope with differences
 # between windows versions in CI
-cp -v build/sitl/bin/arduplane artifacts/${FIRMWARE_VERSION}-${COMMIT_ID}.exe
-
 # cp -v build/sitl/bin/arduplane artifacts/ArduPlane.elf.exe
 # cp -v build/sitl/bin/arducopter artifacts/ArduCopter.elf.exe
 # cp -v build/sitl/bin/arducopter-heli artifacts/ArduHeli.elf.exe
@@ -56,36 +58,6 @@ for exe in artifacts/*.exe; do
     cygcheck $exe | grep -oP 'cyg[^\s\\/]+\.dll' | while read -r line; do
       cp -v /usr/bin/$line artifacts/
     done
-done
-
-# Process Carbonix SITL parameters and scripts
-for file in libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/sitl_params/*.parm
-do
-    destfolder=artifacts/$(basename $file .parm)-${FIRMWARE_VERSION}-${COMMIT_ID}
-    mkdir -p $destfolder
-    outfile=$destfolder/defaults.parm
-    echo "Processing $(basename $file)"
-    
-    # Run parse_sitl_params.py script passing full path to .parm file and output folder
-    python Tools/Carbonix_scripts/process_sitl_defaults.py $file $outfile
-
-    # Create batch script to launch SITL with the correct parameters
-    if [[ $file == *"realflight"* ]]; then
-        model="flightaxis"
-    else
-        if [[ $file == *"ottano"* ]]; then
-            model="quadplane:@ROMFS/models/Ottano.json"
-        elif [[ $file == *"volanti"* ]]; then
-            model="quadplane:@ROMFS/models/Volanti.json"
-        else
-            echo "Unknown model in $file"
-            exit 1
-        fi
-    fi
-    printf "rem Launch at Eli Field\r\n..\\${FIRMWARE_VERSION}-${COMMIT_ID}.exe -O 40.0594626,-88.5513292,206.0,0 --serial0 tcp:0 -M ${model} --defaults defaults.parm\r\n" > $destfolder/launch.bat
-
-    # Copy lua scripts
-    cp -vR libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts $destfolder
 done
 
 git log -1 > artifacts/git.txt
