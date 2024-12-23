@@ -64,6 +64,7 @@ function run_autotest() {
     NAME="$1"
     BVEHICLE="$2"
     RVEHICLE="$3"
+    FRAME="$4"
 
     # report on what cpu's we have for later log review if needed
     cat /proc/cpuinfo
@@ -89,7 +90,11 @@ function run_autotest() {
     if [ "$NAME" == "Examples" ]; then
         w="$w --speedup=5 --timeout=14400 --debug --no-clean"
     fi
-    Tools/autotest/autotest.py --show-test-timings --junit --waf-configure-args="$w" "$BVEHICLE" "$RVEHICLE"
+    extra=""
+    if [ "$FRAME" != "" ]; then
+        extra="--frame $FRAME"
+    fi
+    Tools/autotest/autotest.py --show-test-timings --junit --waf-configure-args="$w" "$BVEHICLE" "$RVEHICLE" $extra
     ccache -s && ccache -z
 }
 
@@ -141,6 +146,14 @@ for t in $CI_BUILD_TARGET; do
     fi
     if [ "$t" == "sitltest-quadplane" ]; then
         run_autotest "QuadPlane" "build.Plane" "test.QuadPlane"
+        continue
+    fi
+    if [ "$t" == "sitltest-carbonix-ottano" ]; then
+        run_autotest "Carbonix" "build.Plane" "test.Carbonix" "ottano-headless"
+        continue
+    fi
+    if [ "$t" == "sitltest-carbonix-volanti" ]; then
+        run_autotest "Carbonix" "build.Plane" "test.Carbonix" "volanti-headless"
         continue
     fi
     if [ "$t" == "sitltest-rover" ]; then

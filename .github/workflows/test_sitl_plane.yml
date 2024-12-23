@@ -220,6 +220,8 @@ jobs:
         config: [
             sitltest-plane,
             sitltest-quadplane,
+            sitltest-carbonix-ottano,
+            sitltest-carbonix-volanti,
         ]
 
     steps:
