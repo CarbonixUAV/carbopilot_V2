@@ -120,5 +120,17 @@
             <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/cx_vtol_info.lua</source_path>
             <destination_path>cx_vtol_info.lua</destination_path>
         </lua_script>
+        <lua_script>
+            <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/modules/bit_esc.lua</source_path>
+            <destination_path>modules/bit_esc.lua</destination_path>
+        </lua_script>
+        <lua_script>
+            <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/modules/msg.lua</source_path>
+            <destination_path>modules/msg.lua</destination_path>
+        </lua_script>
+        <lua_script>
+            <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/aircraft/volanti.lua</source_path>
+            <destination_path>modules/aircraft.lua</destination_path>
+        </lua_script>
     </lua_script_list>
 </data>
