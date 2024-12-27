@@ -175,8 +175,6 @@ local function update()
     for i, esc in ipairs(ESCs) do
         esc.rpm = math.sqrt(esc.thrust) * MAX_RPM
         esc.rpm = esc.rpm + gaussian_noise(RPM_NOISE * esc.rpm / 100)
-        -- Slew limit the RPM when going down
-        -- esc.rpm = math.max(esc.rpm, esc.rpm - RPM_SLEW_DOWN / UPDATE_HZ)
         esc.rpm = math.max(esc.rpm, 0)
         esc.rpm = math.floor(esc.rpm)
         local esc_current = 0
