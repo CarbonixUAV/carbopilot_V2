@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+
+<data>
+    <aircraft>
+        <model>Ottano</model>
+        <model_version>AC_1</model_version>
+        <model_description>
+            <!-- Flight Controller: -->
+            CubeOrange,
+            <!-- CAN Architecture: -->
+            Split CAN Architecture,
+            <!-- CAN Components: -->
+            Crystal CPNs,
+            CAN Servo,
+            adsb,
+            CAN GPS,
+            CAN Airspeed,
+            CAN Battery Monitor
+        </model_description>
+        <configuration_version>1</configuration_version>
+    </aircraft>
+    <flight_controller>
+        <board_name>CubeOrange-Ottano</board_name>
+        <firmware_commit>cx_pilot_commit_id</firmware_commit>
+        <firmware_path>arduplane.apj</firmware_path>
+    </flight_controller>
+    <cpn_list>
+        <cpn id="11">
+            <bus>1</bus>
+            <board_name>Ottano-M1_CarbonixF405</board_name>
+            <firmware_commit>cx_pilot_commit_id</firmware_commit>
+            <firmware_path>AP_Periph.bin</firmware_path>
+        </cpn>
+        <cpn id="15">
+            <bus>1</bus>
+            <board_name>Ottano-M5_CarbonixF405</board_name>
+            <firmware_commit>cx_pilot_commit_id</firmware_commit>
+            <firmware_path>AP_Periph.bin</firmware_path>
+        </cpn>
+        <cpn id="16">
+            <bus>1</bus>
+            <board_name>servo_.MKS-HBL6625:010</board_name>
+            <firmware_commit>b120233</firmware_commit>
+        </cpn>
+        <cpn id="17">
+            <bus>1</bus>
+            <board_name>servo_.MKS-HBL6625:006</board_name>
+            <firmware_commit>b120233</firmware_commit>
+        </cpn>
+        <cpn id="18">
+            <bus>1</bus>
+            <board_name>servo_.MKS-HBL6625:011</board_name>
+            <firmware_commit>b120233</firmware_commit>
+        </cpn>
+        <cpn id="19">
+            <bus>1</bus>
+            <board_name>gps_org.ardupilot.HolybroG4_GPS</board_name>
+            <firmware_commit>6e519848</firmware_commit>
+        </cpn>
+        <cpn id="24">
+            <bus>1</bus>
+            <board_name>Ottano-M4_CarbonixF405</board_name>
+            <firmware_commit>cx_pilot_commit_id</firmware_commit>
+            <firmware_path>AP_Periph.bin</firmware_path>
+        </cpn>
+        <cpn id="30">
+            <bus>1</bus>
+            <board_name>batt_mon_io.p-systems.power-monitor</board_name>
+            <firmware_commit>108b4bb7</firmware_commit>
+        </cpn>
+        <cpn id="101">
+            <bus>1</bus>
+            <board_name>arspd_org.ardupilot.f405_MatekGPS</board_name>
+            <firmware_commit>158c7c49</firmware_commit>
+        </cpn>
+        <cpn id="105">
+            <bus>1</bus>
+            <board_name>adsb_org.ardupilot.MatekL431-ADSB</board_name>
+            <firmware_commit>9c6f307f</firmware_commit>
+        </cpn>
+        <cpn id="23">
+            <bus>2</bus>
+            <board_name>Ottano-M3_CarbonixF405</board_name>
+            <firmware_commit>cx_pilot_commit_id</firmware_commit>
+            <firmware_path>AP_Periph.bin</firmware_path>
+        </cpn>
+        <cpn id="12">
+            <bus>2</bus>
+            <board_name>Ottano-M2_CarbonixF405</board_name>
+            <firmware_commit>cx_pilot_commit_id</firmware_commit>
+            <firmware_path>AP_Periph.bin</firmware_path>
+        </cpn>
+        <cpn id="26">
+            <bus>2</bus>
+            <board_name>servo_.MKS-HBL6625:010</board_name>
+            <firmware_commit>b120233</firmware_commit>
+        </cpn>
+        <cpn id="27">
+            <bus>2</bus>
+            <board_name>servo_.MKS-HBL6625:006</board_name>
+            <firmware_commit>b120233</firmware_commit>
+        </cpn>
+        <cpn id="28">
+            <bus>2</bus>
+            <board_name>servo_.MKS-HBL6625:011</board_name>
+            <firmware_commit>b120233</firmware_commit>
+        </cpn>
+        <cpn id="29">
+            <bus>2</bus>
+            <board_name>gps_org.ardupilot.HolybroG4_GPS</board_name>
+            <firmware_commit>6e519848</firmware_commit>
+        </cpn>
+        <cpn id="102">
+            <bus>2</bus>
+            <board_name>arspd_org.ardupilot.f405_MatekGPS</board_name>
+            <firmware_commit>158c7c49</firmware_commit>
+        </cpn>
+    </cpn_list>
+    <esc_list>
+    </esc_list>
+    <airspeed_list>
+    </airspeed_list>
+    <battery_list>
+    </battery_list>
+    <barometer_list>
+    </barometer_list>
+    <lidar_list>
+    </lidar_list>
+</data>
