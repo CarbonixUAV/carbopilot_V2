@@ -96,4 +96,18 @@
     </barometer_list>
     <lidar_list>
     </lidar_list>
+    <lua_script_list>
+        <lua_script>
+            <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/cx_built_in_test.lua</source_path>
+            <destination_path>cx_built_in_test.lua</destination_path>
+        </lua_script>
+        <lua_script>
+            <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/cx_led_driver.lua</source_path>
+            <destination_path>cx_led_driver.lua</destination_path>
+        </lua_script>
+        <lua_script>
+            <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/cx_vtol_info.lua</source_path>
+            <destination_path>cx_vtol_info.lua</destination_path>
+        </lua_script>
+    </lua_script_list>
 </data>
