@@ -135,8 +135,199 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  setup-s3-path:
+    runs-on: ubuntu-22.04
+    outputs:
+      s3_path: ${{ steps.set-s3-path.outputs.s3_path }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract firmware version, commit id, and branch name
+        id: extract_info
+        run: |
+          FIRMWARE_VERSION=$(grep -oP 'define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/version.inc)
+          COMMIT_ID=$(git rev-parse --short HEAD)
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+          echo "firmware_version=$FIRMWARE_VERSION" >> $GITHUB_ENV
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+        shell: bash
+        
+      - name: Set S3 Path
+        id: set-s3-path
+        run: |
+          DATE_HR=$(date +%Y%m%d_%H%M)
+          if [ "${{ github.event_name }}" == "release" ]; then
+            PATH_TO_S3=s3://carbonix-firmware-release-files/Carbopilot_V2/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}/
+            echo "Release to: $PATH_TO_S3"
+          elif [ "${{ github.event_name }}" == "push" ] && [[ "${{ env.branch_name }}" == CxPilot* ]]; then
+            PATH_TO_S3=s3://carbonix-firmware-dev-files/Carbopilot_V2/${{ env.branch_name }}/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}/
+            echo "PUSH : $PATH_TO_S3"
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            PATH_TO_S3=s3://carbonix-firmware-dev-files/Carbopilot_V2/PR/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}_${{ github.event.pull_request.number }}/
+            echo "PR : $PATH_TO_S3"
+          else
+            PATH_TO_S3="s3://carbonix-firmware-dev-files/Carbopilot_V2/Manual/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}/"
+            echo "Manual trigger or other: $PATH_TO_S3"
+          fi
+          echo "s3_path=${PATH_TO_S3}" >> $GITHUB_OUTPUT
+        shell: bash
+  
+  build-periph:
+    runs-on: ubuntu-22.04
+    needs: setup-s3-path
+    container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [
+          CarbonixF405,
+          CarbonixF405-no-crystal
+        ]
+        
+        toolchain: [ chibios ]
+        gcc: [10]
+        exclude:
+          - gcc: 10
+            toolchain: chibios-clang
+
+    steps:
+      - uses: actions/checkout@v4
+          
+      - name: Prepare ccache timestamp
+        id: ccache_cache_timestamp
+        run: |
+          NOW=$(date -u +"%F-%T")
+          echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
+          
+      - name: ccache cache files
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+          restore-keys: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}
+          
+      - name: setup ccache
+        run: |
+          . .github/workflows/ccache.env
+
+      - name: Install bash tools
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install xxd
+
+      - name: build ${{matrix.config}}
+        shell: bash
+        run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
+          if [[ ${{ matrix.toolchain }} == "chibios-clang" ]]; then
+          export CC=clang
+          export CXX=clang++
+          fi
+          PATH="/usr/lib/ccache:/opt/gcc-arm-none-eabi-${{matrix.gcc}}/bin:$PATH"
+          PATH="/github/home/.local/bin:$PATH"
+          Tools/Carbonix_scripts/carbonix_waf_build.sh ${{ matrix.config }}
+          ccache -s
+          ccache -z
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-periph-${{ matrix.config }}
+          path: output/
+  
+  collect-aircraft-config-files:
+    runs-on: ubuntu-22.04
+    needs: build-periph
+    outputs:
+      aircraft-config-files: ${{ steps.collect.outputs.aircraft-config-files }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Collect XML files
+        id: collect
+        run: |
+          xml_files=$(find libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_configuration -name "*.xml" -print0 | xargs -0 echo | tr -d '\n' | jq -R -s -c 'split(" ")')
+          echo "aircraft-config-files=$xml_files" >> $GITHUB_OUTPUT
+
+  process-ac:
+    runs-on: ubuntu-22.04
+    needs: [collect-aircraft-config-files, setup-s3-path]
+    container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
+    strategy:
+      fail-fast: false
+      matrix:
+        xml_file: ${{ fromJson(needs.collect-aircraft-config-files.outputs.aircraft-config-files) }}
+        toolchain: [ chibios ]
+        gcc: [10]
+        exclude:
+          - gcc: 10
+            toolchain: chibios-clang
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install bash tools
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install xxd
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: periph-build/
+
+      - name: List files
+        run: |
+          ls -la periph-build/*/
+      
+      - name: Configure Git Safe Directory
+        run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
+
+      - name: Get Commit ID
+        id: get_commit_id
+        run: |
+          COMMIT_ID=$(git rev-parse --short HEAD)
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+        shell: sh -e {0}
+
+      - name: Run aircraft_config.py
+        run: |
+          python Tools/Carbonix_scripts/aircraft_config.py ${{ matrix.xml_file }} ${{ env.commit_id }}
+          ls -la final-output/*/ || echo "No files found"
+      
+      - name: Install AWS CLI
+        run: |
+          apt-get update -y
+          DEBIAN_FRONTEND=noninteractive apt-get install -y curl unzip
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          ./aws/install --update
+  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+  
+      - name: Upload to S3
+        run: |
+          PATH_TO_S3=${{ needs.setup-s3-path.outputs.s3_path }}
+          echo "Uploading Artifacts to: $PATH_TO_S3"
+          aws s3 cp final-output/ $PATH_TO_S3 --recursive
+
   build-sitl:
     runs-on: 'windows-latest'
+    needs: setup-s3-path
     steps:
       - uses: actions/checkout@v4
         with:
@@ -171,12 +362,14 @@ jobs:
           echo "export CCACHE_MAXSIZE=400M" >> ~/ccache.conf &&
           source ~/ccache.conf &&
           ccache -s
+
       - name: ccache cache files
         uses: actions/cache@v4
         with:
           path: D:/a/ardupilot/ardupilot/ccache
           key: ${{ steps.ccache_cache_timestamp.outputs.cache-key }}-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
           restore-keys: ${{ steps.ccache_cache_timestamp.outputs.cache-key }}-ccache-  # restore ccache from either previous build on this branch or on base branch
+          
       - name: Prepare Python environment
         env:
           PATH: /usr/bin:$(cygpath ${SYSTEMROOT})/system32
@@ -216,121 +409,10 @@ jobs:
            path: artifacts
            retention-days: 90
 
-  build-apj:
-    runs-on: ubuntu-22.04
-    container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
-    strategy:
-      fail-fast: false  # don't cancel if a job from the matrix fails
-      matrix:
-        toolchain: [
-            chibios,
-            #chibios-clang,
-        ]
-        gcc: [10]
-        exclude:
-          - gcc: 10
-            toolchain: chibios-clang
-
-    steps:
-      # git checkout the PR
-      - uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-      # Put ccache into github cache for faster build
-      - name: Prepare ccache timestamp
-        id: ccache_cache_timestamp
-        run: |
-          NOW=$(date -u +"%F-%T")
-          echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
-      - name: ccache cache files
-        uses: actions/cache@v4
-        with:
-          path: ~/.ccache
-          key: ${{github.workflow}}-ccache-${{ matrix.toolchain }}-${{ matrix.gcc }}-${{steps.ccache_cache_timestamp.outputs.timestamp}}
-          restore-keys: ${{github.workflow}}-ccache-${{ matrix.toolchain }}-${{ matrix.gcc }}  # restore ccache from either previous build on this branch or on master
-      - name: setup ccache
-        run: |
-          . .github/workflows/ccache.env
-
-      - name: build
-        shell: bash
-        run: |
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          if [[ ${{ matrix.toolchain }} == "chibios-clang" ]]; then
-            export CC=clang
-            export CXX=clang++
-          fi
-          PATH="/usr/lib/ccache:/opt/gcc-arm-none-eabi-${{matrix.gcc}}/bin:$PATH"
-          PATH="/github/home/.local/bin:$PATH"
-          Tools/Carbonix_scripts/carbonix_waf_build.sh
-          ccache -s
-          ccache -z
-
-      - name: Check build files
-        id: check_files
-        uses: andstor/file-existence-action@v2
-        with:
-          files: "build/CubeOrange/*, build/CubeOrangePlus/*, build/CubeOrange-Volanti/*, build/CubeOrangePlus-Volanti/*, build/CubeOrange-Ottano/*, build/CubeOrangePlus-Ottano/*, build/CarbonixF405/*, build/CarbonixF405-no-crystal/*"
-          fail: true
-      - name: Gather build output
-        run: |
-          mkdir -p temp/others
-          for dir in CubeOrange CubeOrangePlus CubeOrange-Volanti CubeOrangePlus-Volanti CubeOrange-Ottano CubeOrangePlus-Ottano CarbonixF405 CarbonixF405-no-crystal; do
-            mkdir -p temp/others/$dir/bin
-            cp -vr build/$dir/bin/* temp/others/$dir/bin/
-          done
-          cp -vr output/* temp/
-          mv temp/others/CubeOrange-Volanti temp/Volanti
-          mv temp/others/CubeOrangePlus-Volanti temp/Volanti
-          mv temp/others/CubeOrange-Ottano temp/Ottano
-          mv temp/others/CubeOrangePlus-Ottano temp/Ottano
-          if [ -d "ArduPlane/ReleaseNotes.txt" ]; then
-            cp -v ArduPlane/ReleaseNotes.txt temp/
-          else
-            echo "ReleaseNotes.txt File does not exist"
-          fi
-          if [ -d "libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/payloads" ]; then
-            cp -vr libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/payloads temp/
-          else
-            echo "payloads Folder does not exist"
-          fi
-        shell: sh -e {0}
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: apj
-          path: temp
-          retention-days: 90
-
-  upload:
-    runs-on: ubuntu-22.04
-    needs: [build-apj, build-sitl]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Extract firmware version, commit id, and branch name
-        id: extract_info
-        run: |
-          FIRMWARE_VERSION=$(grep -oP 'define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/version.inc)
-          COMMIT_ID=$(git rev-parse --short HEAD)
-          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
-          echo "firmware_version=$FIRMWARE_VERSION" >> $GITHUB_ENV
-          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
-        shell: sh -e {0}
-  
-      - name: Download APJ build
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: apj
           path: temp
-
-      - name: Download SITL build
-        uses: actions/download-artifact@v4
-        with:
-          name: sitl
-          path: temp/sitl
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -338,20 +420,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
           aws-region: us-east-1 
-                
+
       - name: Upload artifacts to S3
+        shell: pwsh
         run: |
-          DATE_HR=$(date +%Y%m%d_%H%M)
-          if ${{ github.event_name == 'release' }}; then
-            PATH_TO_S3=s3://carbonix-firmware-release-files/Carbopilot_V2/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}/
-            echo "Uploading to: $PATH_TO_S3"
-            aws s3 cp temp/ $PATH_TO_S3 --recursive
-          elif ${{ github.event_name == 'push' && startsWith(env.branch_name, 'CxPilot') }}; then
-            PATH_TO_S3=s3://carbonix-firmware-dev-files/Carbopilot_V2/${{ env.branch_name }}/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}/
-            echo "Uploading to: $PATH_TO_S3"
-            aws s3 cp temp/ $PATH_TO_S3 --recursive
-          elif ${{ github.event_name == 'pull_request' }}; then
-            PATH_TO_S3=s3://carbonix-firmware-dev-files/Carbopilot_V2/PR/${DATE_HR}_${{ env.firmware_version }}_${{ env.commit_id }}_${{ github.event.pull_request.number }}/
-            echo "Uploading to: $PATH_TO_S3"
-            aws s3 cp temp/ $PATH_TO_S3 --recursive
-          fi
+          $env:PATH_TO_S3 = '${{ needs.setup-s3-path.outputs.s3_path }}'
+          echo "Uploading to: $env:PATH_TO_S3"
+          aws s3 cp temp/ $env:PATH_TO_S3 --recursive
