@@ -143,6 +143,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # PR runs, by default, create a merge commit and then checkout the merge commit. We don't want that.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
 
       - name: Extract firmware version, commit id, and branch name
         id: extract_info
@@ -196,6 +199,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # PR runs, by default, create a merge commit and then checkout the merge commit. We don't want that.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
+          submodules: 'recursive'
           
       - name: Prepare ccache timestamp
         id: ccache_cache_timestamp
@@ -248,6 +255,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # PR runs, by default, create a merge commit and then checkout the merge commit. We don't want that.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -276,6 +286,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          # PR runs, by default, create a merge commit and then checkout the merge commit. We don't want that.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
           submodules: 'recursive'
 
       - name: Install bash tools
@@ -336,6 +348,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # PR runs, by default, create a merge commit and then checkout the merge commit. We don't want that.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
           submodules: 'recursive'
       - name: Prepare ccache timestamp
         id: ccache_cache_timestamp
