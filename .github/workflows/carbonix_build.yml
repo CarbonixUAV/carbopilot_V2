@@ -137,6 +137,7 @@ concurrency:
 jobs:
   setup-s3-path:
     runs-on: ubuntu-22.04
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
     outputs:
       s3_path: ${{ steps.set-s3-path.outputs.s3_path }}
     steps:
@@ -176,6 +177,7 @@ jobs:
   
   build-periph:
     runs-on: ubuntu-22.04
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
     needs: setup-s3-path
     container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
     strategy:
@@ -238,6 +240,7 @@ jobs:
           path: output/
   
   collect-aircraft-config-files:
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
     runs-on: ubuntu-22.04
     needs: build-periph
     outputs:
@@ -256,6 +259,7 @@ jobs:
           echo "aircraft-config-files=$xml_files" >> $GITHUB_OUTPUT
 
   process-ac:
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
     runs-on: ubuntu-22.04
     needs: [collect-aircraft-config-files, setup-s3-path]
     container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
@@ -327,6 +331,7 @@ jobs:
 
   build-sitl:
     runs-on: 'windows-latest'
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
     needs: setup-s3-path
     steps:
       - uses: actions/checkout@v4
