@@ -1,5 +1,6 @@
 local cx_msg = require("msg")
 local cx_esc = require("bit_esc")
+local cx_gps = require("bit_gps")
 
 -- Add subsystems that require Built-in-test (implemented in subsystems)
 -- Each subsystem should have the following functions:
@@ -9,6 +10,7 @@ local cx_esc = require("bit_esc")
 --                       - built in test errors are managed by each subsystem
 local subsystems = {
     cx_esc,
+    cx_gps,
 }
 
 -- auth id for prearm check
