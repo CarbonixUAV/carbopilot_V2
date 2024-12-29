@@ -198,9 +198,23 @@ void GPS_UBlox::publish(const GPS_Data *d)
     pos.horizontal_accuracy = _sitl->gps_accuracy[instance]*1000;
     pos.vertical_accuracy = _sitl->gps_accuracy[instance]*1000;
 
+    const uint8_t fix_type = d->have_lock ? _sitl->gps_fix_type[instance] : GPS::FixType::FIX_NONE;
+    uint8_t ubx_fix_type = 0;
+    if (fix_type == GPS::FixType::FIX_2D) {
+        ubx_fix_type = 2;
+    } else if (fix_type >= GPS::FixType::FIX_3D) {
+        ubx_fix_type = 3;
+    }
+    uint8_t ubx_fix_status = 0b1100; // time/date valid
+    if (fix_type >= GPS::FixType::FIX_2D) {
+        ubx_fix_status |= d->have_lock? 0b01 : 0; // gpsfixok
+    }
+    if (fix_type >= GPS::FixType::FIX_DGPS) {
+        ubx_fix_status |= 0b10; // diffsoln
+    }
     status.time = gps_tow.ms;
-    status.fix_type = d->have_lock?3:0;
-    status.fix_status = d->have_lock?1:0;
+    status.fix_type = ubx_fix_type;
+    status.fix_status = ubx_fix_status;
     status.differential_status = 0;
     status.res = 0;
     status.time_to_first_fix = 0;
@@ -220,8 +234,8 @@ void GPS_UBlox::publish(const GPS_Data *d)
     velned.heading_accuracy = 4;
 
     memset(&sol, 0, sizeof(sol));
-    sol.fix_type = d->have_lock?3:0;
-    sol.fix_status = 221;
+    sol.fix_type = ubx_fix_type;
+    sol.fix_status = ubx_fix_status;
     sol.satellites = d->have_lock ? _sitl->gps_numsats[instance] : 3;
     sol.time = gps_tow.ms;
     sol.week = gps_tow.week;
@@ -235,6 +249,19 @@ void GPS_UBlox::publish(const GPS_Data *d)
     dop.nDOP = 65535;
     dop.eDOP = 65535;
 
+    uint8_t ubx_pvt_flags = 0b00000000;
+    if (fix_type >= GPS::FixType::FIX_2D) {
+        ubx_pvt_flags |= 0b00000001; // gpsfixok
+    } 
+    if (fix_type >= GPS::FixType::FIX_DGPS) {
+        ubx_pvt_flags |= 0b00000010; // diffsoln
+    }
+    if (fix_type == GPS::FixType::FIX_RTK_FLOAT) {
+        ubx_pvt_flags |= 0b01000000; // carrsoln - float
+    }
+    if (fix_type == GPS::FixType::FIX_RTK_FIXED) {
+        ubx_pvt_flags |= 0b10000000; // carrsoln - fixed
+    }
     pvt.itow = gps_tow.ms;
     pvt.year = 0;
     pvt.month = 0;
@@ -245,8 +272,8 @@ void GPS_UBlox::publish(const GPS_Data *d)
     pvt.valid = 0; // invalid utc date
     pvt.t_acc = 0;
     pvt.nano = 0;
-    pvt.fix_type = d->have_lock? 0x3 : 0;
-    pvt.flags = 0b10000011; // carrsoln=fixed, psm = na, diffsoln and fixok
+    pvt.fix_type = ubx_fix_type;
+    pvt.flags = ubx_pvt_flags;
     pvt.flags2 =0;
     pvt.num_sv = d->have_lock ? _sitl->gps_numsats[instance] : 3;
     pvt.lon = d->longitude * 1.0e7;
