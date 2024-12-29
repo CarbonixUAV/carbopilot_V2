@@ -36,6 +36,29 @@ local function clear_prearm_error()
     arming:set_aux_auth_passed(auth_id)
 end
 
+local function bind_param(name)
+    local p = Parameter()
+    assert(p:init(name), string.format('could not find %s parameter', name))
+    return p
+end
+
+local function bind_add_param(name, idx, default_value)
+    assert(param:add_param(PARAM_TABLE_KEY, idx, name, default_value), string.format('could not add param %s', name))
+    return bind_param(PARAM_TABLE_PREFIX .. name)
+end
+
+-- Set up EFI parameters
+PARAM_TABLE_PREFIX = 'BIT_'
+PARAM_TABLE_KEY = 1
+assert(param:add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 1), 'could not add ' .. string.sub(PARAM_TABLE_PREFIX, 1, -2) .. ' param table')
+--[[
+  // @Param: BIT_PREARM_DIS
+  // @DisplayName: Built-In-Test Prearm Bypass Mask
+  // @Description: Allows bypassing prearm checks for individual subsystems
+  // @Bitmask: 0:ESC, 1:GPS
+--]]
+local PREARM_BYPASS = bind_add_param('PREARM_DIS', 1, 0)
+
 -- initialize function
 local function init()
     -- initialize all subsystems that are part of constructor
@@ -54,8 +77,12 @@ local function check_prearm_status()
     -- Track errors in subsystems
     local subsystems_with_errors = {}
     local msg = ""
-    for _, subsystem in pairs(subsystems) do
-        local errors = subsystem:check_for_errors()
+    local disabled_mask = PREARM_BYPASS:get() or 0
+    for i, subsystem in pairs(subsystems) do
+        local errors = {}
+        if disabled_mask & (1 << (i - 1)) == 0 then
+            errors = subsystem:check_for_errors()
+        end
         if #errors > 0 then
             table.insert(subsystems_with_errors, subsystem.name)
             for _, error in pairs(errors) do
