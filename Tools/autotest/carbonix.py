@@ -74,6 +74,13 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             self.wait_text(lost_text, check_context=True)
             self.progress("'" + lost_text + "':" + ' Success!')
 
+            # Check that the prearm disable parameter works
+            self.progress('Checking prearm disable parameter')
+            self.set_parameter('BIT_PREARM_DIS', 0b1)
+            self.wait_ready_to_arm()
+            self.set_parameter('BIT_PREARM_DIS', 0)
+            self.wait_not_ready_to_arm()
+
             # Clear the failure
             self.progress(f'Clearing ESC telemetry failure for ESC {index}')
             self.context_clear_collection('STATUSTEXT')
@@ -162,6 +169,13 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             # Reduce the number of satellites to trigger a prearm failure
             self.progress(f'Reducing number of satellites for GPS {index}')
             self.set_parameter(this_numsats, 6)
+            self.wait_not_ready_to_arm()
+
+            # Check that the prearm disable parameter works
+            self.progress('Checking prearm disable parameter')
+            self.set_parameter('BIT_PREARM_DIS', 0b10)
+            self.wait_ready_to_arm()
+            self.set_parameter('BIT_PREARM_DIS', 0)
             self.wait_not_ready_to_arm()
 
             # Restore the number of satellites
