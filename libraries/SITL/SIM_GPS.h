@@ -128,6 +128,15 @@ public:
 #endif
     };
 
+    enum FixType {
+        FIX_NONE = 1,
+        FIX_2D = 2,
+        FIX_3D = 3,
+        FIX_DGPS = 4,
+        FIX_RTK_FLOAT = 5,
+        FIX_RTK_FIXED = 6,
+    };
+
     GPS(uint8_t _instance);
 
     // update state

@@ -652,6 +652,12 @@ const AP_Param::GroupInfo SIM::var_gps[] = {
     // @User: Advanced
     // @Values: 0:Disabled, 1:Enabled
     AP_GROUPINFO("GPS_JAM",       16, SIM,  gps_jam[0], 0),
+    // @Param: GPS_FIXTYPE
+    // @DisplayName: GPS fix type
+    // @Description: Set the fix type (3D, RTK, etc) of the simulated GPS
+    // @User: Advanced
+    // @Values: 1:None, 2:2D, 3:3D, 4:DGPS, 5:RTK Fixed, 6:RTK Float
+    AP_GROUPINFO("GPS_FIXTYPE",  17, SIM,  gps_fix_type[0], GPS::FixType::FIX_RTK_FIXED),
     // @Param: GPS2_DISABLE
     // @DisplayName: GPS 2 disable
     // @Description: Disables GPS 2
@@ -761,6 +767,11 @@ const AP_Param::GroupInfo SIM::var_gps[] = {
     // @User: Advanced
     // @Values: 0:Disabled, 1:Enabled
     AP_GROUPINFO("GPS2_JAM",      49, SIM,  gps_jam[1], 0),
+    // @Param: GPS2_FIXTYPE
+    // @CopyFieldsFrom: SIM_GPS_FIXTYPE
+    // @DisplayName: GPS 2 fix type
+    // @Description: Set the fix type (3D, RTK, etc) of the second simulated GPS
+    AP_GROUPINFO("GPS2_FIXTYPE",  50, SIM,  gps_fix_type[1], GPS::FixType::FIX_RTK_FIXED),
 
     AP_GROUPEND
 };
