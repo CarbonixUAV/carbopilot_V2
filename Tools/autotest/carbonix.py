@@ -140,6 +140,53 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             self.disarm_vehicle()
             self.context_pop()
 
+        def TestGPSPrearm(index):
+            '''Test GPS prearm checks'''
+            index = int(index)
+            self.context_push()
+
+            # Get the parameter names for the GPSs
+            if index == 0:
+                this_numsats = 'SIM_GPS_NUMSATS'
+                other_numsats = 'SIM_GPS2_NUMSATS'
+                this_fixtype = 'SIM_GPS_FIXTYPE'
+            elif index == 1:
+                this_numsats = 'SIM_GPS2_NUMSATS'
+                other_numsats = 'SIM_GPS_NUMSATS'
+                this_fixtype = 'SIM_GPS2_FIXTYPE'
+            else:
+                raise ValueError('Only 2 GPSs are supported')
+            self.set_parameters({this_numsats: 30, other_numsats: 30})
+            self.wait_ready_to_arm()
+
+            # Reduce the number of satellites to trigger a prearm failure
+            self.progress(f'Reducing number of satellites for GPS {index}')
+            self.set_parameter(this_numsats, 6)
+            self.wait_not_ready_to_arm()
+
+            # Restore the number of satellites
+            self.progress(f'Restoring number of satellites for GPS {index}')
+            self.set_parameter(this_numsats, 30)
+            self.wait_ready_to_arm()
+
+            # Cause a large satellite count difference between the two GPSs
+            self.progress('Causing large satellite count difference')
+            self.set_parameters({this_numsats: 30, other_numsats: 50})
+            self.wait_not_ready_to_arm()
+
+            # Check that our script does not complain about low satellite count
+            # when there is insufficient fix (the existing GPS prearm check
+            # should be the one to complain about lack of fix)
+            self.progress('Checking low satellite count with no fix')
+            self.set_parameter(this_fixtype, 1) # No fix
+            # Disable ArduPilot's GPS prearm check to use wait_ready_to_arm
+            # (23 bits, except for bits 0 and 3)
+            self.set_parameter('ARMING_CHECK', 0x7FFFF6)
+            self.wait_ready_to_arm()
+
+            # Restore everything
+            self.context_pop()
+
         # Count the number of ESCs
         frame_class = self.get_parameter('Q_FRAME_CLASS')
         if frame_class == 1:  # Quad
@@ -176,6 +223,10 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             TestMotorFail(i, vtol_servos[i])
         if not has_engine:
             TestMotorFail(num_vtols, pusher_servo, is_pusher=True)
+
+        self.start_subtest('Test GPS')
+        for i in range(2):
+            TestGPSPrearm(i)
 
     def disabled_tests(self):
         return dict()
