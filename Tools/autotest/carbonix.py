@@ -91,6 +91,16 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             # Confirm we didn't get lost/recovered/lost/recovered during that time
             self.assert_no_text(lost_text, timeout=1, regex=True, check_context=True)
 
+            # Engage the safety switch and trigger a telemetry failure, and
+            # confirm that we don't get the telemetry lost message
+            self.progress(f'Engaging safety switch and failing ESC telemetry for ESC {index}')
+            self.context_clear_collection('STATUSTEXT')
+            self.set_safetyswitch_on()
+            self.set_parameter('SIM_ESC_TLM_FAIL', 1 << index)
+            self.assert_no_text('^CX_BIT:.*', regex=True, check_context=True)
+            self.set_parameter('SIM_ESC_TLM_FAIL', 0)
+            self.set_safetyswitch_off()
+
             # And one more time, confirm no error messages are present
             self.context_clear_collection('STATUSTEXT')
             # TODO: clean this line up too when Servo Out nil is fixed
