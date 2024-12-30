@@ -354,6 +354,14 @@ jobs:
           echo "Uploading Artifacts to: $PATH_TO_S3"
           aws s3 cp final-output/ $PATH_TO_S3 --recursive
 
+      - name: Upload build artifacts
+        if: ${{ env.exists == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.xml_file }}
+          path: final-output/${{ matrix.xml_file }}/
+        
+
   build-sitl:
     runs-on: 'windows-latest'
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
@@ -459,3 +467,84 @@ jobs:
           $env:PATH_TO_S3 = '${{ needs.setup-s3-path.outputs.s3_path }}'
           echo "Uploading to: $env:PATH_TO_S3"
           aws s3 cp temp/ $env:PATH_TO_S3 --recursive
+
+  build-upload-zip:
+    runs-on: ubuntu-22.04
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
+    needs: [process-ac, build-sitl, setup-s3-path]
+    steps:
+      - name: Extract folder name from s3_path
+        id: extract-folder-name
+        run: |
+          s3_path="${{ needs.setup-s3-path.outputs.s3_path }}"
+          folder_name=$(basename "$s3_path")
+          echo "folder_name=$folder_name" >> $GITHUB_ENV
+
+      - name: Create folder from s3_path
+        run: mkdir -p aircraft_zip
+
+      - name: List available artifacts
+        id: list-artifacts
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            return artifacts.data.artifacts.map(artifact => artifact.name);
+
+      - name: Filter artifacts
+        id: filter-artifacts
+        run: |
+          echo "Filtered artifacts:" > filtered_artifacts.txt
+          for artifact in ${{ steps.list-artifacts.outputs.result }}; do
+            if [[ $artifact =~ .*_AC_.*[0-9]+(\.[0-9]+)? ]]; then
+              echo $artifact >> filtered_artifacts.txt
+            fi
+          done
+          echo "sitl" >> filtered_artifacts.txt
+          cat filtered_artifacts.txt
+
+      - name: Download filtered artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.filter-artifacts.outputs.result }}
+          path: aircraft_zip/
+      
+      - name: Delete unnecessary folders
+        run: |
+          rm -rf aircraft_zip/build-periph-*
+
+      - name: List downloaded files
+        run: ls -R aircraft_zip/
+      
+      - name: Install p7zip
+        run: sudo apt-get install -y p7zip-full
+
+      - name: 7zip the folder
+        run: |
+          cd aircraft_zip
+          7z a ../${{ env.folder_name }}.7z .
+
+      - name: Upload 7z folder to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.folder_name }}
+          path: ${{ env.folder_name }}.7z
+          retention-days: 15
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Upload 7z folder to S3
+        run: |
+          PATH_TO_S3=${{ needs.setup-s3-path.outputs.s3_path }}
+          # Remove trailing slash if it exists
+          PATH_TO_S3=${PATH_TO_S3%/}
+          echo "Uploading to: $PATH_TO_S3"
+          aws s3 cp ${{ env.folder_name }}.7z $PATH_TO_S3/${{ env.folder_name }}.7z
