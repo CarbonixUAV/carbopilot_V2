@@ -92,28 +92,24 @@ function ESC:update()
         -- Nil check for RPM reading
         elseif not esc_rpm then
             self.esc_rpm_nil_counter[i] = self.esc_rpm_nil_counter[i] + 1
-            if self.esc_rpm_nil_counter[i] < self.NIL_WARN_THRESHOLD then
-                cx_msg:send(cx_msg.MAV_SEVERITY.INFO, "ESC " .. i .. " RPM nil")
-            elseif self.srv_rpm_in_err_status[i] == false then
-                cx_msg:send(cx_msg.MAV_SEVERITY.CRITICAL, "ESC " .. i .. " RPM nil")
+            if self.esc_rpm_nil_counter[i] > self.NIL_WARN_THRESHOLD and self.srv_rpm_in_err_status[i] == false then
+                cx_msg:send(cx_msg.MAV_SEVERITY.CRITICAL, "ESC " .. i .. " Telemetry Lost")
                 self.srv_telem_in_err_status[i] = true
             end
         -- Nil check for servo output
         elseif not servo_out then
             self.servo_out_nil_counter[i] = self.servo_out_nil_counter[i] + 1
-            if self.servo_out_nil_counter[i] < self.NIL_WARN_THRESHOLD then
-                cx_msg:send(cx_msg.MAV_SEVERITY.INFO, "ESC " .. i .. " Servo Out nil")
-            elseif self.srv_rpm_in_err_status[i] == false then
-                cx_msg:send(cx_msg.MAV_SEVERITY.CRITICAL, "ESC " .. i .. " Servo Out nil")
+            if self.servo_out_nil_counter[i] > self.NIL_WARN_THRESHOLD and self.srv_rpm_in_err_status[i] == false then
+                cx_msg:send(cx_msg.MAV_SEVERITY.CRITICAL, "ESC " .. i .. " Telemetry Lost")
                 self.srv_telem_in_err_status[i] = true
             end
         -- Telemetry data is fresh and valid
         else
+            self.servo_out_nil_counter[i] = 0
+            self.esc_rpm_nil_counter[i] = 0
             if self.srv_telem_in_err_status[i] == true then
                 cx_msg:send(cx_msg.MAV_SEVERITY.INFO, "ESC " .. i .. " Telemetry Recovered")
                 self.srv_telem_in_err_status[i] = false
-                self.servo_out_nil_counter[i] = 0
-                self.esc_rpm_nil_counter[i] = 0
             end
             -- If armed, check that the motor is actually turning when it is commanded to
             if arming:is_armed() then
