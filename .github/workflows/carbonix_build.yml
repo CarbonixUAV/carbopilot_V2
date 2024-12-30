@@ -265,7 +265,10 @@ jobs:
       - name: Collect XML files
         id: collect
         run: |
-          xml_files=$(find libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_configuration -name "*.xml" -print0 | xargs -0 echo | tr -d '\n' | jq -R -s -c 'split(" ")')
+          xml_files=$(find libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_configuration -name "*.xml" -print0 | \
+            xargs -0 -n 1 basename | \
+            sed 's/.xml$//' | \
+            jq -R -s -c 'split("\n")[:-1]')
           echo "aircraft-config-files=$xml_files" >> $GITHUB_OUTPUT
 
   process-ac:
@@ -317,8 +320,7 @@ jobs:
 
       - name: Run aircraft_config.py
         run: |
-          python Tools/Carbonix_scripts/aircraft_config.py ${{ matrix.xml_file }} ${{ env.commit_id }}
-          ls -la final-output/*/ || echo "No files found"
+          python Tools/Carbonix_scripts/aircraft_config.py "libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_configuration/${{ matrix.xml_file }}.xml" "${{ env.commit_id }}"
       
       - name: Install AWS CLI
         run: |
