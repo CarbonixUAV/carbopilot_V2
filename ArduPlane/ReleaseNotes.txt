@@ -1,3 +1,43 @@
+Release 7.1.0-beta1 3rd January 2025
+------------------------------------------------------------------
+
+Ottano Changes:
+  - Safety is now engaged on boot. This was a regression from CxPilot-5.2.0
+
+Fleetwide Changes:
+  - Moved wind speed warning to GCS. Disabled aircraft-generated wind speed warnings.
+
+Built-in-Test (CX_BIT) Changes:
+  - Added a prearm check for sat count.
+    - Minimum 18 satellites
+    - Maximum difference of 8 satellites between GPS1 and GPS2
+  - Fixed false "RPM Drop" alerts on a second takeoff
+  - Removed unnecessary "RPM nil" and "Servo Out nil" messages.
+  - Removed unnecessary alerts prior to disengaging the safety switch.
+
+Known Issues:
+  - "Loiter Turns" commands with 0 turns are sometimes skipped before checking they have been
+    reached.
+  - Ottano's reported consumed fuel volume from the EFI is under-reporting. We are still calibrating
+    this.
+
+Technical:
+  - Fixed notch filter Q factor calculation. Additional protection against notch-filter issues
+  - Added ESC telemetry simulation
+  - Added Engine simulation
+  - Added Ottano headless simulator
+  - Removed LOG_FILE_DSRMROT. This feature cannot be used alongside EKF replay logging
+  - Fixed git hash for PR CI artifacts
+  - Fixed log drops causing early boot messages to be lost
+  - Fixed race condition in DroneCAN debug logging. This likely fixed the rare PIQC crash dump issue
+  - Disabled DroneCAN debug logging. This does not actually do anything useful for us anyway
+  - Assigned one AP servo index to each physical servo. Solves the servo telemetry log clashes
+  - Fixed cx_led_driver sending its startup message as EMERGENCY (i.e., no longer shows on HUD)
+  - Added SITL safety switch engaged at boot like the real aircraft
+  - Added Carbonix SITL autotests. Currently only tests CX_BIT. More tests will be added later
+  - Improved CI packaging/uploading
+
+
 Release 7.0.0 29th November 2024
 ------------------------------------------------------------------
 This release includes moving all CxPilot changes on top of ardupilot 4.5.
