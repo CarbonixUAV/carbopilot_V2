@@ -1,6 +1,6 @@
 @include ../CarbonixCommon/defaults.parm
 # Volanti-specific parameters
-AIRSPEED_CRUISE,21
+AIRSPEED_CRUISE,21.1
 AIRSPEED_MAX,28
 AIRSPEED_MIN,20
 BATT_CAPACITY,22000
