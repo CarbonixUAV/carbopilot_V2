@@ -231,6 +231,28 @@ def build_flight_controller_firmware(board_name : str) -> None:
         raise RuntimeError(f"Error building firmware for {board_name}")
 
 
+def check_config_status(xml_file : str) -> bool:
+    """Check the status of the aircraft configuration.
+
+    Args:
+        xml_file (str): Path to the XML file.
+    Returns:
+        bool: False if the configuration is deprecated, True otherwise.
+    """
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+
+    aircraft = root.find('aircraft')
+    if aircraft is None:
+        raise AssertionError(f"'aircraft' element not found in {xml_file}")
+
+    status = aircraft.find('status')
+    if status is None:
+        raise AssertionError(f"'status' element not found in the 'aircraft' element of {xml_file}")
+
+    return status.text == 'active'
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('xml_file', help='Path to the XML file')
@@ -240,6 +262,10 @@ if __name__ == '__main__':
 
     print('XML file:', args.xml_file)
     print('Commit ID:', args.commit_id)
+
+    if not check_config_status(args.xml_file):
+        print('Aircraft configuration is deprecated. No further action needed.')
+        exit(0)
 
     xml_file = copy_configuration_file(args.xml_file, args.commit_id)
     copy_lua_scripts(xml_file)
