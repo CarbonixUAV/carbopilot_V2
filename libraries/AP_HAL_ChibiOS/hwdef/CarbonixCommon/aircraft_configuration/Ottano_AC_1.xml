@@ -17,6 +17,7 @@
             CAN Airspeed,
             CAN Battery Monitor
         </model_description>
+        <status>deprecated</status>
         <configuration_version>1</configuration_version>
     </aircraft>
     <flight_controller>
