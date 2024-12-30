@@ -16,6 +16,10 @@ on:
       # remove non SITL HAL
       - 'libraries/AP_HAL_ChibiOS/**'
       - 'libraries/AP_HAL_ESP32/**'
+      # but do include Carbonix folders
+      - '!libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/**'
+      - '!libraries/AP_HAL_ChibiOS/hwdef/*-Volanti/**'
+      - '!libraries/AP_HAL_ChibiOS/hwdef/*-Ottano/**'
       # remove non SITL directories
       - 'Tools/AP_Bootloader/**'
       - 'Tools/AP_Periph/**'
@@ -92,6 +96,10 @@ on:
       # remove non SITL HAL
       - 'libraries/AP_HAL_ChibiOS/**'
       - 'libraries/AP_HAL_ESP32/**'
+      # but do include Carbonix folders
+      - '!libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/**'
+      - '!libraries/AP_HAL_ChibiOS/hwdef/*-Volanti/**'
+      - '!libraries/AP_HAL_ChibiOS/hwdef/*-Ottano/**'
       # remove non SITL directories
       - 'Tools/AP_Bootloader/**'
       - 'Tools/AP_Periph/**'
