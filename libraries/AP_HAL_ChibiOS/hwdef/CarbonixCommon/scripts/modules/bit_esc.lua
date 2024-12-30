@@ -92,14 +92,14 @@ function ESC:update()
         -- Nil check for RPM reading
         elseif not esc_rpm then
             self.esc_rpm_nil_counter[i] = self.esc_rpm_nil_counter[i] + 1
-            if self.esc_rpm_nil_counter[i] > self.NIL_WARN_THRESHOLD and self.srv_rpm_in_err_status[i] == false then
+            if self.esc_rpm_nil_counter[i] >= self.NIL_WARN_THRESHOLD and self.srv_rpm_in_err_status[i] == false then
                 cx_msg:send(cx_msg.MAV_SEVERITY.CRITICAL, "ESC " .. i .. " Telemetry Lost")
                 self.srv_telem_in_err_status[i] = true
             end
         -- Nil check for servo output
         elseif not servo_out then
             self.servo_out_nil_counter[i] = self.servo_out_nil_counter[i] + 1
-            if self.servo_out_nil_counter[i] > self.NIL_WARN_THRESHOLD and self.srv_rpm_in_err_status[i] == false then
+            if self.servo_out_nil_counter[i] >= self.NIL_WARN_THRESHOLD and self.srv_rpm_in_err_status[i] == false then
                 cx_msg:send(cx_msg.MAV_SEVERITY.CRITICAL, "ESC " .. i .. " Telemetry Lost")
                 self.srv_telem_in_err_status[i] = true
             end

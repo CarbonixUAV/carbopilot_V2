@@ -62,15 +62,7 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             self.context_collect('STATUSTEXT')
             self.wait_ready_to_arm()
 
-            # Confirm no error messages are present, with one exception:
-            # "Servo Out nil" is not uncommon when running with simulation
-            # speedups. There is a race condition that can occur because
-            # SRV_Channels::function_mask gets periodically cleared and
-            # re-calculated.
-            # TODO: CX_BIT needs to switch to checking channel number instead
-            # of checking by function assignment, but that will take some work
-            # and will require a new binding.
-            self.assert_no_text('^CX_BIT:.*(?!Servo Out nil).*', regex=True, check_context=True)
+            self.assert_no_text('^CX_BIT:.*', regex=True, check_context=True)
 
             # Fail the ESC telemetry for the specified index
             self.progress(f'Failing ESC telemetry for ESC {index}')
@@ -93,8 +85,7 @@ class AutoTestCarbonix(AutoTestQuadPlane):
 
             # And one more time, confirm no error messages are present
             self.context_clear_collection('STATUSTEXT')
-            # TODO: clean this line up too when Servo Out nil is fixed
-            self.assert_no_text('^CX_BIT:.*(?!Servo Out nil).*', regex=True, check_context=True)
+            self.assert_no_text('^CX_BIT:.*', regex=True, check_context=True)
             self.context_pop()
 
         def TestMotorFail(esc_index, servo_index, is_pusher=False):
