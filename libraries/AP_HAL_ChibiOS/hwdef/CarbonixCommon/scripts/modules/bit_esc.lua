@@ -79,6 +79,21 @@ function ESC:esc_is_stopped(i)
 end
 
 function ESC:update()
+    -- When the safety is engaged, the ESCs do not output telemetry
+    if SRV_Channels:get_safety_state() then
+        -- Reset all the counters and flags
+        for i = 1, self.number_of_esc do
+            self.esc_warmup_end_time[i] = nil
+            self.srv_prv_telem_ms[i] = 0
+            self.srv_telem_in_err_status[i] = false
+            self.srv_rpm_in_err_status[i] = false
+            self.esc_rpm_nil_counter[i] = 0
+            self.servo_out_nil_counter[i] = 0
+        end
+        return
+    end
+
+    -- check for errors
     for i = 1, self.number_of_esc  do
         local esc_last_telem_data_ms = esc_telem:get_last_telem_data_ms(i-1):toint()
         local esc_rpm = esc_telem:get_rpm(i-1)
