@@ -319,10 +319,19 @@ jobs:
         shell: sh -e {0}
 
       - name: Run aircraft_config.py
+        id: aircraft_config
         run: |
           python Tools/Carbonix_scripts/aircraft_config.py "libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_configuration/${{ matrix.xml_file }}.xml" "${{ env.commit_id }}"
+          if [ -d "final-output" ]; then
+            echo "exists=true" >> $GITHUB_ENV
+            echo "Found final-output directory"
+          else
+            echo "exists=false" >> $GITHUB_ENV
+            echo "No final-output directory found"
+          fi
       
       - name: Install AWS CLI
+        if: ${{ env.exists == 'true' }}
         run: |
           apt-get update -y
           DEBIAN_FRONTEND=noninteractive apt-get install -y curl unzip
@@ -331,6 +340,7 @@ jobs:
           ./aws/install --update
   
       - name: Configure AWS credentials
+        if: ${{ env.exists == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
@@ -338,6 +348,7 @@ jobs:
           aws-region: us-east-1
   
       - name: Upload to S3
+        if: ${{ env.exists == 'true' }}
         run: |
           PATH_TO_S3=${{ needs.setup-s3-path.outputs.s3_path }}
           echo "Uploading Artifacts to: $PATH_TO_S3"
