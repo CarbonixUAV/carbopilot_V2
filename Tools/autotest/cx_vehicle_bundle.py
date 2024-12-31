@@ -80,7 +80,7 @@ def main():
         if defaults:
             defaults = os.path.join(os.path.dirname(__file__), defaults)
             defaults = os.path.abspath(defaults)
-            shutil.copy(defaults, frame_root)
+            shutil.copy(defaults, os.path.join(frame_root, "defaults.parm"))
         # copy the scripts
         script_patterns = frames[frame].get('scripts', [])
         scripts_root = os.path.join(frame_root, 'scripts')
@@ -93,6 +93,7 @@ def main():
             launch_line += ' -O 40.0594626,-88.5513292,206.0,0'
             launch_line += ' --serial0 tcp:0'
             launch_line += f' -M {frames[frame].get("model", frame)}'
+            launch_line += ' --defaults=defaults.parm'
             launch_line += '\r\n'
             f.write(launch_line)
 
