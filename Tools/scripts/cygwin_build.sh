@@ -7,6 +7,7 @@
 # the script assumes you start in the root of the ardupilot git tree
 
 set -x
+set -e
 
 # Get Carbonix version number
 FIRMWARE_VERSION=$(grep -oP 'define AP_CUSTOM_FIRMWARE_STRING "\K(.*)(?=")' libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/version.inc)
@@ -26,7 +27,7 @@ mkdir artifacts
 
 (
     python ./waf --color yes --toolchain $TOOLCHAIN --board sitl configure --define AP_CUSTOM_FIRMWARE_STRING=\"$FIRMWARE_VERSION\" 2>&1
-    python ./waf plane 2>&1
+    python ./waf plane -j8 2>&1
 ) | tee artifacts/build.txt
     # python ./waf copter 2>&1
     # python ./waf heli 2>&1
