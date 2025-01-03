@@ -6,6 +6,8 @@ on:
         - CxPilot
         - CxPilot-*
         - master
+      tags:
+        - CxPilot-*
       paths-ignore:
         # remove non chibios HAL
         - 'libraries/AP_HAL_Linux/**'
