@@ -141,7 +141,7 @@ public:
 private:
 
     // helper that validates RPM data
-    static bool rpm_data_within_timeout (const volatile AP_ESC_Telem_Backend::RpmData &instance, const uint32_t now_us, const uint32_t timeout_us);
+    static bool rpm_data_within_timeout (const volatile AP_ESC_Telem_Backend::RpmData &instance, const uint32_t timeout_us);
     static bool was_rpm_data_ever_reported (const volatile AP_ESC_Telem_Backend::RpmData &instance);
 
     // rpm data
