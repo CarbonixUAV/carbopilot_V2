@@ -157,6 +157,10 @@
             <destination_path>cx_vtol_info.lua</destination_path>
         </lua_script>
         <lua_script>
+            <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/engine/ice-auto-warmup.lua</source_path>
+            <destination_path>ice-auto-warmup.lua</destination_path>
+        </lua_script>
+        <lua_script>
             <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/modules/bit_esc.lua</source_path>
             <destination_path>modules/bit_esc.lua</destination_path>
         </lua_script>

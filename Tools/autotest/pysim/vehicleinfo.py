@@ -442,6 +442,7 @@ class VehicleInfo(object):
                 "default_params_filename": "../../build/ottano-headless.parm",
                 "scripts": [
                     "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/*.lua",
+                    "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/engine/*.lua",
                     (
                         "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/modules/*.lua",
                         "modules"
@@ -458,6 +459,7 @@ class VehicleInfo(object):
                 "default_params_filename": "../../build/ottano-realflight.parm",
                 "scripts": [
                     "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/*.lua",
+                    "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/engine/*.lua",
                     (
                         "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/modules/*.lua",
                         "modules"
