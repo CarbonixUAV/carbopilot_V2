@@ -502,6 +502,11 @@ for t in $CI_BUILD_TARGET; do
         continue
     fi
 
+    if [ "$t" == "cx_apj_tool_unittests" ]; then
+        python Tools/scripts/cx_apj_tool_unittests.py
+        continue
+    fi
+
     if [[ -z ${CI_CRON_JOB+1} ]]; then
         echo "Starting waf build for board ${t}..."
         $waf configure --board "$t" \

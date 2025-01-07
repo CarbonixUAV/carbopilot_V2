@@ -20,6 +20,7 @@ jobs:
             astyle-cleanliness,
             validate_board_list,
             param_check_unittests,
+            cx_apj_tool_unittests,
         ]
     steps:
       # git checkout the PR
