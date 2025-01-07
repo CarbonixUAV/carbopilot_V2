@@ -72,32 +72,16 @@ for file in $(find libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/cpn_params/ -na
   # Copy param file in the output folder
   cp $file $output_folder
 
-  # The find/replace operation works by converting the binary to a single long
-  # line of hex, then uses sed to replace the magic string with the board name
-  # that has been padded with zeros to the same length as the magic string,
-  # then converts the hex back to binary.
+  # Generate the new board name
   new_board_name="$board-$filename"
   if [ ${#new_board_name} -gt $max_board_name_length ]; then
     echo "Board name '$new_board_name' is too long (max $max_board_name_length bytes)"
     exit 1
   fi
-  board_magic_string_hex=$(echo -n "$board_magic_string" | xxd -p | tr -d '\n')
-  board_name_hex=$(echo -n "$new_board_name" | xxd -p | tr -d '\n')
-  # Pad with zeros to the same length as the magic string
-  board_name_hex=$(printf "%-${#board_magic_string_hex}s" "$board_name_hex" | tr ' ' '0')
-  
-  for binary in $bin_folder/AP_Periph $bin_folder/AP_Periph.bin; do
-    # Embed the parameters
-    echo "Embedding parameter file $filename into $binary..."
-    Tools/scripts/apj_tool.py $binary --set-file $file &> /dev/null
 
-    # Set the board name
-    echo "Setting board name to $new_board_name in $binary..."
-    cp $binary $binary.tmp
-    xxd -p $binary | tr -d '\n' | sed "s/$board_magic_string_hex/$board_name_hex/g" | xxd -r -p > $binary.tmp
-    mv $binary.tmp $output_folder/$(basename $binary)
-    echo "Output binary Saved at : $output_folder/$(basename $binary)"
-  done
+  # Generate the modified binary
+  binary=$bin_folder/AP_Periph.bin
+  Tools/scripts/cx_apj_tool.py $binary --old-board-name $board_magic_string --new-board-name $new_board_name --defaults $file --output $output_folder/$(basename $binary)
   echo ""
 done
 
