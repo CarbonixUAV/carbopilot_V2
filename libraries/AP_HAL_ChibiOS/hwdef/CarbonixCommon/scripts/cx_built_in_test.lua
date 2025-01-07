@@ -124,7 +124,7 @@ local function check_prearm_status()
         end
         if num_prearm_errors > 1 then
             for err, _ in pairs(prearm_messages) do
-                gcs:send_text(cx_msg.MAV_SEVERITY.CRITICAL, "Prearm: " .. err)
+                gcs:send_text(cx_msg.MAV_SEVERITY.CRITICAL, "PreArm: " .. err)
             end
         end
         last_prearm_msg_s = get_time()
