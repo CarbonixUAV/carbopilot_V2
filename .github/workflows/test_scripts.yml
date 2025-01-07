@@ -19,7 +19,8 @@ jobs:
             python-cleanliness,
             astyle-cleanliness,
             validate_board_list,
-       ]
+            param_check_unittests,
+        ]
     steps:
       # git checkout the PR
       - uses: actions/checkout@v4

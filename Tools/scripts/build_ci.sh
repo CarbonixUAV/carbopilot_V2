@@ -497,6 +497,11 @@ for t in $CI_BUILD_TARGET; do
         continue
     fi
 
+    if [ "$t" == "param_check_unittests" ]; then
+        python Tools/Carbonix_scripts/param_check_unittests.py
+        continue
+    fi
+
     if [[ -z ${CI_CRON_JOB+1} ]]; then
         echo "Starting waf build for board ${t}..."
         $waf configure --board "$t" \
