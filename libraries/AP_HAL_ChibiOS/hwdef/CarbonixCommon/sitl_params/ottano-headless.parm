@@ -69,8 +69,6 @@ RLL_RATE_P,0.141009
 RNGFND1_PIN,0
 RNGFND1_SCALING,40
 RNGFND1_TYPE,1
-# RPM1_SCALING,1.025 # Scaled up to match what we usually see on the Hirth
-# RPM1_TYPE,10 # SITL backend, our EFI lua script grabs its RPM from this sensor
 @delete SCR_*_CHECKSUM
 @delete SERIAL* # SITL does not need to replicate serial assignments
 @delete SERVO*
