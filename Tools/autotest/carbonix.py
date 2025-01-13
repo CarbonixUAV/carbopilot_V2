@@ -60,6 +60,8 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             index = int(index)
             self.context_push()
             self.context_collect('STATUSTEXT')
+            # disable ArduPilot's engine prearm check to use wait_ready_to_arm
+            self.set_parameter('BIT_PREARM_DIS', 0b100)
             self.wait_ready_to_arm()
 
             self.assert_no_text('^CX_BIT:.*', regex=True, check_context=True)
@@ -76,9 +78,9 @@ class AutoTestCarbonix(AutoTestQuadPlane):
 
             # Check that the prearm disable parameter works
             self.progress('Checking prearm disable parameter')
-            self.set_parameter('BIT_PREARM_DIS', 0b1)
+            self.set_parameter('BIT_PREARM_DIS', 0b101)
             self.wait_ready_to_arm()
-            self.set_parameter('BIT_PREARM_DIS', 0)
+            self.set_parameter('BIT_PREARM_DIS', 0b100)
             self.wait_not_ready_to_arm()
 
             # Clear the failure
@@ -111,6 +113,8 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             servo_index = int(servo_index)
             self.context_push()
             self.context_collect('STATUSTEXT')
+            # Disable ArduPilot's engine prearm check to use wait_ready_to_arm
+            self.set_parameter('BIT_PREARM_DIS', 0b100)
             self.wait_ready_to_arm()
 
             self.arm_vehicle()
@@ -151,6 +155,8 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             '''Test GPS prearm checks'''
             index = int(index)
             self.context_push()
+            # Disable ArduPilot's engine prearm check to use wait_ready_to_arm
+            self.set_parameter('BIT_PREARM_DIS', 0b100)
 
             # Get the parameter names for the GPSs
             if index == 0:
@@ -173,9 +179,9 @@ class AutoTestCarbonix(AutoTestQuadPlane):
 
             # Check that the prearm disable parameter works
             self.progress('Checking prearm disable parameter')
-            self.set_parameter('BIT_PREARM_DIS', 0b10)
+            self.set_parameter('BIT_PREARM_DIS', 0b110)
             self.wait_ready_to_arm()
-            self.set_parameter('BIT_PREARM_DIS', 0)
+            self.set_parameter('BIT_PREARM_DIS', 0b100)
             self.wait_not_ready_to_arm()
 
             # Restore the number of satellites
@@ -200,6 +206,73 @@ class AutoTestCarbonix(AutoTestQuadPlane):
 
             # Restore everything
             self.context_pop()
+
+        def wait_for_engine_temp(condition, threshold, timeout=10):
+            """
+            Waits until a MAVLink message satisfies the given condition.
+
+            Args:
+                master: The MAVLink connection object (e.g., mavutil.mavlink_connection).
+                condition: The condition to check ('greater', 'less', 'equal').
+                threshold: The value to compare the message field against.
+                timeout: Maximum time to wait for the condition (in seconds).
+
+            Returns:
+                The MAVLink message if the condition is satisfied, otherwise None.
+
+            Raises:
+                ValueError: If the condition is invalid.
+            """
+            self.progress(f"Waiting for CHT to be {condition} than {threshold}")
+            tstart = self.get_sim_time()
+            while tstart + timeout > self.get_sim_time():
+                m = self.assert_receive_message('EFI_STATUS', timeout=10)
+                cht = m.cylinder_head_temperature
+                rpm = m.rpm
+                throttle_pos = m.throttle_position
+
+                if condition == 'greater' and cht > threshold:
+                    break
+                if condition == 'lesser' and cht < threshold:
+                    break
+            self.progress(f"CHT = {cht}, RPM = {rpm}, THR = {int(throttle_pos)}% in {self.get_sim_time() - tstart} seconds")
+
+        def TestEngineTelemetry():
+            '''Test the engine telemetry check'''
+
+            # Enable ArduPilot's engine prearm check to use wait_ready_to_arm
+            self.progress('Set BIT_PREARM_DIS:0b000 and reboot SITL')
+            self.set_parameter('BIT_PREARM_DIS', 0b000)
+            self.reboot_sitl()
+            self.change_mode('MANUAL')
+            self.progress('Set Safety Switch OFF')
+            self.set_safetyswitch_off()
+
+            # Check for CHT low on startup
+            self.progress('PreArm check : Disable Arming - CHT is too low')
+            wait_for_engine_temp('greater', 5, timeout=1000)
+            self.wait_not_ready_to_arm()
+
+            # start engine, and check for CHT normal condition
+            self.progress('Pre-arm check : Can Arm - CHT is normal')
+            ice_channel = int(self.get_parameter('ICE_START_CHAN'))
+            self.progress(f'ICE_START_CHAN: {ice_channel} cranking')
+            self.set_rc(ice_channel, 2000)
+            self.progress('Applying throttle')
+            self.set_rc(3, 1250)
+            wait_for_engine_temp('greater', 100, timeout=1000)
+            self.wait_ready_to_arm(timeout=100)
+
+            # test CHT high
+            self.progress('PreArm check : Disable Arming - CHT is too high')
+            self.set_rc(3, 1950)
+            wait_for_engine_temp('greater', 160, timeout=1000)
+            self.wait_not_ready_to_arm()
+
+            # cleanup
+            self.set_rc(3, 1050)
+            wait_for_engine_temp('lesser', 160, timeout=1000)
+            self.set_safetyswitch_on()
 
         # Count the number of ESCs
         frame_class = self.get_parameter('Q_FRAME_CLASS')
@@ -227,6 +300,7 @@ class AutoTestCarbonix(AutoTestQuadPlane):
         assert pusher_servo is not None
 
         self.start_subtest('Test ESC telemetry warnings')
+
         for i in range(num_vtols):
             TestESCTelemetry(i)
         if not has_engine:
@@ -241,6 +315,11 @@ class AutoTestCarbonix(AutoTestQuadPlane):
         self.start_subtest('Test GPS')
         for i in range(2):
             TestGPSPrearm(i)
+
+        # Test the engine telemetry check failure
+        if has_engine:
+            self.start_subtest('Test engine telemetry check failures')
+            TestEngineTelemetry()
 
     def disabled_tests(self):
         return dict()
