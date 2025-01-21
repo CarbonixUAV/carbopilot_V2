@@ -10,6 +10,8 @@ local ESC = {
     ESC_WARMUP_TIME = 3000,
     ESC_RPM_THRESHOLD = 10,
     SERVO_OUT_THRESHOLD = 1010,
+    -- wait 4 seconds after safety is engaged, to prevent ESC DROP messages
+    DELAY_AFTER_SAFETY = 4000, 
 
     -- Add a new table to store the warm-up end times for each ESC
     esc_warmup_end_time = {},
@@ -24,6 +26,8 @@ local ESC = {
     NIL_WARN_THRESHOLD = 3,
     esc_rpm_nil_counter = {0, 0, 0, 0, 0},
     servo_out_nil_counter = {0, 0, 0, 0, 0},
+
+    wait_for_safety_cooldown = 0,
 
     srv_number = {
         [1] = {"Motor1", 33},
@@ -79,6 +83,8 @@ function ESC:esc_is_stopped(i)
 end
 
 function ESC:update()
+    local now = millis()
+
     -- When the safety is engaged, the ESCs do not output telemetry
     if SRV_Channels:get_safety_state() then
         -- Reset all the counters and flags
@@ -90,6 +96,12 @@ function ESC:update()
             self.esc_rpm_nil_counter[i] = 0
             self.servo_out_nil_counter[i] = 0
         end
+        self.wait_for_safety_cooldown = now + self.DELAY_AFTER_SAFETY
+        return
+    end
+
+    -- DELAY_AFTER_SAFETY-milliseconds delay for ESC prearm checks after safety is disengaged
+    if now < self.wait_for_safety_cooldown then
         return
     end
 
