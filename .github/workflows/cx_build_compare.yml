@@ -52,6 +52,7 @@ jobs:
       
       - name: Check if Hwdef directory has been modified
         run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
           git fetch origin ${{ github.event.pull_request.base.ref }}
           CHANGED=$(git diff --quiet HEAD origin/${{ github.event.pull_request.base.ref }} -- libraries/AP_HAL_ChibiOS/hwdef || echo "changed")
           if [ "$CHANGED" = "changed" ]; then
@@ -62,7 +63,6 @@ jobs:
       - name: Build Head and ${{ github.event.pull_request.base.ref }} ${{matrix.board}} 
         shell: bash
         run: |
-            git config --global --add safe.directory ${GITHUB_WORKSPACE}
             PATH="/github/home/.local/bin:$PATH"
 
             # export some environment variables designed to get
