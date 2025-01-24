@@ -14,6 +14,7 @@ ARSPD2_TYPE,8
 ARSPD2_USE,1
 BRD_RTC_TYPES,7
 BRD_SAFETY_DEFLT,1
+BRD_SAFETY_MASK,32736 # Servos 6-15 enabled DISABLE_CHECKS: servos above 14 are not mentioned in the param docs, because this was originally written for Pixhawk/Cube-type boards with 14 physical servo outputs
 BRD_SAFETYOPTION,3
 CAM_AUTO_ONLY,1
 CAM1_INTRVAL_MIN,0.8
