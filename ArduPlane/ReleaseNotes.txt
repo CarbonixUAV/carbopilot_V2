@@ -1,3 +1,12 @@
+Release 7.1.0-beta4 4th February 2025
+------------------------------------------------------------------
+A script loading bugfix and some minor Ottano parameter patches.
+
+Technical:
+  - Fixed a bug that rarely caused scripts to fail to load
+  - Increased Ottano's engine start throttle to 15%
+  - Fixed BRD_SAFETY_MASK for new Ottano servo assignments
+
 Release 7.1.0-beta3 22nd January 2025
 ------------------------------------------------------------------
 This is a minor fix to the implementation of "Removed unnecessary alerts prior to disengaging the
