@@ -139,4 +139,5 @@ SERVO7_FUNCTION,0 # PLB Servo/GPIO
 SERVO8_FUNCTION,-1 # IGN relay GPIO
 SERVO9_FUNCTION,94 # Scripting function for LEDs
 STALL_PREVENTION,0 # Our high airspeed-min setting and QAssist should prevent bank-accelerated stalls
+STICK_MIXING,3 # Allows for only yaw stick mixing in Auto VTOL portions of flight
 TERRAIN_FOLLOW,72 # Enabled Auto and Guided (the command being executed must have the terrain frame though)
