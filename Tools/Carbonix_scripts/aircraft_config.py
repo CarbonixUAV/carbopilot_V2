@@ -42,6 +42,34 @@ def get_flight_controller_board_name(xml_file : str) -> str:
     return board_name.text
 
 
+def get_defaults_file(xml_file : str) -> str:
+    """Get the absolute path to the flight controller's defaults param file.
+
+    Args:
+        xml_file (str): Path to the XML file.
+    Returns:
+        str: Absolute path to the defaults param file.
+    """
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+    flight_controller = root.find('flight_controller')
+    if flight_controller is None:
+        raise AssertionError(f"'flight_controller' element not found in {xml_file}")
+    defaults_file = flight_controller.find('defaults_file')
+    if defaults_file is None:
+        raise AssertionError(f"'defaults_file' element not found in {xml_file}")
+    aircraft_params_folder = os.path.join(
+        os.path.dirname(__file__),
+        '../../libraries/AP_HAL_ChibiOS/hwdef/',
+        'CarbonixCommon/aircraft_params')
+    defaults_file_path = os.path.abspath(os.path.join(
+        aircraft_params_folder,
+        defaults_file.text))
+    if not os.path.exists(defaults_file_path):
+        raise FileNotFoundError(f"Could not find {defaults_file_path}")
+    return defaults_file_path
+
+
 def copy_configuration_file(xml_file : str, commit_id : str) -> str:
     """Copy the XML file to the ROMFS_custom directory.
 
@@ -165,6 +193,9 @@ def organize_output(xml_file : str, fc_firmware_name : str, peripherals : set) -
     final-output/
     ├── <model>_<model_version>/
     │   ├── <fc_firmware_name>/
+    │   │   ├── <firmware_binaries>
+    │   │   ├── ...
+    │   │   └── defaults.parm
     │   ├── <peripheral_1>/
     │   ├── <peripheral_2>/
     │   ├── ...
@@ -192,6 +223,10 @@ def organize_output(xml_file : str, fc_firmware_name : str, peripherals : set) -
     shutil.copytree(firmware_bin, os.path.join(final_output_dir, fc_firmware_name))
     print(f"Moved {firmware_bin} binaries to {final_output_dir}/{fc_firmware_name}")
 
+    # Move the processed defaults file to the output directory
+    defaults_file = os.path.join(final_output_dir, fc_firmware_name, 'defaults.parm')
+    shutil.copy(f'build/{fc_firmware_name}/processed_defaults.parm', defaults_file)
+
     # Move the periph firmware binary to the output directory
     if len(peripherals) > 0:
         for board_name in peripherals:
@@ -217,13 +252,19 @@ def organize_output(xml_file : str, fc_firmware_name : str, peripherals : set) -
     print(f"Moved {xml_file} to {target_xml}")
 
 
-def build_flight_controller_firmware(board_name : str) -> None:
+def build_flight_controller_firmware(board_name : str, defaults_path : str) -> None:
     """Build ArduPlane firmware for the flight controller.
 
     Args:
-        board_name (str): Name of the board in hwdef, e.g., CubeOrange-Ottano
+        board_name (str): Name of the board in hwdef, e.g., CubeOrange-CX
+        defaults_path (str): Path to the defaults param file.
     """
-    result = os.system(f"./waf configure --board={board_name}")
+    result = os.system(" ".join([
+        "./waf configure",
+        f"--board={board_name}",
+        f"--default-parameters={defaults_path}",
+        "--debug-symbols" # For the elf file, for decoding crash_dump.bin
+    ]))
     if result != 0:
         raise RuntimeError(f"Error configuring firmware for {board_name}")
     result = os.system("./waf plane")
@@ -253,30 +294,66 @@ def check_config_status(xml_file : str) -> bool:
     return status.text == 'active'
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('xml_file', help='Path to the XML file')
-    parser.add_argument('commit_id', help='Commit ID to replace')
-    parser.add_argument('--skip_periph', action='store_true', help='Skip peripheral firmware bundling')
+    parser.add_argument('config', help='Name of the XML file (without extension)')
+    parser.add_argument('--commit-id', help='Commit ID to replace')
+    parser.add_argument('--bundle-periph', action='store_true', help='Bundle AP_Periph firmware')
+    parser.add_argument('--force', action='store_true', help='Force deprecated configurations to be processed')
+    parser.add_argument('--keep-romfs-custom', action='store_true', help='Keep the ROMFS_custom directory after building')
     args = parser.parse_args()
 
-    print('XML file:', args.xml_file)
+    # Strip off the .xml extension if provided
+    if args.config.endswith('.xml'):
+        args.config = args.config[:-4]
+
+    if args.commit_id is None:
+        # parse the commit hash git rev-parse --short HEAD
+        args.commit_id = os.popen('git rev-parse --short HEAD').read().strip()
+        if not args.commit_id:
+            raise ValueError('Commit ID not provided and could not be fetched from git')
+
+    aircraft_config_folder = os.path.join(
+        os.path.dirname(__file__),
+        '../../libraries/AP_HAL_ChibiOS/hwdef/',
+        'CarbonixCommon/aircraft_configuration')
+
+    xml_file = os.path.abspath(os.path.join(
+        aircraft_config_folder,
+        f'{args.config}.xml'))
+    if not os.path.exists(xml_file):
+        raise FileNotFoundError(f"Could not find {xml_file}")
+
+    print('Configuration:', args.config)
     print('Commit ID:', args.commit_id)
 
-    if not check_config_status(args.xml_file):
+    if not check_config_status(xml_file) and not args.force:
         print('Aircraft configuration is deprecated. No further action needed.')
         exit(0)
 
-    xml_file = copy_configuration_file(args.xml_file, args.commit_id)
+    # Clean up any previous ROMFS_custom directory
+    shutil.rmtree('ROMFS_custom', ignore_errors=True)
+
+    xml_file = copy_configuration_file(xml_file, args.commit_id)
     copy_lua_scripts(xml_file)
     fc_board_name = get_flight_controller_board_name(xml_file)
+    defaults_path = get_defaults_file(xml_file)
 
-    build_flight_controller_firmware(fc_board_name)
+    build_flight_controller_firmware(fc_board_name, defaults_path)
     peripherals = set()
-    if args.skip_periph:
+    if not args.bundle_periph:
         print('Skipping peripheral firmware bundling')
     else:
         print('Bundling peripheral firmware')
         peripherals = get_periph_board_names(xml_file)
     organize_output(xml_file, fc_board_name, peripherals)
+
+    # Clean up the ROMFS_custom directory
+    if not args.keep_romfs_custom:
+        shutil.rmtree('ROMFS_custom', ignore_errors=True)
+
     print('Done')
+
+
+if __name__ == '__main__':
+    main()
