@@ -639,7 +639,8 @@ void AP_ICEngine::set_ignition(bool on)
 #if AP_RELAY_ENABLED
     AP_Relay *relay = AP::relay();
     if (relay != nullptr) {
-        relay->set(AP_Relay_Params::FUNCTION::IGNITION, on);
+        //relay->set(AP_Relay_Params::FUNCTION::IGNITION, on);
+        relay->set(AP_Relay_Params::FUNCTION::DroneCAN_HARDPOINT_2, on);
     }
 #endif // AP_RELAY_ENABLED
 
@@ -659,7 +660,8 @@ void AP_ICEngine::set_starter(bool on)
 #if AP_RELAY_ENABLED
     AP_Relay *relay = AP::relay();
     if (relay != nullptr) {
-        relay->set(AP_Relay_Params::FUNCTION::ICE_STARTER, on);
+        //relay->set(AP_Relay_Params::FUNCTION::ICE_STARTER, on);
+        relay->set(AP_Relay_Params::FUNCTION::DroneCAN_HARDPOINT_0, on);
     }
 #endif // AP_RELAY_ENABLED
 }
