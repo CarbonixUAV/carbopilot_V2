@@ -14,12 +14,13 @@
             CAN Airspeed
         </model_description>
         <status>active</status>
-        <configuration_version>1</configuration_version>
+        <configuration_version>2</configuration_version>
     </aircraft>
     <flight_controller>
-        <board_name>CubeOrange-Volanti</board_name>
+        <board_name>CubeOrange-CX</board_name>
         <firmware_commit>cx_pilot_commit_id</firmware_commit>
         <firmware_path>arduplane.apj</firmware_path>
+        <defaults_file>Volanti.parm</defaults_file>
     </flight_controller>
     <cpn_list>
         <cpn id="11">

@@ -321,7 +321,7 @@ jobs:
       - name: Run aircraft_config.py
         id: aircraft_config
         run: |
-          python Tools/Carbonix_scripts/aircraft_config.py "libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_configuration/${{ matrix.xml_file }}.xml" "${{ env.commit_id }}"
+          python Tools/Carbonix_scripts/aircraft_config.py ${{ matrix.xml_file }} --commit-id=${{ env.commit_id }} --bundle-periph
           if [ -d "final-output" ]; then
             echo "exists=true" >> $GITHUB_ENV
             echo "Found final-output directory"
