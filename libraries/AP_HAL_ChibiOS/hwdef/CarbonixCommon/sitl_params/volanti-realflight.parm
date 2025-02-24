@@ -1,5 +1,5 @@
 # Carbonix Volanti RealFlight Parameters
-@include ../../CubeOrange-Volanti/defaults.parm
+@include ../aircraft_params/Volanti.parm
 # SITL-specific parameters
 AHRS_EKF_TYPE,3
 ARSPD_OFFSET,2013

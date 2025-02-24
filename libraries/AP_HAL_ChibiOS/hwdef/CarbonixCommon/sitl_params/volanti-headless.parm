@@ -1,5 +1,5 @@
 # Carbonix Volanti Headless Parameters
-@include ../../CubeOrange-Volanti/defaults.parm
+@include ../aircraft_params/Volanti.parm
 ARSPD_OFFSET,2013
 ARSPD_TYPE,2
 ARSPD2_OFFSET,2013

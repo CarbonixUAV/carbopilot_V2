@@ -24,7 +24,7 @@
         <board_name>CubeOrangePlus-CX</board_name>
         <firmware_commit>cx_pilot_commit_id</firmware_commit>
         <firmware_path>arduplane.apj</firmware_path>
-        <defaults_file>Ottano.parm</defaults_file>
+        <defaults_file>OttanoQuad.parm</defaults_file>
     </flight_controller>
     <cpn_list>
         <cpn id="11">

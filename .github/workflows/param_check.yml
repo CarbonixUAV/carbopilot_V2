@@ -220,10 +220,8 @@ jobs:
         run: >
           python Tools/Carbonix_scripts/param_check.py
           --vehicle=Plane
-          libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/defaults.parm
+          libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_params/OttanoOcto.parm
+          libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_params/OttanoQuad.parm
+          libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/aircraft_params/Volanti.parm
           libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/payloads/**/Cube*.par*m
           libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/payloads/**/cube*.par*m
-          libraries/AP_HAL_ChibiOS/hwdef/CubeOrange-Volanti/defaults.parm
-          libraries/AP_HAL_ChibiOS/hwdef/CubeOrangePlus-Volanti/defaults.parm
-          libraries/AP_HAL_ChibiOS/hwdef/CubeOrange-Ottano/defaults.parm
-          libraries/AP_HAL_ChibiOS/hwdef/CubeOrangePlus-Ottano/defaults.parm

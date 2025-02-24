@@ -1,5 +1,5 @@
 # Carbonix Ottano Headless Parameters
-@include ../../CubeOrange-Ottano/defaults.parm
+@include ../aircraft_params/OttanoQuad.parm
 ARSPD_OFFSET,2013
 ARSPD_TYPE,2
 ARSPD2_OFFSET,2013
