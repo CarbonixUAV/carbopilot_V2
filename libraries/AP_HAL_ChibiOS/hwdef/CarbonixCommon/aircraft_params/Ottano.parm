@@ -1,4 +1,4 @@
-@include ../CarbonixCommon/defaults.parm
+@include ./Common.parm
 # Ottano-specific parameters
 ADSB_LIST_ALT,3000
 ADSB_LIST_MAX,40
