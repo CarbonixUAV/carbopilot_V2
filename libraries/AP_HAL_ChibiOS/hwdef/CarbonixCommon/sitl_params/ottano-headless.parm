@@ -6,13 +6,12 @@ ARSPD2_OFFSET,2013
 ARSPD2_PIN,2
 ARSPD2_TYPE,2
 # Delete unsimulated monitors
-@delete BATT2_*
-@delete BATT6_*
-@delete BATT7_*
 @delete BATT8_*
 @delete BATT9_*
-# Batt3 is simulated fuel level
-BATT3_MONITOR,29
+BATT2_MONITOR,29 # Avionics battery
+BATT3_MONITOR,29 # fuel level
+BATT6_MONITOR,29 # 28V bus
+BATT7_MONITOR,29 # 28V bus
 # Batt9 serves to pass the SITL battery info into the ESC lua script
 BATT9_MONITOR,4
 @delete CAN_*
