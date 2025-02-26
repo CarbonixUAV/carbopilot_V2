@@ -35,7 +35,7 @@ end
 -- Set up EFI parameters
 PARAM_TABLE_PREFIX = 'SIM_ICE_'
 PARAM_TABLE_KEY = 36
-assert(param:add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 8), 'could not add ' .. string.sub(PARAM_TABLE_PREFIX, 1, -2) .. ' param table')
+assert(param:add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 9), 'could not add ' .. string.sub(PARAM_TABLE_PREFIX, 1, -2) .. ' param table')
 --[[
   // @Param: SIM_ICE_CHT1_INC
   // @DisplayName: CHT1 Increase
@@ -87,21 +87,25 @@ local MAX_PWM = bind_add_param('MAX_PWM', 6, 2000)
 --[[
   // @Param: SIM_ICE_IGN_PIN
   // @DisplayName: Ignition Pin
-  // @Description: Simulated GPIO pin for ignition control, i.e., which bit to
-  //  check in the SIM_PIN_MASK to see if ignition is enabled. Set to -1 to
-  //  fail the ignition.
+  // @Description: Simulated GPIO pin for ignition control, i.e., which bit to check in the SIM_PIN_MASK to see if ignition is enabled. Set to -1 to fail the ignition.
   // @Range -1 31
 --]]
 local IGN_PIN = bind_add_param('IGN_PIN', 7, 0)
 --[[
   // @Param: SIM_ICE_STRT_PIN
   // @DisplayName: Starter Pin
-  // @Description: Simulated GPIO pin for starter control, i.e., which bit to
-  //  check in the SIM_PIN_MASK to see if the starter is running. Set to -1 to
-  //  fail the starter.
+  // @Description: Simulated GPIO pin for starter control, i.e., which bit to check in the SIM_PIN_MASK to see if the starter is running. Set to -1 to fail the starter.
   // @Range -1 31
 --]]
 local STRT_PIN = bind_add_param('STRT_PIN', 8, 1)
+--[[
+  // @Param: SIM_ICE_FUEL_IN
+  // @DisplayName: Starting Fuel Level
+  // @Description: Initial fuel level in the tank, for simulating the fuel level sensor
+  // @Range: 0 16
+  // @Units: kg
+--]]
+local FUEL_IN = bind_add_param('FUEL_IN', 9, 10)
 
 local RPM_TYPE = bind_param('RPM1_TYPE')
 
@@ -200,8 +204,8 @@ local function engine_control()
     local cylinder_state = Cylinder_Status()
     local rpm = 0
     local air_pressure = 0
-    local fuel_consumption_lph = 0
-    local fuel_total_l = 0
+    local fuel_consumption_lph = 0 -- actually in kg/hr, not L/hr
+    local fuel_total_l = 0 -- actually in kg, not L
     local temps = {
         cht = {get_air_temperature(), get_air_temperature()}, -- Cylinder head temperatures
         imt = get_air_temperature(), -- Intake manifold temperature
@@ -236,6 +240,17 @@ local function engine_control()
 
         -- Set the EFI_State into the EFI scripting driver
         efi_backend:handle_scripting(efi_state)
+
+        -- Simulate fuel tank sensor plus sloshing
+        local state = BattMonitorScript_State()
+        state:healthy(true)
+        accel = ahrs:get_accel()
+        accel_x = 0
+        if accel then
+            accel_x = accel:x()
+        end
+        state:voltage(FUEL_IN:get() - fuel_total_l + 1.25 * accel_x)
+        battery:handle_scripting(2, state)
     end
 
     ---Calculate the steady state CHT for a given airspeed, fit parameters,
