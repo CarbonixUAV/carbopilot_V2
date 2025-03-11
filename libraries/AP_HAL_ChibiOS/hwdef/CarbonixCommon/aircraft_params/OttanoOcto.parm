@@ -1,6 +1,8 @@
 @include ./Common.parm
 @include ./OttanoCommon.parm
 # Ottano Octo-specific parameters
+BATT4_ESC_MASK,150 # Left ESCs:2,3,5,8
+BATT5_ESC_MASK,105 # Right ESCs:1,4,6,7
 CAN_D1_UC_ESC_BM,16711680
 CAN_D1_UC_ESC_OF,16
 CAN_D2_UC_ESC_BM,16711680
