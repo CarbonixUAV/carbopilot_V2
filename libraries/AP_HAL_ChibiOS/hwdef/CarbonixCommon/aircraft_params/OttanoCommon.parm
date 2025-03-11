@@ -29,7 +29,6 @@ BATT3_SERIAL_NUM,1 # DroneCAN Battery index to listen to
 # Battery 4: VTOL Battery (Left)
 BATT4_CAPACITY,15000 # matches BATT5_CAPACITY
 BATT4_CRT_VOLT,42
-BATT4_ESC_MASK,6 # ESC 2 and 3
 BATT4_FS_VOLTSRC,1 # Failsafe on sag-compensated voltage
 BATT4_LOW_VOLT,43
 BATT4_MONITOR,9 # ESC
@@ -37,7 +36,6 @@ BATT4_OPTIONS,64 # 6:Send resistance compensated voltage to GCS
 # Battery 5: VTOL Battery (Right)
 BATT5_CAPACITY,15000 # matches BATT4_CAPACITY
 BATT5_CRT_VOLT,42
-BATT5_ESC_MASK,9 # ESC 1 and 4
 BATT5_FS_VOLTSRC,1 # Failsafe on sag-compensated voltage
 BATT5_LOW_VOLT,43
 BATT5_MONITOR,9 # ESC

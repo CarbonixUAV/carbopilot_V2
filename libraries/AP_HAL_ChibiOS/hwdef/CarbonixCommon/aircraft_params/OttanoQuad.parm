@@ -1,6 +1,8 @@
 @include ./Common.parm
 @include ./OttanoCommon.parm
 # Ottano Quad-specific parameters
+BATT4_ESC_MASK,6 # Left ESCs:2,3
+BATT5_ESC_MASK,9 # Right ESCs:1,4
 CAN_D1_UC_ESC_BM,9
 CAN_D2_UC_ESC_BM,6
 Q_A_ACCEL_P_MAX,8800
