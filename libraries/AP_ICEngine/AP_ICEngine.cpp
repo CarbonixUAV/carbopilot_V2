@@ -31,6 +31,7 @@
 extern const AP_HAL::HAL& hal;
 
 #define AP_ICENGINE_START_CHAN_DEBOUNCE_MS          300
+#define FUEL_PUMP_PRIMING_TIME_MS                   30000
 
 const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
 
@@ -417,6 +418,7 @@ void AP_ICEngine::update(void)
     case ICE_OFF:
         set_ignition(false);
         set_starter(false);
+        set_fuel_pump(false);
         starter_start_time_ms = 0;
         break;
 
@@ -424,11 +426,13 @@ void AP_ICEngine::update(void)
     case ICE_START_DELAY:
         set_ignition(true);
         set_starter(false);
+        set_fuel_pump(true);
         break;
 
     case ICE_STARTING:
         set_ignition(true);
         set_starter(true);
+        set_fuel_pump(true);
 
         if (starter_start_time_ms == 0) {
             starter_start_time_ms = now;
@@ -439,6 +443,7 @@ void AP_ICEngine::update(void)
     case ICE_RUNNING:
         set_ignition(true);
         set_starter(false);
+        set_fuel_pump(true);
         starter_start_time_ms = 0;
         break;
     }
@@ -646,6 +651,23 @@ void AP_ICEngine::set_ignition(bool on)
 #if AP_ICENGINE_TCA9554_STARTER_ENABLED
     tca9554_starter.set_ignition(on);
 #endif
+
+}
+
+/*
+  set fuel pump control state
+ */
+
+void AP_ICEngine::set_fuel_pump(bool on)
+{
+
+#if AP_RELAY_ENABLED
+    AP_Relay *relay = AP::relay();
+    if (relay != nullptr) {      
+        // Set droneCAN hardpoint #1 (fuel pump) to match ignition state
+        relay->set(AP_Relay_Params::FUNCTION::FUEL_PUMP_CONTROL, on);        
+    }
+#endif // AP_RELAY_ENABLED
 
 }
 

@@ -44,6 +44,7 @@ public:
         DroneCAN_HARDPOINT_13 = 23,
         DroneCAN_HARDPOINT_14 = 24,
         DroneCAN_HARDPOINT_15 = 25,
+        FUEL_PUMP_CONTROL = 26,
         NUM_FUNCTIONS // must be the last entry
     };
 

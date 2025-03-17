@@ -78,6 +78,7 @@ private:
 
     void set_ignition(bool on);
     void set_starter(bool on);
+    void set_fuel_pump(bool on);    
 
     enum ICE_State state;
 
