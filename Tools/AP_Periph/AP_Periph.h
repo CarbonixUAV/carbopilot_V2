@@ -178,6 +178,13 @@ public:
     void can_efi_update();
 #endif
 
+// Loopback for Serial2 on MatekL431 on EIB Rev D
+#ifdef EIB_SERIAL_LOOPBACK_TEST
+    uint8_t uart_num_bytes_read;
+    uint8_t matekl431buffer[10];
+    void matekl431_serial2_loopback();
+#endif
+
 #ifdef HAL_PERIPH_LISTEN_FOR_SERIAL_UART_REBOOT_CMD_PORT
     void check_for_serial_reboot_cmd(const int8_t serial_index);
 #endif

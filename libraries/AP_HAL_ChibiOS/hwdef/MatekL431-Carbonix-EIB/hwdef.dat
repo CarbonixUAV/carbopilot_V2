@@ -49,3 +49,12 @@ define HAL_PERIPH_ENABLE_NOTIFY
 # -------------------- Relay --------------------
 define HAL_PERIPH_ENABLE_RELAY
 define AP_RELAY_ENABLED 1
+
+# ---------------- Serial -----------------------
+# Serial2 loopback (test only)
+# From MatekL431 hwdef.dat file
+#           | sr0  | MSP | GPS  |
+# MSP port is TX2/RX2 on silkscreen
+SERIAL_ORDER USART1 USART2 USART3
+
+define EIB_SERIAL_LOOPBACK_TEST 

@@ -157,6 +157,13 @@ void AP_Periph_FW::init()
     }
 #endif
 
+#ifdef EIB_SERIAL_LOOPBACK_TEST
+    can_printf("EIB MatekL431 SER2 LOOP"); //prints to DroneCAN GUI 'debug' console
+    //hal.serial(0)->begin(9600);
+    hal.serial(1)->begin(9600);
+    //hal.serial(2)->begin(9600);
+#endif
+
 #ifdef HAL_PERIPH_ENABLE_MAG
     compass.init();
 #endif
@@ -408,6 +415,11 @@ void AP_Periph_FW::update()
             palToggleLine(HAL_GPIO_PIN_LED);
         }
 #endif
+
+#ifdef EIB_SERIAL_LOOPBACK_TEST
+    matekl431_serial2_loopback();
+#endif
+
 #if 0
 #ifdef HAL_PERIPH_ENABLE_GPS
         hal.serial(0)->printf("GPS status: %u\n", (unsigned)gps.status());
@@ -526,6 +538,24 @@ void AP_Periph_FW::update()
     adsb_update();
 #endif
 }
+
+#ifdef EIB_SERIAL_LOOPBACK_TEST
+void AP_Periph_FW::matekl431_serial2_loopback()
+{
+    // Test UART, borrowed from CPN test AP_Periph code
+    char test_serial = 'N';
+    
+    if (hal.serial(1) != nullptr) {
+        hal.serial(1)->write("UART1");
+    }  
+   
+    uart_num_bytes_read = hal.serial(1)->read(matekl431buffer, 5);
+    test_serial = (uart_num_bytes_read == 5) ? 'Y' : 'N';
+    // if (uart_num_bytes_read > 0)
+    can_printf("TX2<>RX2: (%c) \t %s", test_serial, matekl431buffer);
+   
+}
+#endif
 
 #ifdef HAL_PERIPH_LISTEN_FOR_SERIAL_UART_REBOOT_CMD_PORT
 // check for uploader.py reboot command
