@@ -10,7 +10,7 @@ bus_types = {
     0: 'UNKNOWN',
     1: 'I2C',
     2: 'SPI',
-    3: 'UAVCAN',
+    3: 'DroneCAN',
     4: 'SITL',
     5: 'MSP',
     6: 'SERIAL',
