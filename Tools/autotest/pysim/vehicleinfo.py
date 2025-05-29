@@ -452,6 +452,23 @@ class VehicleInfo(object):
                     ),
                 ],
             },
+            "ottano-realflight": {
+                "waf_target": "bin/arduplane",
+                "model": "flightaxis",
+                "default_params_filename": "../../build/ottano-realflight.parm",
+                "scripts": [
+                    "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/*.lua",
+                    (
+                        "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/modules/*.lua",
+                        "modules"
+                    ),
+                    (
+                        "../../libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/aircraft/ottano.lua",
+                        "modules/aircraft.lua"
+                    ),
+                ],
+                "external": True,
+            },
             "volanti-headless": {
                 "waf_target": "bin/arduplane",
                 "model": "quadplane:@ROMFS/models/Volanti.json",
@@ -484,7 +501,7 @@ class VehicleInfo(object):
                     ),
                 ],
                 "external": True,
-            }
+            },
         },
     }
 }
