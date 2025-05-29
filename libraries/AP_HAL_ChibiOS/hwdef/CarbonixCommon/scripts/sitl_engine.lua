@@ -10,9 +10,9 @@ It also simulates the ignition and starter control. The script listens to
 ArduPilot's existing simulated GPIO pins. You must configure a starter relay and
 an ignition relay with pin assignments that match whatever is set in
 SIM_ICE_IGN_PIN and SIM_ICE_STRT_PIN. The script then simulates the idle and
-starter behavior by adjusting SERVO3's min and max values. You can fail the
-engine by setting the ignition pin to -1, and you can similarly fail the starter
-motor too.
+starter behavior by adjusting the throttle servo's min and max values. You can
+fail the engine by setting the ignition pin to -1, and you can similarly fail
+the starter motor too.
 --]]
 
 local SCRIPT_NAME       = "ICEngine: SITL"
@@ -144,10 +144,18 @@ local function c_to_kelvin(temp)
     return temp + 273.15
 end
 
--- The script hacks the SERVO3 parameters to emulate ignition control
-local SERVO3_MIN = bind_param('SERVO3_MIN')
-local SERVO3_MAX = bind_param('SERVO3_MAX')
-local SERVO3_TRIM = bind_param('SERVO3_TRIM')
+-- The script hacks the throttle servo parameters to emulate ignition control
+-- First, find the throttle servo channel
+throttle_channel = SRV_Channels:find_channel(70)
+if not throttle_channel then
+    gcs:send_text(0, "Could not find throttle channel")
+    return
+end
+throttle_channel = throttle_channel + 1
+
+local SERVO_THR_MIN = bind_param('SERVO' .. throttle_channel .. '_MIN')
+local SERVO_THR_MAX = bind_param('SERVO' .. throttle_channel .. '_MAX')
+local SERVO_THR_TRIM = bind_param('SERVO' .. throttle_channel .. '_TRIM')
 local SIM_PIN_MASK = bind_param('SIM_PIN_MASK')
 local SIM_TEMP_START = bind_param('SIM_TEMP_START')
 
@@ -226,8 +234,9 @@ local function engine_control()
         efi_state:intake_manifold_pressure_kpa(air_pressure)
         efi_state:intake_manifold_temperature(c_to_kelvin(temps.imt))
         local throttle_pwm = SRV_Channels:get_output_pwm(70) or 1000
-        local throttle_pct = (throttle_pwm - 1000) / (MAX_PWM:get() - 1000)
-        efi_state:throttle_position_percent(math.floor(throttle_pct * 100))
+        local throttle = (throttle_pwm - 1000) / (MAX_PWM:get() - 1000)
+        throttle = constrain(throttle, 0, 1)
+        efi_state:throttle_position_percent(math.floor(throttle * 100))
 
         -- copy cylinder_state to efi_state
         efi_state:cylinder_status(cylinder_state)
@@ -376,22 +385,22 @@ local function engine_control()
             is_running = false
         end
 
-        -- Mess with the SERVO3 parameters to simulate the running/starting
-        local servo3_min
+        -- Mess with the throttle servo parameters to simulate the running/starting
+        local servo_thr_min
         if start then
-            servo3_min = STRT_PWM:get() or 1200
+            servo_thr_min = STRT_PWM:get() or 1200
         elseif is_running then
-            servo3_min = IDLE_PWM:get() or 1100
+            servo_thr_min = IDLE_PWM:get() or 1100
         else
-            servo3_min = OFF_PWM:get() or 1000
+            servo_thr_min = OFF_PWM:get() or 1000
         end
-        SERVO3_MIN:set(servo3_min)
-        SERVO3_TRIM:set(servo3_min)
+        SERVO_THR_MIN:set(servo_thr_min)
+        SERVO_THR_TRIM:set(servo_thr_min)
 
         if is_running then
-            SERVO3_MAX:set(MAX_PWM:get() or 2000)
+            SERVO_THR_MAX:set(MAX_PWM:get() or 2000)
         else
-            SERVO3_MAX:set(SERVO3_MIN:get() + 1 or 1001)
+            SERVO_THR_MAX:set(SERVO_THR_MIN:get() + 1 or 1001)
         end
     end
 
