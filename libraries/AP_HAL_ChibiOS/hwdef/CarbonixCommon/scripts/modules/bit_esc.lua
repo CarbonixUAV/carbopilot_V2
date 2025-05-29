@@ -4,21 +4,21 @@ local aircraft_type = require("aircraft")
 local ESC = {
     name = "ESC",
 
-    number_of_esc = 5,
+    number_of_esc = 0,
 
     -- CONSTANTS
     ESC_WARMUP_TIME = 3000,
     ESC_RPM_THRESHOLD = 10,
     SERVO_OUT_THRESHOLD = 1010,
     -- wait 4 seconds after safety is engaged, to prevent ESC DROP messages
-    DELAY_AFTER_SAFETY = 4000, 
+    DELAY_AFTER_SAFETY = 4000,
 
     -- Add a new table to store the warm-up end times for each ESC
     esc_warmup_end_time = {},
 
-    srv_prv_telem_ms = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    srv_telem_in_err_status  = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false},
-    srv_rpm_in_err_status  = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false},
+    srv_prv_telem_ms = {0, 0, 0, 0, 0, 0, 0, 0},
+    srv_telem_in_err_status  = {false, false, false, false, false, false, false, false,},
+    srv_rpm_in_err_status  = {false, false, false, false, false, false, false, false,},
 
     -- Counters to debounce nil checks on esc rpm and servo output, this is a
     -- workaround to avoid giving the pilot a critical warning for an unexplained
@@ -29,19 +29,7 @@ local ESC = {
 
     wait_for_safety_cooldown = 0,
 
-    srv_number = {
-        [1] = {"Motor1", 33},
-        [2] = {"Motor2", 34},
-        [3] = {"Motor3", 35},
-        [4] = {"Motor4", 36},
-        [5] = {"Motor5", 70},
-        [6] = {"Motor6", 38},
-        [7] = {"Elevator", 19},
-        [8] = {"Rudder", 21},
-        [9] = {"GPIO", -1},
-        [10] = {"Script1", 94},
-        [11] = {"Aileron", 4}
-    },
+    srv_functions = {33, 34, 35, 36, 70},
 }
 
 -- Get the number of ESCs based on the aircraft type
@@ -49,7 +37,16 @@ function ESC:get_num_esc()
     if aircraft_type == "Volanti" then
         self.number_of_esc = 5
     elseif aircraft_type == "Ottano" then
-        self.number_of_esc = 4
+        -- detect quad vs octo
+        local frame_class = param:get("Q_FRAME_CLASS") or 0
+        if frame_class == 1 then
+            self.number_of_esc = 4
+        elseif frame_class == 4 then
+            self.number_of_esc = 8
+            self.srv_functions = {33, 34, 35, 36, 37, 38, 39, 40}
+        else
+            assert(false, "ESC init failed: unknown frame class")
+        end
     else
         assert(false, "ESC init failed: Aircraft type not set")
     end
@@ -109,7 +106,7 @@ function ESC:update()
     for i = 1, self.number_of_esc  do
         local esc_last_telem_data_ms = esc_telem:get_last_telem_data_ms(i-1):toint()
         local esc_rpm = esc_telem:get_rpm(i-1)
-        local servo_out = SRV_Channels:get_output_pwm(self.srv_number[i][2])
+        local servo_out = SRV_Channels:get_output_pwm(self.srv_functions[i])
         -- Telem data timestamp check
         if not esc_last_telem_data_ms or esc_last_telem_data_ms == 0 or esc_last_telem_data_ms == self.srv_prv_telem_ms[i] then
             if self.srv_telem_in_err_status[i] == false then
