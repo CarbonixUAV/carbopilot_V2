@@ -254,7 +254,7 @@ def organize_output(xml_file : str, fc_firmware_name : str, peripherals : set) -
     print(f"Moved {xml_file} to {target_xml}")
 
 
-def build_flight_controller_firmware(board_name : str, defaults_path : str) -> None:
+def build_flight_controller_firmware(board_name : str, defaults_path : str, upload : bool) -> None:
     """Build ArduPlane firmware for the flight controller.
 
     Args:
@@ -269,7 +269,7 @@ def build_flight_controller_firmware(board_name : str, defaults_path : str) -> N
     ]))
     if result != 0:
         raise RuntimeError(f"Error configuring firmware for {board_name}")
-    result = os.system("./waf plane")
+    result = os.system("./waf plane" + (" --upload" if upload else ""))
     if result != 0:
         raise RuntimeError(f"Error building firmware for {board_name}")
 
@@ -303,6 +303,7 @@ def main():
     parser.add_argument('--bundle-periph', action='store_true', help='Bundle AP_Periph firmware')
     parser.add_argument('--force', action='store_true', help='Force deprecated configurations to be processed')
     parser.add_argument('--keep-romfs-custom', action='store_true', help='Keep the ROMFS_custom directory after building')
+    parser.add_argument('--upload', action='store_true', help='Upload the firmware to the flight controller')
     args = parser.parse_args()
 
     # Strip off the .xml extension if provided
@@ -341,7 +342,7 @@ def main():
     fc_board_name = get_flight_controller_board_name(xml_file)
     defaults_path = get_defaults_file(xml_file)
 
-    build_flight_controller_firmware(fc_board_name, defaults_path)
+    build_flight_controller_firmware(fc_board_name, defaults_path, args.upload)
     peripherals = set()
     if not args.bundle_periph:
         print('Skipping peripheral firmware bundling')
