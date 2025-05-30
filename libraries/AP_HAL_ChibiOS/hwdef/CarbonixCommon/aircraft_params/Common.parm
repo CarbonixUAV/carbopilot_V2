@@ -70,7 +70,6 @@ Q_RC_SPEED,400
 Q_RTL_ALT,45
 Q_RTL_MODE,1
 Q_TRAN_PIT_MAX,2
-Q_TRANS_FAIL,30 # DISABLE_CHECKS: we want to allow 30 seconds for transition; ArduPilot max of 20 seconds is too short
 Q_TRANSITION_MS,2000
 Q_VFWD_ALT,5
 Q_WVANE_HGT_MIN,5
