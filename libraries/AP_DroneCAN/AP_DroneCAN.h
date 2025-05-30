@@ -144,6 +144,8 @@ public:
         USE_HIMARK_SERVO          = (1U<<6),
         USE_HOBBYWING_ESC         = (1U<<7),
         ENABLE_STATS              = (1U<<8),
+        // bit 9 is reserved for FlexDebug
+        IGNORE_ESC_OFFSET_RECEIVE = (1U<<10),
     };
 
     // check if a option is set
