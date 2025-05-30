@@ -115,6 +115,7 @@ PTCH2SRV_TCONST,0.9
 Q_BCK_PIT_LIM,8 # Used in hover modes when using Q_FWD_THR to prevent high load on the wing. 8 degrees is about 2g load at cruise on the older lighter quad; this is a good conservative value.
 Q_FWD_THR_GAIN,2.64
 Q_FWD_THR_USE,1
+Q_WVANE_GAIN,2
 RELAY1_FUNCTION,4
 RELAY2_FUNCTION,2
 RELAY2_PIN,108
