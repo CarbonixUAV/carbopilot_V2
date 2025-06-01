@@ -110,8 +110,8 @@ PTCH_RATE_P,0.2409001
 PTCH_RATE_SMAX,110
 PTCH2SRV_RLL,1.5
 PTCH2SRV_RMAX_DN,60
-PTCH2SRV_RMAX_UP,60
-PTCH2SRV_TCONST,0.9
+PTCH2SRV_RMAX_UP,40 # Reduce RMAX_UP to prevent excessive g-load. Now that we've lowered TCONST, we actually hit the target rates now.
+PTCH2SRV_TCONST,0.4
 Q_BCK_PIT_LIM,8 # Used in hover modes when using Q_FWD_THR to prevent high load on the wing. 8 degrees is about 2g load at cruise on the older lighter quad; this is a good conservative value.
 Q_FWD_THR_GAIN,2.64
 Q_FWD_THR_USE,1
