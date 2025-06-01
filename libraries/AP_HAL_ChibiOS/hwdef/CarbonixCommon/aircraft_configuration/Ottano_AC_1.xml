@@ -15,10 +15,11 @@
             adsb,
             CAN GPS,
             CAN Airspeed,
-            CAN Battery Monitor
+            CAN Battery Monitor,
+            CAN Matek EIB
         </model_description>
         <status>active</status>
-        <configuration_version>2</configuration_version>
+        <configuration_version>3</configuration_version>
     </aircraft>
     <flight_controller>
         <board_name>CubeOrange-CX</board_name>
@@ -116,6 +117,12 @@
             <bus>2</bus>
             <board_name>arspd_org.ardupilot.f405_MatekGPS</board_name>
             <firmware_commit>158c7c49</firmware_commit>
+        </cpn>
+        <cpn id="47">
+            <bus>2</bus>
+            <board_name>org.ardupilot.MatekL431-Carbonix-EIB</board_name>
+            <firmware_commit>cx_pilot_commit_id</firmware_commit>
+            <firmware_path>AP_Periph.bin</firmware_path>
         </cpn>
     </cpn_list>
     <esc_list>
