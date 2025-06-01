@@ -151,6 +151,8 @@ SERIAL6_BAUD,115
 SERIAL6_PROTOCOL,2
 SERVO5_MAX,1950 # Throttle servo endpoints
 SERVO5_MIN,980  # Throttle servo endpoints
+SERVO10_MIN,1350 # Differential aileron
+SERVO13_MAX,1650 # Differential aileron
 TECS_CLMB_MAX,3.5
 TECS_LAND_ARSPD,24
 TECS_PITCH_MAX,0
