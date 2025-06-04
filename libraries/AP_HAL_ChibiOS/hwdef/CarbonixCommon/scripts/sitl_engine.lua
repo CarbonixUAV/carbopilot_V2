@@ -103,7 +103,9 @@ local IGN_PIN = bind_add_param('IGN_PIN', 7, 0)
 --]]
 local STRT_PIN = bind_add_param('STRT_PIN', 8, 1)
 
-local RPM_TYPE = bind_param('RPM1_TYPE')
+-- We look at RPM2 to see if another source (RealFlight) should provide the RPM
+-- instead of us making one up based on the throttle PWM.
+local RPM_TYPE = bind_param('RPM2_TYPE')
 
 local UPDATE_HZ = 4
 
@@ -335,13 +337,13 @@ local function engine_control()
 
     -- Simulate engine behavior
     function self.simulate_engine()
-        -- If the RPM sensor is None, or EFI, then we need to make up the RPM
+        -- If the RPM sensor is None, or EFI (prevent circular dependency), then we need to make up the RPM
         if RPM_TYPE:get() == 3 or RPM_TYPE:get() == 0 then
             local thr = (SRV_Channels:get_output_pwm(70) - OFF_PWM:get()) / (MAX_PWM:get() - OFF_PWM:get())
             thr = constrain(thr, 0, 1)
             rpm = math.sqrt(thr) * NOMINAL_VALUES.FULL_RPM
         else
-            rpm = constrain(RPM:get_rpm(0) or 0, 0, 50000)
+            rpm = constrain(RPM:get_rpm(1) or 0, 0, 50000)
         end
         air_pressure = baro:get_pressure() / 100 or 0
         temps.imt = get_air_temperature()
