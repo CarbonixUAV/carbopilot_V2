@@ -1,0 +1,12 @@
+CAN_NODE 45
+BATT_MONITOR 24
+BATT_SERIAL_NUM 3
+BATT_FL_V_MULT 1.0
+BATT_FL_FLTR -1.0
+BATT_FL_PIN 8
+BATT_FL_FF 112.62539672851562 # DISABLE_CHECKS: this is a linear calibration to encode kPa as Volts; it's way out of typical range, but is perfectly valid
+BATT_FL_OFF -170.718994140625 # DISABLE_CHECKS: this is a linear calibration to encode kPa as Volts; it's way out of typical range, but is perfectly valid
+RNGFND1_TYPE 8
+RNGFND1_MAX_CM 15800
+RNGFND1_GNDCLEAR 0 # DISABLE_CHECKS: 0 means the CPN reports the raw reading and the autopilot uses its own GNDCLEAR parameter
+ADSB_PORT 2
