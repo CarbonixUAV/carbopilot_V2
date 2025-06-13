@@ -70,7 +70,10 @@ for file in $(find libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/cpn_params/ -na
   output_folder=output/${filename}_$board
   mkdir -p $output_folder
   # Copy param file in the output folder
-  cp $file $output_folder
+  cp $file $output_folder/defaults.parm
+  # Strip all comments from the parameter file in the output folder
+  sed -i '/^[[:space:]]*$/d; /^[[:space:]]*#/d' $output_folder/defaults.parm
+  sed -i 's/[[:space:]]*#.*$//' $output_folder/defaults.parm
 
   # Generate the new board name
   new_board_name="$board-$filename"
@@ -81,7 +84,7 @@ for file in $(find libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/cpn_params/ -na
 
   # Generate the modified binary
   binary=$bin_folder/AP_Periph.bin
-  Tools/scripts/cx_apj_tool.py $binary --old-board-name $board_magic_string --new-board-name $new_board_name --defaults $file --output $output_folder/$(basename $binary)
+  Tools/scripts/cx_apj_tool.py $binary --old-board-name $board_magic_string --new-board-name $new_board_name --defaults $output_folder/defaults.parm --output $output_folder/$(basename $binary)
   echo ""
 done
 
