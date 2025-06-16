@@ -301,6 +301,8 @@ local function do_engine_failsafe()
     engineFailsafeParamGroup:set_parameter("RTL_AUTOLAND", 0)
     -- We don't want any automatic QRTL behavior
     engineFailsafeParamGroup:set_parameter("Q_RTL_MODE", 0)
+    -- Disable the transition time limit
+    engineFailsafeParamGroup:set_parameter("Q_TRANS_FAIL", 0)
 
     -- If we are already low, then RTL is a bad idea. Instead, switch to QLand
     local height_agl = utilities.relative_ground_altitude(true, true)
