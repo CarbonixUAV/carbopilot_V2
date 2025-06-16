@@ -47,10 +47,17 @@ Parameters:
     // @Units: m/s
     // @User: Standard
 
-    // @Param: ENGOUT_DELAY
-    // @DisplayName: Engine-out detection threshold
-    // @Description: Delay for detecting changes to the engine state.
+    // @Param: ENGOUT_STOPDELAY
+    // @DisplayName: Engine-out detection time
+    // @Description: The engine must be detected as stopped for this long before any action is taken.
     // @Range: 0.2 5
+    // @Units: s
+    // @User: Standard
+
+    // @Param: ENGOUT_STRTDELAY
+    // @DisplayName: Engine restart detection time
+    // @Description: The engine must be running continuously for this long before it is considered running again.
+    // @Range: 0.2 20
     // @Units: s
     // @User: Standard
 
@@ -107,12 +114,13 @@ local SCRIPT_NAME = "Engine Failsafe Script"
 local PARAM_TABLE_KEY = 62 -- Arbitrary, but must be unique among all scripts loaded
 local PARAM_TABLE_PREFIX = "ENGOUT_"
 local utilities = require("utilities")
-utilities.param_add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 10)
+utilities.param_add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 11)
 
 -- Script parameters for engine failsafe behavior
 local FS_ENABLE = utilities.bind_add_param("FS_ENABLE", 1)  -- Enable/disable automated actions during engine out
 local GLIDE_SPD = utilities.bind_add_param("GLIDE_SPD", 0)  -- Optimal glide airspeed in m/s
-local DELAY = utilities.bind_add_param("DELAY", 2)  -- Time to consider engine stopped after low RPM/vibe
+local STOPDELAY = utilities.bind_add_param("STOPDELAY", 0.5)  -- Time to consider engine stopped after low RPM/vibe
+local STRTDELAY = utilities.bind_add_param("STRTDELAY", 8)  -- Time to consider engine restarted after high RPM/vibe
 local RPM_CHAN = utilities.bind_add_param("RPM_CHAN", 1)  -- RPM sensor channel
 local RPM_THRSH = utilities.bind_add_param("RPM_THRSH", 500)  -- RPM threshold for engine stop
 local VIB_THRSH = utilities.bind_add_param("VIB_THRSH", 4)  -- Vibration threshold for engine stop
@@ -216,7 +224,8 @@ local function set_engine_state(stop_detected)
         engine_change_time = engine_change_time or utilities.get_time_sec()
     end
     -- Change the detected state of the engine after the timeout period has passed
-    if utilities.get_time_sec() - engine_change_time > DELAY:get() then
+    local delay = stop_detected and STOPDELAY:get() or STRTDELAY:get()
+    if utilities.get_time_sec() - engine_change_time > delay then
         gcs:send_text(2, "Engine " .. (stop_detected and "out" or "running"))
         engine_stopped = stop_detected
         engine_change_time = nil
