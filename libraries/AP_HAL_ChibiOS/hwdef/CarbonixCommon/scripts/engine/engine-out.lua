@@ -251,11 +251,13 @@ local function check_engine()
     local aux_cached = aux_func and rc:get_aux_cached(aux_func)
     -- Pilot is sure that the engine is stopped
     if aux_cached and aux_cached == 0 then
-        set_engine_state(true)
+        engine_stopped = false
+        engine_change_time = nil
         return
     -- Pilot is sure that the engine is running
     elseif aux_cached and aux_cached == 2 then
-        set_engine_state(false)
+        engine_stopped = true
+        engine_change_time = nil
         return
     end
 
