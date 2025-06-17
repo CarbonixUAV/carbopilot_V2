@@ -72,7 +72,11 @@ function utilities.relative_ground_altitude(use_rangefinder,
     local RANGE_STATUS_GOOD = 4
     local in_range = rangefinder:status_orient(ROTATION_PITCH_270) == RANGE_STATUS_GOOD
     if use_rangefinder and in_range then
-        return rangefinder:distance_cm_orient(ROTATION_PITCH_270) * 0.01
+        local dist = rangefinder:distance_cm_orient(ROTATION_PITCH_270) * 0.01
+        local v1 = Vector3f()
+        v1:z(dist)
+        local alt = ahrs:body_to_earth(v1):z() -- fun fact: the math works the same whether you use body_to_earth or earth_to_body
+        return alt
     end
 
     local height_above_terrain = terrain:height_above_terrain(false)
