@@ -59,8 +59,43 @@ assert(param:add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 1), 'could not add '
 --]]
 local PREARM_BYPASS = bind_add_param('PREARM_DIS', 1, 0)
 
+-- fetches the aircraft configuration from the config file and prints the model name and version
+local function get_aircraft_config(file_name)
+    local model, model_version
+    local file = io.open(file_name,"r")
+    if not file then
+        cx_msg:send(cx_msg.MAV_SEVERITY.INFO, "config file not found")
+        return
+    end
+
+    logger:log_file_content(file_name)
+    for line in file:lines() do
+        if not model then
+            local m = string.match(line, "<model>(.-)</model>")
+            if m then model = m end
+        end
+        if not model_version then
+            local v = string.match(line, "<model_version>(.-)</model_version>")
+            if v then model_version = v end
+        end
+        if model and model_version then
+            cx_msg:send(cx_msg.MAV_SEVERITY.INFO, "config (" .. model .. "_" .. model_version .. ".xml)")
+            break
+        end
+    end
+    file:close()
+
+    if not model or not model_version then
+        cx_msg:send(cx_msg.MAV_SEVERITY.INFO, "Incomplete model info in config")
+    end
+end 
+    
 -- initialize function
+local AIRCRAFT_CONFIG_PATH = "@ROMFS/AircraftConfiguration.xml"
+
 local function init()
+    get_aircraft_config(AIRCRAFT_CONFIG_PATH)
+
     -- initialize all subsystems that are part of constructor
     for _, subsystem in pairs(subsystems) do
         subsystem:init()
