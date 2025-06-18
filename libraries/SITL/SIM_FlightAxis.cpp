@@ -456,6 +456,7 @@ void FlightAxis::update(const struct sitl_input &input)
                         state.m_aircraftPositionX_MTR,
                         -state.m_altitudeASL_MTR - home.alt*0.01);
     position.xy() += origin.get_distance_NE_double(home);
+    altitude_agl = state.m_altitudeAGL_MTR;
 
     accel_body = {
         float(state.m_accelerationBodyAX_MPS2),
