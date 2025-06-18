@@ -118,16 +118,16 @@ utilities.param_add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 11)
 
 -- Script parameters for engine failsafe behavior
 local FS_ENABLE = utilities.bind_add_param("FS_ENABLE", 1)  -- Enable/disable automated actions during engine out
-local GLIDE_SPD = utilities.bind_add_param("GLIDE_SPD", 0)  -- Optimal glide airspeed in m/s
+local GLIDE_SPD = utilities.bind_add_param("GLIDE_SPD", 27)  -- Optimal glide airspeed in m/s
 local STOPDELAY = utilities.bind_add_param("STOPDELAY", 0.5)  -- Time to consider engine stopped after low RPM/vibe
 local STRTDELAY = utilities.bind_add_param("STRTDELAY", 8)  -- Time to consider engine restarted after high RPM/vibe
 local RPM_CHAN = utilities.bind_add_param("RPM_CHAN", 1)  -- RPM sensor channel
 local RPM_THRSH = utilities.bind_add_param("RPM_THRSH", 500)  -- RPM threshold for engine stop
-local VIB_THRSH = utilities.bind_add_param("VIB_THRSH", 4)  -- Vibration threshold for engine stop
+local VIB_THRSH = utilities.bind_add_param("VIB_THRSH", 10000)  -- Vibration threshold for engine stop
 local QAST_TIME = utilities.bind_add_param("QAST_TIME", 45)  -- Timeout to switch to QLand from Q_ASSIST
-local QAST_GSPD = utilities.bind_add_param("QAST_GSPD", 5)  -- Minimum ground speed to switch to QRTL or QLand from Q_ASSIST
+local QAST_GSPD = utilities.bind_add_param("QAST_GSPD", 10)  -- Minimum ground speed to switch to QRTL or QLand from Q_ASSIST
 local QRTL_TIME = utilities.bind_add_param("QRTL_TIME", 60)  -- Timeout to switch to QLand from QRTL
-local AUX_FUNC = utilities.bind_add_param("AUX_FUNC", 0)  -- RCn_OPTION number for overriding engine-out detection: stopped/auto/running
+local AUX_FUNC = utilities.bind_add_param("AUX_FUNC", 307)  -- RCn_OPTION number for overriding engine-out detection: stopped/auto/running
 
 -- Existing parameters read by the script
 local Q_RTL_ALT = utilities.bind_param("Q_RTL_ALT")  -- Altitude threshold landing
