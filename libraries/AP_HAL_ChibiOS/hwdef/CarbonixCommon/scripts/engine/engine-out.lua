@@ -146,8 +146,18 @@ local engine_stopped, triggered_failsafe = false, false
 -- Location of the guided-mode override point
 local guided_override
 
+-- During RTL QAssist, this is used to slowly correct the terrain altitude using
+-- the rangefinder. This is needed because fixed-wing modes ignore the rangefinder.
+local terrain_offset = 0
+
 -- Flight mode constants
 local MODE_RTL, MODE_GUIDED, MODE_QLAND, MODE_QRTL = 11, 15, 20, 21
+
+-- Update rate
+local UPDATE_PERIOD_MS = 200 -- 5 Hz
+
+-- Lowpass filter constants (precalculated to avoid recalculating every update)
+local ALPHA_0p2HZ = math.exp(-6.283185 * 0.2 * (UPDATE_PERIOD_MS / 1000))
 
 -- Parameter group class for managing parameter backup and restoration
 ---@class ParamGroup
@@ -335,6 +345,12 @@ local function reset_target_alt()
     For some reason, setting `TERRAIN_FOLLOW` to 1 does not guarantee that Q_RTL
     will target the correct altitude. This seems to be a bug, but I can't figure
     out the cause.
+
+    Also during this time, we use the rangefinder to gradually correct for
+    errors in the SRTM altitude. This is necessary because the fixed-wing
+    controller does not generally use the rangefinder for terrain following (for
+    good reason), but at this stage of the landing, it is sensible to use it in
+    case there are extreme errors in the SRTM data.
     --]]
 
     -- Don't reset the altitude during a final descent
@@ -351,16 +367,29 @@ local function reset_target_alt()
     local old_target = vehicle:get_target_location()
     if not old_target then return end
 
+
+    -- Gradually correct the terrain altitude using the rangefinder
+    local ter_alt = utilities.relative_ground_altitude(false, true)
+    local rng_alt = utilities.relative_ground_altitude(true, true)
+    local offset = 0 -- If rangefinder is invalid, terrain offset will decay to zero
+    if rng_alt > 0 then
+        offset = ter_alt - rng_alt
+    end
+    terrain_offset = terrain_offset * ALPHA_0p2HZ + offset * (1 - ALPHA_0p2HZ)
+
+    local target_alt = Q_RTL_ALT:get() + terrain_offset
+
     -- Check if the target is already at the correct altitude
+    local ALT_TOLERANCE = 5 -- 5 meter tolerance
     old_target:change_alt_frame(3)
-    if old_target:alt() > Q_RTL_ALT:get() * 99 and old_target:alt() < Q_RTL_ALT:get() * 101 then
+    if (old_target:alt() * 0.01) > (target_alt - ALT_TOLERANCE) and (old_target:alt() * 0.01) < (target_alt + ALT_TOLERANCE) then
         return
     end
 
-    gcs:send_text(6, "Resetting target altitude to " .. Q_RTL_ALT:get() .. "m")
+    gcs:send_text(6, "Resetting target altitude to " .. target_alt .. "m")
 
     local new_target = old_target:copy()
-    new_target:alt(Q_RTL_ALT:get() * 100)
+    new_target:alt(math.floor(target_alt * 100))
     vehicle:update_target_location(old_target, new_target)
 end
 
@@ -744,7 +773,7 @@ local function protected_wrapper()
         gcs:send_text(0, "Internal Error: " .. err)
         return protected_wrapper, 1000  -- Retry after 1 second on error
     end
-    return protected_wrapper, 200 -- Normal update rate at 5Hz
+    return protected_wrapper, UPDATE_PERIOD_MS -- Normal update rate
 end
 
 return protected_wrapper() -- Start the update loop
