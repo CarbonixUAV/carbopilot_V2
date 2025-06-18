@@ -245,11 +245,80 @@ jobs:
         with:
           name: build-periph-${{ matrix.config }}
           path: output/
+
+  build-periph-other:
+    runs-on: ubuntu-22.04
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
+    needs: setup-s3-path
+    container: ardupilot/ardupilot-dev-${{ matrix.toolchain }}:v0.1.3
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [
+          MatekL431-Carbonix-EIB,
+        ]
+        
+        toolchain: [ chibios ]
+        gcc: [10]
+        exclude:
+          - gcc: 10
+            toolchain: chibios-clang
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # PR runs, by default, create a merge commit and then checkout the merge commit. We don't want that.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref }}
+          submodules: 'recursive'
+          
+      - name: Prepare ccache timestamp
+        id: ccache_cache_timestamp
+        run: |
+          NOW=$(date -u +"%F-%T")
+          echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
+          
+      - name: ccache cache files
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}-${{steps.ccache_cache_timestamp.outputs.timestamp}}
+          restore-keys: ${{github.workflow}}-ccache-${{matrix.config}}-${{ matrix.toolchain }}-${{ matrix.gcc }}
+          
+      - name: setup ccache
+        run: |
+          . .github/workflows/ccache.env
+
+      - name: build ${{matrix.config}}
+        shell: bash
+        run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
+          if [[ ${{ matrix.toolchain }} == "chibios-clang" ]]; then
+          export CC=clang
+          export CXX=clang++
+          fi
+          PATH="/usr/lib/ccache:/opt/gcc-arm-none-eabi-${{matrix.gcc}}/bin:$PATH"
+          PATH="/github/home/.local/bin:$PATH"
+          ./waf configure --board=${{ matrix.config }}
+          ./waf AP_Periph
+          ccache -s
+          ccache -z
+
+      - name: Copy output files
+        run: |
+          mkdir -p output/${{ matrix.config }}
+          cp build/${{ matrix.config }}/bin/AP_Periph.bin output/${{ matrix.config }}/AP_Periph.bin
+          cp libraries/AP_HAL_ChibiOS/hwdef/${{ matrix.config }}/defaults.parm output/${{ matrix.config }}/defaults.parm
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-periph-other-${{ matrix.config }}
+          path: output/
   
   collect-aircraft-config-files:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'SKIP_BUILD') }}
     runs-on: ubuntu-22.04
-    needs: build-periph
+    needs: [build-periph, build-periph-other]
     outputs:
       aircraft-config-files: ${{ steps.collect.outputs.aircraft-config-files }}
     steps:
