@@ -176,6 +176,8 @@ def get_periph_board_names(xml_file : str) -> set:
         board_name = cpn.find('board_name')
         if board_name is None:
             raise AssertionError(f"'board_name' missing for CPN {cpn.get('id')} in {xml_file}")
+        # Strip off the 'org.ardupilot.' prefix if it exists
+        board_name.text = board_name.text.replace('org.ardupilot.', '', 1)
         firmware_path = cpn.find('firmware_path')
         # If there is no firmware path, we don't need to bundle it
         if firmware_path is None:
