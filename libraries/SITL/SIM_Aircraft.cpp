@@ -473,15 +473,17 @@ void Aircraft::fill_fdm(struct sitl_fdm &fdm)
 // @Field: VD: Velocity down
 // @Field: As: Airspeed
 // @Field: ASpdU: Achieved simulation speedup value
+// @Field: AGL: Altitude above ground level
         Vector3d pos = get_position_relhome();
         Vector3f vel = get_velocity_ef();
-        AP::logger().WriteStreaming("SIM2", "TimeUS,PN,PE,PD,VN,VE,VD,As,ASpdU",
-                                    "Qdddfffff",
+        AP::logger().WriteStreaming("SIM2", "TimeUS,PN,PE,PD,VN,VE,VD,As,ASpdU,AGL",
+                                    "Qdddffffff",
                                     AP_HAL::micros64(),
                                     pos.x, pos.y, pos.z,
                                     vel.x, vel.y, vel.z,
                                     airspeed_pitot,
-                                    achieved_rate_hz/rate_hz);
+                                    achieved_rate_hz/rate_hz,
+                                    altitude_agl);
     }
 #endif
 }

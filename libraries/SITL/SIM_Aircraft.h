@@ -183,6 +183,7 @@ protected:
     Vector3f velocity_air_ef;            // velocity relative to airmass, earth frame
     Vector3f velocity_air_bf;            // velocity relative to airmass, body frame
     Vector3d position;                   // meters, NED from origin
+    float altitude_agl;                  // metres, above ground level
     float mass;                          // kg
     float external_payload_mass;         // kg
     Vector3f accel_body{0.0f, 0.0f, -GRAVITY_MSS}; // m/s/s NED, body frame
