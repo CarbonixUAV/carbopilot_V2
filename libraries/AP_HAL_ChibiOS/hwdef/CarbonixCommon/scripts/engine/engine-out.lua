@@ -353,8 +353,8 @@ local function reset_target_alt()
     case there are extreme errors in the SRTM data.
     --]]
 
-    -- Don't reset the altitude during a final descent
-    if quadplane:in_vtol_land_descent() then
+    -- Don't reset the altitude during descent or if disarmed
+    if quadplane:in_vtol_land_descent() or not arming:is_armed() then
         return
     end
 
