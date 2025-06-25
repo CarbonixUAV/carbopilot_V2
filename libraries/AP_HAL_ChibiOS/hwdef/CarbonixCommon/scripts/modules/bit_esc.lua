@@ -7,7 +7,7 @@ local ESC = {
     number_of_esc = 0,
 
     -- CONSTANTS
-    ESC_WARMUP_TIME = 3000,
+    ESC_WARMUP_TIME = 1000,
     ESC_RPM_THRESHOLD = 10,
     SERVO_OUT_THRESHOLD = 1010,
     -- wait 4 seconds after safety is engaged, to prevent ESC DROP messages
@@ -69,7 +69,7 @@ end
 
 -- Call this function whenever a motor starts running
 function ESC:esc_is_started(i)
-    -- Set the warm-up end time for this ESC to 3 seconds from now
+    -- Set the warm-up end time to ESC_WARMUP_TIME seconds from now
     self.esc_warmup_end_time[i] = millis() + self.ESC_WARMUP_TIME
 end
 
