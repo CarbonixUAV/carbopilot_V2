@@ -155,6 +155,8 @@ public:
 
     enum class OPTION {
         PPP_ETHERNET_GATEWAY=(1U<<0),
+        PPP_TIMEOUT_DISABLE=(1U<<5),
+        PPP_ECHO_LIMIT_DISABLE=(1U<<6),
     };
     bool option_is_set(OPTION option) const {
         return (param.options.get() & int32_t(option)) != 0;
