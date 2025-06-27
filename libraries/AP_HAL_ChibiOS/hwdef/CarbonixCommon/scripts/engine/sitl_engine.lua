@@ -35,7 +35,7 @@ end
 -- Set up EFI parameters
 PARAM_TABLE_PREFIX = 'SIM_ICE_'
 PARAM_TABLE_KEY = 36
-assert(param:add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 8), 'could not add ' .. string.sub(PARAM_TABLE_PREFIX, 1, -2) .. ' param table')
+assert(param:add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 10), 'could not add ' .. string.sub(PARAM_TABLE_PREFIX, 1, -2) .. ' param table')
 --[[
   // @Param: SIM_ICE_CHT1_INC
   // @DisplayName: CHT1 Increase
@@ -102,6 +102,22 @@ local IGN_PIN = bind_add_param('IGN_PIN', 7, 0)
   // @Range -1 31
 --]]
 local STRT_PIN = bind_add_param('STRT_PIN', 8, 1)
+--[[
+  // @Param: SIM_ICE_EGT1_INC
+  // @DisplayName: EGT1 Increase
+  // @Description: Causes the temperature of exhaust gas 1 to increase by this much
+  // @Range: -300 300
+  // @Units: degC
+--]]
+local EGT1_INCREASE = bind_add_param('EGT1_INC', 9, 0)
+--[[
+  // @Param: SIM_ICE_EGT2_INC
+  // @DisplayName: EGT2 Increase
+  // @Description: Causes the temperature of exhaust gas 2 to increase by this much
+  // @Range: -300 300
+  // @Units: degC
+--]]
+local EGT2_INCREASE = bind_add_param('EGT2_INC', 10, 0)
 
 -- We look at RPM2 to see if another source (RealFlight) should provide the RPM
 -- instead of us making one up based on the throttle PWM.
@@ -131,6 +147,22 @@ local CHT2_FIT_VALUES = {
     IDLE_DT_HOVER = 115.5,    -- Idle throttle delta temperature while stationary (°C)
     TCONST_CRUISE = 28.6,     -- Time constant for thermal inertia at cruise speed (s)
     KAPPA = 2.00,             -- Scaling factor for thermal inertia changes with airspeed
+}
+
+local EGT_FIT_VALUES = {
+    FULL_DT_CRUISE = 580.0,   -- Full throttle delta temperature at cruise speed (°C)
+    IDLE_DT_CRUISE = 350.0,   -- Idle throttle delta temperature at cruise speed (°C)
+    IDLE_DT_HOVER = 350.0,    -- Idle throttle delta temperature while stationary (°C)
+    TCONST_CRUISE = 6.0,      -- Time constant for thermal inertia at cruise speed (s)
+    KAPPA = 0.0,              -- Scaling factor for thermal inertia changes with airspeed
+}
+
+local EGT2_FIT_VALUES = {
+    FULL_DT_CRUISE = 590.0,   -- Full throttle delta temperature at cruise speed (°C)
+    IDLE_DT_CRUISE = 355.0,   -- Idle throttle delta temperature at cruise speed (°C)
+    IDLE_DT_HOVER = 355.0,    -- Idle throttle delta temperature while stationary (°C)
+    TCONST_CRUISE = 5.0,      -- Time constant for thermal inertia at cruise speed (s)
+    KAPPA = 0.0,              -- Scaling factor for thermal inertia changes with airspeed
 }
 
 local FUEL_FIT_VALUES = {
@@ -214,6 +246,7 @@ local function engine_control()
     local fuel_total_l = 0
     local temps = {
         cht = {get_air_temperature(), get_air_temperature()}, -- Cylinder head temperatures
+        egt = {get_air_temperature(), get_air_temperature()}, -- Exhaust gas temperatures
         imt = get_air_temperature(), -- Intake manifold temperature
     }
     local is_running = false
@@ -228,6 +261,8 @@ local function engine_control()
         -- Cylinder_Status
         cylinder_state:cylinder_head_temperature(c_to_kelvin(temps.cht[1]))
         cylinder_state:cylinder_head_temperature2(c_to_kelvin(temps.cht[2]))
+        cylinder_state:exhaust_gas_temperature(c_to_kelvin(temps.egt[1]))
+        cylinder_state:exhaust_gas_temperature2(c_to_kelvin(temps.egt[2]))
 
         efi_state:engine_speed_rpm(uint32_t(rpm))
 
@@ -359,6 +394,18 @@ local function engine_control()
 
             -- Update CHT towards steady state
             temps.cht[i] = update_cht(temps.cht[i], cht_steady, airspeed, params.TCONST_CRUISE, params.KAPPA)
+        end
+
+        -- Simulate EGT1 and EGT2
+        for i = 1, 2 do
+            local params = (i == 1) and EGT_FIT_VALUES or EGT2_FIT_VALUES
+            local egt_increase = (i == 1) and EGT1_INCREASE:get() or EGT2_INCREASE:get()
+
+            -- Calculate the steady state EGT at our current rpm and airspeed
+            local egt_steady = self.calculate_cht_steady(airspeed, params, egt_increase)
+
+            -- Update EGT towards steady state
+            temps.egt[i] = update_cht(temps.egt[i], egt_steady, airspeed, params.TCONST_CRUISE, params.KAPPA)
         end
 
         -- Simulate fuel consumption
