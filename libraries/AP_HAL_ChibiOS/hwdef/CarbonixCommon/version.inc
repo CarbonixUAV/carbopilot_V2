@@ -1,1 +1,1 @@
-define AP_CUSTOM_FIRMWARE_STRING "CxPilot-7.2.0"
+define AP_CUSTOM_FIRMWARE_STRING "CxPilot-7.3.0-dev"
