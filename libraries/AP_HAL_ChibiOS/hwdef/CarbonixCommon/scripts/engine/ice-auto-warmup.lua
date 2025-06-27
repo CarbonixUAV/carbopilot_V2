@@ -123,17 +123,22 @@ end
 
 -- main update function
 local function update()
+
+    --Only run if warmup is enabled and Disarmed
+    if (WARMUP_ENABLED:get() == 0 or arming:is_armed()) then
+        if Warmup_Status ~= STATUS_DONE then
+            Warmup_Status = STATUS_DONE
+            ICE_IDLE_RPM:set(idle_rpm)
+        end
+        return
+    end
+
     local engine = efi:get_state()
     local cylinder_status = engine:cylinder_status()
     local cht1 = Kelvin_to_C(cylinder_status:cylinder_head_temperature())
     local cht2 = Kelvin_to_C(cylinder_status:cylinder_head_temperature2())
     local min_cht = math.min(cht1, cht2)
-    local engine_running = engine:engine_speed_rpm() > 2000
-
-    --Only run if warmup is enabled and Disarmed
-    if WARMUP_ENABLED:get() == 0 or arming:is_armed() then
-        return
-    end
+    local engine_running = engine:engine_speed_rpm() > 300
 
     --Check if engine is running
     if engine_running then
