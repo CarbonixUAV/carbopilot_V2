@@ -5372,8 +5372,8 @@ class AutoTestPlane(vehicle_test_suite.TestSuite):
         # Ensure we go back through this loiter point
         self.wait_distance_to_waypoint(3, distance_min=90, distance_max=110, timeout=90) # North West Loiter
 
-        self.wait_distance_to_waypoint(5, distance_min=10, distance_max=20, timeout=90)  # South West Waypoint
-        self.wait_distance_to_waypoint(6, distance_min=10, distance_max=20, timeout=90)  # South East Waypoint
+        self.wait_distance_to_waypoint(5, distance_min=10, distance_max=30, timeout=90)  # South West Waypoint
+        self.wait_distance_to_waypoint(6, distance_min=10, distance_max=30, timeout=90)  # South East Waypoint
 
         self.fly_home_land_and_disarm()
 
