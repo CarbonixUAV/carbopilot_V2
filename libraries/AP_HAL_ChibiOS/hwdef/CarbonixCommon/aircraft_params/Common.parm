@@ -37,6 +37,7 @@ EK3_SRC1_POSZ,3
 FENCE_AUTOENABLE,3
 FENCE_ENABLE,1
 FENCE_OPTIONS,0
+FLIGHT_OPTIONS,2 # Use centered throttle in Cruise or FBWB to indicate trim airspeed
 FLTMODE1,18 # QHover
 FLTMODE2,18
 FLTMODE3,19 # QLoiter
