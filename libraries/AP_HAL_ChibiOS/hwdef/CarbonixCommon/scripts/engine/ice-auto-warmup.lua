@@ -70,7 +70,7 @@ local WARMUP_ENDTEMP  = bind_add_param('ENDTEMP', 3, 120)
   // @Range: 2400 4000
   // @Units: RPM
 --]]
-local WARMUP_RPM  = bind_add_param('RPM', 4, 3000)
+local WARMUP_RPM  = bind_add_param('RPM', 4, 3200)
 
 
 local ICE_IDLE_RPM = bind_param("ICE_IDLE_RPM")
