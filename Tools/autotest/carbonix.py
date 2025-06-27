@@ -7,6 +7,7 @@ AP_FLAKE8_CLEAN
 
 from quadplane import AutoTestQuadPlane
 from pysim import vehicleinfo
+from pymavlink import mavutil
 from vehicle_test_suite import AutoTestTimeoutException, NotAchievedException
 from cx_vehicle_bundle import copy_frame_scripts
 
@@ -51,6 +52,57 @@ class AutoTestCarbonix(AutoTestQuadPlane):
         except AutoTestTimeoutException:
             return
         raise AssertionError(f"Text '{text}' appeared")
+
+    def assert_receive_named_value_float(self, name, timeout=10):
+        tstart = self.get_sim_time_cached()
+        while True:
+            if self.get_sim_time_cached() - tstart > timeout:
+                raise NotAchievedException("Did not get NAMED_VALUE_FLOAT %s" % name)
+            m = self.assert_receive_message('NAMED_VALUE_FLOAT', verbose=0, very_verbose=0, timeout=timeout)
+            if m.name != name:
+                continue
+            return m
+
+    def wait_not_ready_to_arm(self, timeout=5):
+        self.wait_sensor_state(mavutil.mavlink.MAV_SYS_STATUS_PREARM_CHECK, True, True, False, timeout=timeout)
+
+    def wait_for_engine_temp(self, idx=1, is_cht=True, temp_min=-280, temp_max=6000, timeout=10):
+        """
+        Waits until the desired engine temperature is reached.
+
+        Args:
+            idx (int): The index of the cylinder to check.
+            is_cht (bool): If True, checks Cylinder Head Temperature (CHT), otherwise checks Exhaust Gas Temperature (EGT).
+            temp_min (int): Minimum temperature to wait for.
+            temp_max (int): Maximum temperature to wait for.
+            timeout (int): Maximum time to wait in seconds.
+        """
+
+        if idx == 1 and is_cht:
+            def get_temp():
+                return self.assert_receive_message('EFI_STATUS', timeout=timeout).cylinder_head_temperature
+        elif idx == 2 and is_cht:
+            def get_temp():
+                return self.assert_receive_named_value_float('CHT2', timeout=timeout).value
+        elif idx == 1 and not is_cht:
+            def get_temp():
+                return self.assert_receive_message('EFI_STATUS', timeout=timeout).exhaust_gas_temperature
+        elif idx == 2 and not is_cht:
+            def get_temp():
+                return self.assert_receive_named_value_float('EGT2', timeout=timeout).value
+        else:
+            raise ValueError(f'Invalid CHT index {idx}, must be 1 or 2')
+
+        def validator(cht, _):
+            return temp_min <= cht <= temp_max
+        self.wait_and_maintain(
+            value_name=f'CHT{idx}' if is_cht else f'EGT{idx}',
+            target=(temp_min + temp_max) / 2,
+            current_value_getter=get_temp,
+            accuracy=(temp_max - temp_min),
+            validator=validator,
+            timeout=timeout,
+        )
 
     def CX_BIT(self):
         '''Test Carbonix's Built-in-Test (BIT) script'''
@@ -201,6 +253,82 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             # Restore everything
             self.context_pop()
 
+        def TestEngineWarnings():
+            self.context_push()
+            self.context_collect('STATUSTEXT')
+            self.wait_ready_to_arm()
+
+            self.progress('Starting engine')
+            self.set_rc(3, 1000)
+            self.change_mode('MANUAL')
+            self.set_safetyswitch_off()
+            self.run_cmd_int(
+                command=mavutil.mavlink.MAV_CMD_DO_ENGINE_CONTROL,
+                p1=1,  # Start the engine
+            )
+            self.wait_rpm(1, 1000, 9000, timeout=10)
+            self.progress('Engine started successfully')
+            self.wait_text('Engine cold', check_context=True)
+
+            self.progress('Waiting for engine warmup')
+            self.wait_for_engine_temp(idx=1, temp_min=120, temp_max=300, timeout=600)
+            self.wait_for_engine_temp(idx=2, temp_min=120, temp_max=300, timeout=600)
+            self.wait_text('Engine needs runup to', check_context=True)
+
+            self.progress('Engine runup')
+            self.set_rc(3, 2000)
+            self.wait_rpm(1, 6500, 8000, timeout=10)
+            self.set_rc(3, 1000)
+            self.wait_rpm(1, 2000, 4000, timeout=10)
+            self.wait_ready_to_arm()
+
+            self.progress('Overheat engine')
+            self.context_clear_collection('STATUSTEXT')
+            self.set_rc(3, 2000)
+            self.wait_for_engine_temp(idx=1, temp_min=280, temp_max=600, timeout=180)
+            self.wait_not_ready_to_arm()
+            self.wait_text('Engine hot', check_context=True)
+            self.set_rc(3, 1000)
+            self.wait_for_engine_temp(idx=1, temp_min=100, temp_max=280, timeout=180)
+            self.wait_ready_to_arm()
+
+            self.progress('EGT overheat')
+            self.context_clear_collection('STATUSTEXT')
+            self.set_parameter('SIM_ICE_EGT1_INC', 900)
+            self.set_parameter('SIM_ICE_EGT2_INC', 900)
+            self.set_rc(3, 1500)
+            self.wait_for_engine_temp(is_cht=False, temp_min=740, temp_max=1000, timeout=600)
+            self.wait_not_ready_to_arm()
+            self.wait_text('Engine hot', check_context=True)
+            self.set_parameter('SIM_ICE_EGT1_INC', 0)
+            self.set_parameter('SIM_ICE_EGT2_INC', 0)
+            self.set_rc(3, 1000)
+            self.wait_for_engine_temp(is_cht=False, temp_min=100, temp_max=700, timeout=600)
+            self.wait_ready_to_arm()
+
+            self.progress('Large CHT difference')
+            self.context_clear_collection('STATUSTEXT')
+            self.set_parameter('SIM_ICE_CHT1_INC', -300)
+            self.set_rc(3, 1500)
+            self.wait_not_ready_to_arm(timeout=600)
+            self.wait_text('CHT1 cold', check_context=True)
+            self.set_rc(3, 1000)
+            self.set_parameter('SIM_ICE_CHT1_INC', 0)
+            self.wait_ready_to_arm(timeout=600)
+
+            self.progress('Large EGT difference')
+            self.context_clear_collection('STATUSTEXT')
+            self.set_parameter('SIM_ICE_EGT1_INC', -300)
+            self.set_rc(3, 1500)
+            self.wait_not_ready_to_arm(timeout=600)
+            self.wait_text('EGT1 cold', check_context=True)
+            self.set_rc(3, 1000)
+            self.set_parameter('SIM_ICE_EGT1_INC', 0)
+            self.wait_ready_to_arm(timeout=600)
+
+            # Restore everything
+            self.context_pop()
+
         # Count the number of ESCs
         frame_class = self.get_parameter('Q_FRAME_CLASS')
         if frame_class == 1:  # Quad
@@ -241,6 +369,10 @@ class AutoTestCarbonix(AutoTestQuadPlane):
         self.start_subtest('Test GPS')
         for i in range(2):
             TestGPSPrearm(i)
+
+        self.start_subtest('Test engine warnings')
+        if has_engine:
+            TestEngineWarnings()
 
     def disabled_tests(self):
         return dict()
