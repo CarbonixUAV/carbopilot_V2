@@ -1,16 +1,17 @@
 local cx_msg = require("msg")
 local cx_esc = require("bit_esc")
 local cx_gps = require("bit_gps")
+local cx_engine = require("bit_engine")
 
 -- Add subsystems that require Built-in-test (implemented in subsystems)
 -- Each subsystem should have the following functions:
 -- 1. init() - initialize the subsystem
--- 2. update() - update the subsystem
+-- 2. update() - update the subsystem, send in-flight error messages if needed
 -- 3. check_for_errors() - returns pre-arm checks/errors in the subsystem
---                       - built in test errors are managed by each subsystem
 local subsystems = {
     cx_esc,
     cx_gps,
+    cx_engine,
 }
 
 -- auth id for prearm check
@@ -55,7 +56,7 @@ assert(param:add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 1), 'could not add '
   // @Param: BIT_PREARM_DIS
   // @DisplayName: Built-In-Test Prearm Bypass Mask
   // @Description: Allows bypassing prearm checks for individual subsystems
-  // @Bitmask: 0:ESC, 1:GPS
+  // @Bitmask: 0:ESC, 1:GPS, 2:Engine
 --]]
 local PREARM_BYPASS = bind_add_param('PREARM_DIS', 1, 0)
 

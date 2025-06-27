@@ -120,6 +120,10 @@
             <destination_path>modules/bit_gps.lua</destination_path>
         </lua_script>
         <lua_script>
+            <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/modules/bit_engine.lua</source_path>
+            <destination_path>modules/bit_engine.lua</destination_path>
+        </lua_script>
+        <lua_script>
             <source_path>libraries/AP_HAL_ChibiOS/hwdef/CarbonixCommon/scripts/modules/msg.lua</source_path>
             <destination_path>modules/msg.lua</destination_path>
         </lua_script>
