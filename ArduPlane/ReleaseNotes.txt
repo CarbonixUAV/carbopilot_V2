@@ -1,3 +1,61 @@
+Release 7.2.0 1st July 2025
+------------------------------------------------------------------
+This is the first release for the Octo Ottano. This contains many small improvements to Ottano as a
+whole.
+
+Fleetwide Changes:
+- QAssist is significantly more sensitive
+  - QAssist will trigger above 43 degrees roll angle (reviously 65 degrees)
+  - QAssist will trigger immediately for either angle error or low speed (previously a 0.5s delay)
+  - This may lead to increased occurance, particularly in high-wind/gusty conditions
+- Bugfix: LOITER_TURNS with 0 turns no longer get randomly skipped
+  - The aircraft must reach the zero-turn loiter
+  - Additionally, if necessary, will wait until it is pointed at the next waypoint before exiting
+- Built-in Test (BIT): "RPM Drop" response time reduced from 3 seconds to 1 second
+- Transition/QAssist now turns more gracefully
+  - Previously the VTOL controller fought against coordinated turns
+- Cruise: mid-stick on throttle now commands whatever cruise speed is set in the action panel.
+  - Previously, mid-stick commanded exactly halfway between min and max airspeed
+- RGB LEDs on CAN GPSs now flash the correct color codes
+
+Ottano Changes:
+- Added Ottano AC_3 configuration (i.e., the Octo Ottano). Key differences with the older aircraft:
+  - 8 VTOL motors
+  - Higher speeds due to high MTOW:
+    - Cruise speed: 27m/s
+    - Min speed: 25m/s
+    - Max speed: 36m/s
+    - QAssist speed: 23m/s
+  - Slower max climb rate of 2m/s due to the high MTOW
+- Calibrated fuel burn to report accurately (100g or 1%, whichever is larger)
+- Removed engine-start switch from controller configuration (engine is controlled through Planner)
+- Added differential aileron.
+  - Downward deflection reduced to 30% of what they did previously
+  - Upward deflection unchanged
+- Built-in Test (BIT): Engine prearm checks and in-flight warnings:
+  - CHT below 100C
+  - CHT above 280C
+  - EGT above 720C
+  - CHT difference of 50C
+  - EGT difference of 50C
+  - Prearm check that greater-than 6700 RPM seen during engine runup
+- Engine warmup sequence is now automated
+  - Must still be done in manual mode, but no other intervention is required
+- Engine no longer throttles back partially during transition to forward flight
+- Improved pusher-motor assistance in hover
+- Increased weathervaning agressiveness
+
+Technical:
+- Fixed throttle linearization fit for Ottano
+- L1 nav controller improvements on Ottano
+- Tighter fixed-wing tune on Ottano
+- PPP networking stability fixes
+- CRSF telemetry enabled in build
+- Added DroneCAN option to ignore ESC offset on receive
+- Fixed race condition causing random nils from lua ESC RPM getters
+- SITL: fixed bug where scripting-backend battery monitors could cause a hardfault
+
+
 Release 7.1.0 12th February 2025
 ------------------------------------------------------------------
 This release is mostly a refactor and expansion of our warning/prearm (Built-in-Test) lua script.
