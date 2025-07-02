@@ -70,6 +70,7 @@ RNGFND1_PIN,0
 RNGFND1_SCALING,40
 RNGFND1_TYPE,1
 @delete SCR_*_CHECKSUM
+SCR_HEAP_SIZE,300000 # SITL runs more scripts and needs more heap space
 @delete SERIAL* # SITL does not need to replicate serial assignments
 @delete SERVO*
 SERVO3_MAX,2000
