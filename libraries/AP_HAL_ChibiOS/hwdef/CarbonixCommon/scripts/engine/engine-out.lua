@@ -107,6 +107,12 @@ Parameters:
     // @Description: RCn_OPTION to assign to override engine-out detection. A low position means engine is definitely stopped, a high position means engine is definitely running, and mid position means detect as normal.
     // @Values: 0:Disabled,300:Scripting1, 301:Scripting2, 302:Scripting3, 303:Scripting4, 304:Scripting5, 305:Scripting6, 306:Scripting7, 307:Scripting8
     // @User: Standard
+
+    // @Param: ENGOUT_PREARM
+    // @DisplayName: Engine running pre-arm check
+    // @Description: Check that the engine is running before arming. Setting this to 0 will disable that prearm check (but the parameter validation checks will still run). This parameter resets to 1 each boot.
+    // @Values: 0:Disabled,1:Enabled
+    // @User: Standard
 --]]
 
 -- Script initialization and parameter binding
@@ -114,7 +120,7 @@ local SCRIPT_NAME = "Engine Failsafe Script"
 local PARAM_TABLE_KEY = 62 -- Arbitrary, but must be unique among all scripts loaded
 local PARAM_TABLE_PREFIX = "ENGOUT_"
 local utilities = require("utilities")
-utilities.param_add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 11)
+utilities.param_add_table(PARAM_TABLE_KEY, PARAM_TABLE_PREFIX, 12)
 
 -- Script parameters for engine failsafe behavior
 local FS_ENABLE = utilities.bind_add_param("FS_ENABLE", 1)  -- Enable/disable automated actions during engine out
@@ -128,6 +134,7 @@ local QAST_TIME = utilities.bind_add_param("QAST_TIME", 45)  -- Timeout to switc
 local QAST_GSPD = utilities.bind_add_param("QAST_GSPD", 10)  -- Minimum ground speed to switch to QRTL or QLand from Q_ASSIST
 local QRTL_TIME = utilities.bind_add_param("QRTL_TIME", 60)  -- Timeout to switch to QLand from QRTL
 local AUX_FUNC = utilities.bind_add_param("AUX_FUNC", 307)  -- RCn_OPTION number for overriding engine-out detection: stopped/auto/running
+local PREARM = utilities.bind_add_param("PREARM", 1)  -- Pre-arm check for engine running
 
 -- Existing parameters read by the script
 local Q_RTL_ALT = utilities.bind_param("Q_RTL_ALT")  -- Altitude threshold landing
@@ -588,7 +595,7 @@ local function pre_arm_checks()
         end
     end
 
-    if not is_running then
+    if (PREARM:get() > 0) and not is_running then
         arming:set_aux_auth_failed(arming_auth_id, failure_message)
         return
     end
@@ -760,6 +767,10 @@ local function update()
         end
     end
 end
+
+
+-- Reset the prearm parameter during init
+PREARM:set(1)  -- Reset pre-arm check to enabled
 
 -- Script is now loaded, print success message and start the protected loop
 gcs:send_text(6, SCRIPT_NAME .. string.format(" loaded"))
