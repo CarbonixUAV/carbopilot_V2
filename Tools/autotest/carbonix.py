@@ -339,6 +339,11 @@ class AutoTestCarbonix(AutoTestQuadPlane):
             raise ValueError(f'Unsupported frame class {frame_class}')
         has_engine = self.get_parameter('ICE_ENABLE')
 
+        if has_engine:
+            # Disable the engine-running pre-arm check from engine-out.lua
+            # (it interferes with the BIT pre-arm check tests)
+            self.set_parameter('ENGOUT_PREARM', 0)
+
         # Find the servo assignments for the ESCs
         vtol_servos = {}
         pusher_servo = None
