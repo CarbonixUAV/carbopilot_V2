@@ -15,9 +15,10 @@ BATT_OPTIONS,576 # 6:Send resistance compensated voltage to GCS, 9:Sum monitor m
 BATT_SUM_MASK,24 # Sum of BATT4 and BATT5
 # Battery 2: Avionics Battery
 BATT2_CAPACITY,5100
-BATT2_CRT_VOLT,22
+BATT2_CRT_VOLT,21.5
 BATT2_FS_CRT_ACT,1 # RTL
 BATT2_LOW_VOLT,23
+BATT2_LOW_TIMER,60 # 1 minute
 BATT2_MONITOR,8 # DroneCAN
 BATT2_SERIAL_NUM,2 # DroneCAN Battery index to listen to
 # Battery 3: Fuel Level Sensor
