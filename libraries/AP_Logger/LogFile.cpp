@@ -475,6 +475,20 @@ void AP_Logger::Write_ServoStatus(uint64_t time_us, uint8_t id, float position, 
     WriteBlock(&pkt, sizeof(pkt));
 }
 
+void AP_Logger::Write_FuelTankStatus(uint64_t time_us, uint8_t fuel_volume_percent, float fuel_vol_cm3, float fuel_rate_cm3pm,
+                                    float fuel_temp, uint8_t tank_id)
+{
+    const struct log_FTANK pkt {
+        LOG_PACKET_HEADER_INIT(LOG_FTANK_MSG),
+        time_us                       : time_us,
+        fuel_vol_perc                 : fuel_volume_percent,
+        fuel_vol_cm3                  : fuel_vol_cm3,
+        fuel_consume_rate             : fuel_rate_cm3pm,
+        fuel_temp                     : fuel_temp, 
+        tank_id                       : tank_id,
+    };
+    WriteBlock(&pkt, sizeof(pkt));        
+}
 
 // Write a Yaw PID packet
 void AP_Logger::Write_PID(uint8_t msg_type, const AP_PIDInfo &info)

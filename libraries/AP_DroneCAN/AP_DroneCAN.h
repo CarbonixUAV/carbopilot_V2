@@ -397,6 +397,9 @@ private:
 #if AP_EXTENDED_ESC_TELEM_ENABLED
     void handle_esc_ext_status(const CanardRxTransfer& transfer, const uavcan_equipment_esc_StatusExtended& msg);
 #endif
+#if AP_FUEL_TANK_STATUS_ENABLED
+    void handle_fuel_tank_status(const CanardRxTransfer& transfer, const uavcan_equipment_ice_FuelTankStatus& msg); 
+#endif
     static bool is_esc_data_index_valid(const uint8_t index);
     void handle_debug(const CanardRxTransfer& transfer, const uavcan_protocol_debug_LogMessage& msg);
     void handle_param_get_set_response(const CanardRxTransfer& transfer, const uavcan_protocol_param_GetSetResponse& rsp);

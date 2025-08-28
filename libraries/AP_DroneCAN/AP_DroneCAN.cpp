@@ -1383,6 +1383,24 @@ void AP_DroneCAN::handle_actuator_status(const CanardRxTransfer& transfer, const
 #endif
 }
 
+#if AP_FUEL_TANK_STATUS_ENABLED
+/*
+    handle ice fuel tank Status message
+*/
+void handle_fuel_tank_status(const CanardRxTransfer& transfer, const uavcan_equipment_ice_FuelTankStatus& msg)
+{
+#if HAL_LOGGING_ENABLED
+     AP::logger().Write_FuelTankStatus(AP_HAL::micros64(),
+                                   msg.available_fuel_volume_percent,
+                                   msg.available_fuel_volume_cm3,
+                                   msg.fuel_consumption_rate_cm3pm,
+                                   msg.fuel_temperature,
+                                   msg.fuel_tank_id);
+#endif
+}
+
+#endif //AP_FUEL_TANK_STATUS_ENABLED
+
 #if AP_DRONECAN_HIMARK_SERVO_SUPPORT
 /*
   handle himark ServoInfo message

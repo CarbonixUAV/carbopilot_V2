@@ -504,6 +504,16 @@ struct PACKED log_CSRV {
     uint8_t error;
 };
 
+struct PACKED log_FTANK {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint8_t fuel_vol_perc;
+    float fuel_vol_cm3;
+    float fuel_consume_rate;
+    float fuel_temp;
+    uint8_t tank_id;
+};
+
 struct PACKED log_ARSP {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -1276,6 +1286,8 @@ LOG_STRUCTURE_FROM_AVOIDANCE \
 LOG_STRUCTURE_FROM_ESC_TELEM \
     { LOG_CSRV_MSG, sizeof(log_CSRV), \
       "CSRV","QBfffBfffffB","TimeUS,Id,Pos,Force,Speed,Pow,PosCmd,V,A,MotT,PCBT,Err", "s#---%dvAOO-", "F-000000000-", true }, \
+    { LOG_FTANK_MSG, sizeof(log_FTANK), \
+      "FTANK","QBfffB","TimeUS,FuelPerc,FuelVol,FuelCons,FuelTemp,TankID", "s%--d#", "F0000-", true }, \
     { LOG_PIDR_MSG, sizeof(log_PID), \
       "PIDR", PID_FMT,  PID_LABELS, PID_UNITS, PID_MULTS, true },  \
     { LOG_PIDP_MSG, sizeof(log_PID), \
@@ -1364,6 +1376,7 @@ enum LogMessages : uint8_t {
     LOG_IDS_FROM_MOUNT,
     LOG_TERRAIN_MSG,
     LOG_CSRV_MSG,
+    LOG_FTANK_MSG,
     LOG_IDS_FROM_ESC_TELEM,
     LOG_IDS_FROM_BATTMONITOR,
     LOG_IDS_FROM_HAL_CHIBIOS,
