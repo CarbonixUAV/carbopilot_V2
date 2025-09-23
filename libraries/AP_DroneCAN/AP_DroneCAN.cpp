@@ -1387,9 +1387,10 @@ void AP_DroneCAN::handle_actuator_status(const CanardRxTransfer& transfer, const
 /*
     handle ice fuel tank Status message
 */
-void handle_fuel_tank_status(const CanardRxTransfer& transfer, const uavcan_equipment_ice_FuelTankStatus& msg)
+void AP_DroneCAN::handle_fuel_tank_status(const CanardRxTransfer& transfer, const uavcan_equipment_ice_FuelTankStatus& msg)
 {
 #if HAL_LOGGING_ENABLED
+    //Log as FTANK message
      AP::logger().Write_FuelTankStatus(AP_HAL::micros64(),
                                    msg.available_fuel_volume_percent,
                                    msg.available_fuel_volume_cm3,

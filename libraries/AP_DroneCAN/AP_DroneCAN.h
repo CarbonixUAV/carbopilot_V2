@@ -333,6 +333,11 @@ private:
     Canard::Subscriber<uavcan_equipment_esc_StatusExtended> esc_status_extended_listener{esc_status_extended_cb, _driver_index};
 #endif
 
+#if AP_FUEL_TANK_STATUS_ENABLED
+    Canard::ObjCallback<AP_DroneCAN, uavcan_equipment_ice_FuelTankStatus> fuel_tank_status_cb{this, &AP_DroneCAN::handle_fuel_tank_status};
+    Canard::Subscriber<uavcan_equipment_ice_FuelTankStatus> fuel_tank_status_listener{fuel_tank_status_cb, _driver_index};
+#endif
+
     Canard::ObjCallback<AP_DroneCAN, uavcan_protocol_debug_LogMessage> debug_cb{this, &AP_DroneCAN::handle_debug};
     Canard::Subscriber<uavcan_protocol_debug_LogMessage> debug_listener{debug_cb, _driver_index};
 
