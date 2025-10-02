@@ -157,6 +157,28 @@ void AP_Periph_FW::init()
     }
 #endif
 
+#ifdef CPN_QC_TEST
+    
+    can_printf("CPN Test Code"); //prints to DroneCAN GUI 'debug' console
+    
+    hal.serial(0)->begin(9600);
+    hal.serial(1)->begin(9600);
+    hal.serial(2)->begin(9600);
+    hal.serial(3)->begin(9600);
+    hal.serial(4)->begin(9600);
+
+    adc5 = hal.analogin->channel(5);
+    adc6 = hal.analogin->channel(6);    
+    adc8 = hal.analogin->channel(8);
+    adc9 = hal.analogin->channel(9);
+
+    baro.init();
+    compass.init();
+    hal.rcout->init();
+    rcout_init();
+
+#endif
+
 #ifdef HAL_PERIPH_ENABLE_MAG
     compass.init();
 #endif
@@ -408,6 +430,11 @@ void AP_Periph_FW::update()
             palToggleLine(HAL_GPIO_PIN_LED);
         }
 #endif
+
+#ifdef CPN_QC_TEST
+    do_CPN_qualification_tests();
+#endif
+
 #if 0
 #ifdef HAL_PERIPH_ENABLE_GPS
         hal.serial(0)->printf("GPS status: %u\n", (unsigned)gps.status());
@@ -526,6 +553,152 @@ void AP_Periph_FW::update()
     adsb_update();
 #endif
 }
+
+// Functions for CPN QC
+#ifdef CPN_QC_TEST
+
+void AP_Periph_FW::do_CPN_qualification_tests() {
+    test_power();
+    test_baro();   
+    test_Magnetometer();
+    test_serial();
+    test_PWM();
+    //test_Heartbeat();
+}
+
+void AP_Periph_FW::test_power() {
+    char ADC_status = 'N';
+
+    #define ADC5_FACTOR 0.002864
+    /* Test ADC inputs */
+    adc_read_val = adc5->read_average();
+    ADC_status = (adc_read_val > ADC5_READ_MIN && adc_read_val < ADC5_READ_MAX) ? 'Y' : 'N';
+    if (adc_read_val > 0)
+        can_printf("CX:ADC 5,(%c) %.2f", ADC_status, adc_read_val);
+
+    adc_read_val = adc6->read_average();
+    ADC_status = (adc_read_val > ADC6_READ_MIN && adc_read_val < ADC6_READ_MAX) ? 'Y' : 'N';
+    if (adc_read_val > 0)
+        can_printf("CX:ADC 6,(%c) %.2f", ADC_status, adc_read_val);
+
+    adc_read_val = adc8->read_average();
+    ADC_status = (adc_read_val > ADC8_READ_MIN && adc_read_val < ADC8_READ_MAX) ? 'Y' : 'N';
+    if (adc_read_val > 0)
+        can_printf("CX:ADC 8,(%c) %.2f", ADC_status, adc_read_val);
+
+    adc_read_val = adc9->read_average();
+    ADC_status = (adc_read_val > ADC9_READ_MIN && adc_read_val < ADC9_READ_MAX) ? 'Y' : 'N';
+    if (adc_read_val > 0)
+        can_printf("CX:ADC 9,(%c) %.2f", ADC_status, adc_read_val);
+}
+
+void AP_Periph_FW::test_baro() {
+    baro.update();
+    char baro_status = (baro.healthy() == 1) ? 'Y' : 'N';
+    can_printf("CX:BARO,(%c) P=%.0f T=%.0f\n", baro_status, baro.get_pressure(), baro.get_temperature());
+}
+
+void AP_Periph_FW::test_Magnetometer() {
+    compass.read();
+    const Vector3f &field = compass.get_field();
+    can_printf("CX:MAG (%d,%d,%d)\n", int(field.x), int(field.y), int(field.z));
+}
+
+void AP_Periph_FW::test_serial() {
+    char test_serial = 'N';
+    /* Test UART */
+
+    if (hal.serial(0) != nullptr) {
+        hal.serial(0)->write("UART0");
+    }
+    if (hal.serial(1) != nullptr) {
+        hal.serial(1)->write("UART1");
+    }
+    if (hal.serial(2) != nullptr) {
+        hal.serial(2)->write("UART2");
+    }
+    if (hal.serial(3) != nullptr) {
+        hal.serial(3)->write("UART3");
+    }
+    if (hal.serial(4) != nullptr) {
+        hal.serial(4)->write("UART4");
+    }
+
+    // if (hal.serial(0)->available() > 0)
+    {
+        uart_num_bytes_read = hal.serial(0)->read(cpn_test_buffer, 5);
+        test_serial = (uart_num_bytes_read == 5) ? 'Y' : 'N';
+        // if (uart_num_bytes_read > 0)
+        can_printf("CX:UART0: (%c) %s", test_serial, cpn_test_buffer);
+    }
+    // if (hal.serial(1)->available() > 0)
+    {
+        uart_num_bytes_read = hal.serial(1)->read(cpn_test_buffer, 5);
+        test_serial = (uart_num_bytes_read == 5) ? 'Y' : 'N';
+        // if (uart_num_bytes_read > 0)
+        can_printf("CX:UART1: (%c) %s", test_serial, cpn_test_buffer);
+    }
+    // if (hal.serial(2)->available() > 0)
+    {
+        uart_num_bytes_read = hal.serial(2)->read(cpn_test_buffer, 5);
+        test_serial = (uart_num_bytes_read == 5) ? 'Y' : 'N';
+        // if (uart_num_bytes_read > 0)
+        can_printf("CX:CN7 UART2: (%c) %s", test_serial, cpn_test_buffer);
+    }
+    // if (hal.serial(3)->available() > 0)
+    {
+        uart_num_bytes_read = hal.serial(3)->read(cpn_test_buffer, 5);
+        test_serial = (uart_num_bytes_read == 5) ? 'Y' : 'N';
+        // if (uart_num_bytes_read > 0)
+        can_printf("CX:CN6 UART3: (%c) %s", test_serial, cpn_test_buffer);
+    }
+    // if (hal.serial(4)->available() > 0)
+    {
+        uart_num_bytes_read = hal.serial(4)->read(cpn_test_buffer, 5);
+        test_serial = (uart_num_bytes_read == 5) ? 'Y' : 'N';
+        // if (uart_num_bytes_read > 0)
+        can_printf("UART4: (%c) %s", test_serial, cpn_test_buffer);
+    }
+}
+
+void AP_Periph_FW::test_PWM() {
+    /* Test PWM output */
+    if (pwm_is_incr) {
+        (pwm_curr_val >= PWM_MAX) ? (pwm_is_incr = false) : (pwm_curr_val += PWM_STEP);
+    }
+    else {
+        (pwm_curr_val <= PWM_MIN) ? (pwm_is_incr = true) : (pwm_curr_val -= PWM_STEP);
+    }
+
+    periph.rcout_handle_safety_state(255);
+    hal.util->set_soft_armed(1);
+
+    int16_t data[20] = {pwm_curr_val, pwm_curr_val, pwm_curr_val, pwm_curr_val, pwm_curr_val, pwm_curr_val, pwm_curr_val, pwm_curr_val};
+    periph.rcout_esc(data, 8);
+
+    can_printf ("CX:PWM v, %d", pwm_curr_val);
+}
+
+// void AP_Periph_FW::test_Heartbeat() {
+//     uint32_t now = AP_HAL::millis();
+
+//     // const uint32_t led_pattern = 0xB6AAD5B6; /* Morse code for "Pilot = .__. .. ._.. ____" */
+//     const uint32_t led_pattern = 0xACCF0F00;
+//     const uint32_t led_change_period = 250;
+//     static uint8_t led_idx = 0;
+//     static uint32_t last_led_change;
+
+//     if ((now - last_led_change > led_change_period))
+//     {
+//         // blink LED in recognisable pattern while waiting for DNA
+//         palWriteLine(HAL_GPIO_PIN_LED, (led_pattern & (1U << led_idx)) ? 1 : 0);
+
+//         led_idx = (led_idx + 1) % 32;
+//         last_led_change = now;
+//     }
+// }
+
+#endif
 
 #ifdef HAL_PERIPH_LISTEN_FOR_SERIAL_UART_REBOOT_CMD_PORT
 // check for uploader.py reboot command

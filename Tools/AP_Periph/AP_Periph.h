@@ -103,6 +103,12 @@
 #undef HAL_PERIPH_LISTEN_FOR_SERIAL_UART_REBOOT_CMD_PORT
 #endif
 
+#ifdef CPN_QC_TEST
+#define PWM_MIN 100
+#define PWM_MAX 20000
+#define PWM_STEP 4000
+#endif 
+
 #include "Parameters.h"
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
@@ -177,6 +183,39 @@ public:
 #ifdef HAL_PERIPH_ENABLE_EFI
     void can_efi_update();
 #endif
+
+#ifdef CPN_QC_TEST
+    
+    #define ADC5_READ_MIN 2800
+    #define ADC5_READ_MAX 3100
+    #define ADC6_READ_MIN 2700
+    #define ADC6_READ_MAX 3000
+    #define ADC8_READ_MIN 7.8
+    #define ADC8_READ_MAX 9.8
+    #define ADC9_READ_MIN 80
+    #define ADC9_READ_MAX 95
+
+    void do_CPN_qualification_tests();
+    void test_power();
+    void test_baro();
+    void test_Magnetometer();
+    void test_serial();
+    void test_PWM();
+    //void test_Heartbeat();
+
+    uint8_t uart_num_bytes_read;
+    uint8_t cpn_test_buffer[10];
+    float adc_read_val = 0.0;
+    int16_t pwm_curr_val = 0;
+    bool pwm_is_incr = true;
+
+    AP_HAL::AnalogSource *adc5;
+    AP_HAL::AnalogSource *adc6;
+    AP_HAL::AnalogSource *adc8;
+    AP_HAL::AnalogSource *adc9;
+
+#endif
+
 
 #ifdef HAL_PERIPH_LISTEN_FOR_SERIAL_UART_REBOOT_CMD_PORT
     void check_for_serial_reboot_cmd(const int8_t serial_index);
