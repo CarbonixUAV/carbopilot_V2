@@ -243,7 +243,11 @@ local function set_engine_state(stop_detected)
     -- Change the detected state of the engine after the timeout period has passed
     local delay = stop_detected and STOPDELAY:get() or STRTDELAY:get()
     if utilities.get_time_sec() - engine_change_time > delay then
-        gcs:send_text(2, "Engine " .. (stop_detected and "out" or "running"))
+        if arming:is_armed() then
+            -- Since we always mark as running while disarmed, only send these
+            -- alerts while armed
+            gcs:send_text(2, "Engine " .. (stop_detected and "out" or "running"))
+        end
         engine_stopped = stop_detected
         engine_change_time = nil
     end
