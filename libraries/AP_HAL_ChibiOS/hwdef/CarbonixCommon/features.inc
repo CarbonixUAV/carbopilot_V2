@@ -616,3 +616,4 @@ define AP_VIDEOTX_ENABLED 0
 # (not found in build_options.py, so not settable on custom build server)
 define AP_ICENGINE_TCA9554_STARTER_ENABLED 1
 define AP_MAVLINK_FAILURE_CREATION_ENABLED 0
+define AP_DRONECAN_LOG_CSVI_ENABLED 1
