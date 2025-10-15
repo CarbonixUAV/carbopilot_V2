@@ -334,8 +334,8 @@ private:
 #endif
 
 #if AP_DRONECAN_LOG_CSVI_ENABLED
-    Canard::ObjCallback<AP_DroneCAN, uavcan_equipment_power_CircuitStatus> actuator_circuit_status_cb{this, &AP_DroneCAN::handle_actuator_circuit_status};
-    Canard::Subscriber<uavcan_equipment_power_CircuitStatus> actuator_circuit_status_listener{actuator_circuit_status_cb, _driver_index};
+    Canard::ObjCallback<AP_DroneCAN, uavcan_equipment_power_CircuitStatus> circuit_status_cb{this, &AP_DroneCAN::handle_circuit_status};
+    Canard::Subscriber<uavcan_equipment_power_CircuitStatus> circuit_status_listener{circuit_status_cb, _driver_index};
 #endif
 
     Canard::ObjCallback<AP_DroneCAN, uavcan_protocol_debug_LogMessage> debug_cb{this, &AP_DroneCAN::handle_debug};
@@ -394,7 +394,7 @@ private:
 #endif
 
 #if AP_DRONECAN_LOG_CSVI_ENABLED
-    void handle_actuator_circuit_status(const CanardRxTransfer& transfer, const uavcan_equipment_power_CircuitStatus& msg);
+    void handle_circuit_status(const CanardRxTransfer& transfer, const uavcan_equipment_power_CircuitStatus& msg);
 #endif
     
     // incoming button handling

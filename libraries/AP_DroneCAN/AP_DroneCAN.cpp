@@ -1385,22 +1385,15 @@ void AP_DroneCAN::handle_actuator_status(const CanardRxTransfer& transfer, const
 
 
 #if AP_DRONECAN_LOG_CSVI_ENABLED
-void AP_DroneCAN::handle_actuator_circuit_status(const CanardRxTransfer& transfer, const uavcan_equipment_power_CircuitStatus& msg)
+void AP_DroneCAN::handle_circuit_status(const CanardRxTransfer& transfer, const uavcan_equipment_power_CircuitStatus& msg)
 {
 
 #if HAL_LOGGING_ENABLED
-    // log as CSRV message
-    AP::logger().Write_ServoStatus(AP_HAL::micros64(),
-                                msg.circuit_id,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
+    // log as CSVI message
+    AP::logger().Write_CircuitStatus(AP_HAL::micros64(),
+                                msg.circuit_id,                               
                                 msg.voltage,                               
                                 msg.current,
-                                0,
-                                0,
                                 msg.error_flags);
 #endif
 }

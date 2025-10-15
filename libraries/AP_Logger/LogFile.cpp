@@ -475,6 +475,21 @@ void AP_Logger::Write_ServoStatus(uint64_t time_us, uint8_t id, float position, 
     WriteBlock(&pkt, sizeof(pkt));
 }
 
+/*
+  write Circuit status
+ */
+ void AP_Logger::Write_CircuitStatus(uint64_t time_us, uint16_t id, float voltage, float current, uint8_t error)
+ {        
+    const struct log_CSVI pkt{
+        LOG_PACKET_HEADER_INIT(LOG_CSVI_MSG),
+        time_us         : time_us,
+        id              : id,
+        voltage         : voltage,
+        current         : current,
+        error           : error,
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+ }
 
 // Write a Yaw PID packet
 void AP_Logger::Write_PID(uint8_t msg_type, const AP_PIDInfo &info)
